@@ -1,0 +1,14 @@
+# Framework Format Version
+#
+# This file is tracked in git alongside the framework templates.
+# Bump FORMAT_VERSION when template structure changes in a way that
+# breaks backward compatibility (new required files, new required H2
+# sections, new required fields, naming convention changes).
+#
+# Minor additions (new optional entries in existing sections) do NOT
+# require a version bump — those are handled by sync-enrich.
+
+FORMAT_VERSION: 2
+LAST_UPDATED: 2026-06-08
+SUMMARY: workspace-sync + check-compat + ensure-compat + sync-enrich + three-layer manuscript system + character state tracking + pre-flight-check
+COMPATIBLE_SINCE: v2.0

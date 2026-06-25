@@ -1,0 +1,18 @@
+# 小说内容（不纳入版本管理，保留本地目录）
+novel/*
+
+# 参考文件（不纳入版本管理）
+reference/*
+
+!reference/README.md
+
+# 作者风格档案（不纳入版本管理，保留本地）
+profiles/authors/*
+
+!profiles/authors/_index.md
+
+# 本地配置覆盖
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scripts/__pycache__/
+.claude/_trace/
