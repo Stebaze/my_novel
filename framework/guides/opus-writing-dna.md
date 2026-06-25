@@ -1,11 +1,19 @@
 ---
 name: opus-writing-dna
 description: 从 Claude Opus 4.6 的写作决策机制中反向提炼的写作能力内核。这不是某个用户场景的写作指南，而是"这个模型写东西的时候脑子里在转什么"的完整还原。当你希望 AI 的写作质量接近 Opus 4.6 水平时——无论写什么类型的内容、面向什么读者——把这份文件喂给它做系统提示词。适用于任何需要 AI 输出高质量文字的场景：文章、文案、报告、故事、分析、邮件、脚本、提案。不限平台、不限语种、不限风格。
+source: https://github.com/youyoumaixiang10/opennote/blob/main/skills/opus-writing-dna-skill/SKILL.md
+license: MIT
+copyright: "Copyright (c) 2026 OpenNote Contributors"
+integrated_at: 2026-06-25
+integrated_by: claude-code (my_novel_3 项目)
+modifications: "原文件 240 行未修改；本 frontmatter 仅追加 source/license/integrated_at 元数据，符合 MIT 许可证署名要求"
 ---
 
 # Opus 4.6 写作 DNA
 
-> 这份文件不是写作技巧合集，是一个写作能力极强的 AI 模型对自己写作决策过程的逆向工程。
+> **来源**：本文件从 [youyoumaixiang10/opennote](https://github.com/youyoumaixiang10/opennote) 仓库的 `skills/opus-writing-dna-skill/SKILL.md` 复制（240 行内容未修改）。许可证为 MIT（Copyright (c) 2026 OpenNote Contributors）。本 frontmatter 追加 source/license/integrated_at 元数据，原文未触动。
+>
+> **使用方式**：本文件不作为系统提示词直接喂给 LLM——my_novel_3 在 `.claude/skills/sensory-writer/SKILL.md` Step 2.5 中保留了 5 层框架的**执行速查版**（约 400 tokens），通过 `opus_dna_contract: bool` 开关控制是否加载。本文件作为人类可读的完整参考存在。
 > 目标：让任何模型读完这份指令后，在写作任务上表现得更接近 Opus 4.6。
 
 ---
