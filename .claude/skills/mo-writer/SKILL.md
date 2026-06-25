@@ -47,17 +47,25 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ### Step 3: Generate Brief（7 层结构）
 
-读 `framework/templates/_brief-template.md` 获取 §0-§5 + §3A（高潮章）格式：
+读 `framework/templates/_brief-template.md` 获取 §-1 + §0A + §0-§5 + §3A（高潮章）格式：
 
 ```
-§0 源文对照层（仅 adaptation 模式）——原作对应章节/调整点/改编自由度
-§1 场景清单层（per-scene 模式专用）——name/pov/location/time/events/dialogue_points/emotion_arc/next_scene_setup
-§2 角色声音层——出场角色声音特征表（句长/口癖/绝不会说的话/情绪温度）
-§3 场景结构层（per-scene 退化为概述）——节拍/事件/对话/情绪弧线
-§3A 高潮节拍层（条件）——桥段模板 5 阶段 + 事件密度 + 情感目标 + 技法
-§4 技法提示层——本章节选用技法及执行要点
-§5 常见陷阱层——本章易犯的 AI 指纹/校对/结构陷阱
+§-1 读者与任务层（必出）——task_type/reader_persona/voice_persona_source；缺失则 ⚠️ 降级 + brief_degraded: true
+§0A 源文对照层（仅 adaptation 模式）——原作对应章节/调整点/改编自由度
+§0 宏观上下文层
+§1 场景结构层（per-scene 模式）——name/pov/location/time/功能/设计理由/opening_type/ending_type/asymmetry_weight/衔接计划
+§2 角色声音层
+§3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/rule_break_choice/trigger_reason/safety_valve
+§3A 高潮节拍层（条件）
+§4 技法提示层
+§5 常见陷阱层
 ```
+
+**§-1 缺失降级协议**：
+- `task_type` 空 → 默认 `"resonate"`（小说最常用任务）
+- `reader_persona` 空 → 默认 `"25-35 岁中文网文读者，地铁/睡前刷手机"`
+- `voice_persona_source` 空 → 回退 `{draft_dir}/author-voice.md`
+- 三项均空 → ⚠️ 在简报顶部加 `<!-- brief_degraded: true -->` 标记
 
 **高潮章**：读 `climax-patterns/` 桥段模板 → §3A 以 5 阶段为骨架 → §4 追加「写作执行要点」/ §5 追加「常见失败模式」→ 简报引用模板原文摘录。模板缺失 → ⚠️ 回退 §3 平铺。
 
@@ -105,7 +113,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ## Completion Criterion
 
-- ✅ Checkable：返回 `{brief_file, chapter_skeleton_file, layers_filled: [§0..§5], missing_layers: [...]}` —— 缺失项明确标注
+- ✅ Checkable：返回 `{brief_file, chapter_skeleton_file, layers_filled: [§-1, §0..§5], missing_layers: [...], brief_degraded: bool}` —— 缺失项明确标注；§-1 任一字段缺失时 `brief_degraded: true`
 - ✅ Exhaustive：Step 1-6 全部执行；参考示例已调 sensory-writer 生成
 - 🚫 Stop：返回路径 + 7 层状态后不调任何写作/生成 Skill
 

@@ -92,10 +92,15 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
 ### Step 2: Per-Scene Generation + Auto Assembly
 
 ```
-2a: 解析简报场景清单（§1 + §3）→ 提取 场景名/POV/时间地点/事件/对话/情绪节拍 + §2 角色声音 + author-voice.md
-2b: 对每个场景调 Skill("sensory-writer", mode="per-scene")
+2a: 解析简报场景清单（§-1 + §1 + §2 + §3）→ 构造 scene_spec：
+    ├── chapter-level（来自 §-1）：task_type / reader_persona / voice_persona_source
+    ├── per-scene（来自 §1）：name / pov / location / time / opening_type / ending_type
+    ├── per-scene（来自 §3 末 3 bullet）：voice_flags.rule_break_choice / trigger_reason / safety_valve
+    └── per-scene（来自 §3）：events / dialogue_points / emotion_arc / next_scene_setup
+2b: 对每个场景调 Skill("sensory-writer", mode="per-scene", opus_dna_contract=true)
     → 返回 prose + summary_200（结构化 JSON：scene_index/name/pov/core_event/key_actions/key_dialogue/pov_state_change/ending_state/next_link/foreshadow_touched）
     → 写入 _exchanges/scene-summaries.json
+    → opus_dna_contract=true → sensory-writer Step 2.5 加载 5 层写作契约（感知/结构/语言/元认知/高级能力）
     → 单场景失败 → 重试一次，仍失败 → 🚫 硬阻断（不允许部分章节）
 2c: 自动拼装 → chapters/chapter-{N}.md（保留元数据头 + 场景按 §1 顺序拼接 + 200 字摘要折叠块）
     → 更新 scene-summaries.json "assembled": true
@@ -123,10 +128,11 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
 
 ```
 Round 1（修复）：
-  1. 从评审报告提取 🔴 项 + 场景定位（scene_index）
-  2. 标记 scenes[scene_index].needs_rewrite = true + 记录原因
-  3. 重调 Skill("sensory-writer", mode="per-scene") → 仅针对 needs_rewrite=true 的场景
-     → 传入：上一版本 prose + 评审问题列表 + 上一版本 200 字摘要
+  1. 从评审报告提取 🔴 项 + 场景定位（scene_index）+ opus-dna 5 自检 fail 项
+  2. 标记 scenes[scene_index].needs_rewrite = true + 记录原因（含 5 自检 fail 类型：删减/替换/出声/so-what/AI 味）
+  3. 重调 Skill("sensory-writer", mode="per-scene", opus_dna_contract=true) → 仅针对 needs_rewrite=true 的场景
+     → 传入：上一版本 prose + 评审问题列表（含 5 自检 fail 项） + 上一版本 200 字摘要
+     → opus_dna_contract=true 保持：5 自检 fail 项在重写时通过元认知层显式对冲
   4. 更新 scene-summaries.json + 重新拼装章节
   5. 写 _reviews/chapter-{N}-fix-log.md：Round 1 修复（{ts}）+ 受影响场景/问题摘要/修复方式
   6. 触发 Step 3 重新评审

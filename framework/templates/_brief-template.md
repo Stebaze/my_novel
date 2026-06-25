@@ -1,5 +1,8 @@
 ---
 sections:
+  - heading: "## §-1 读者与任务层"
+    skills: [mo-writer, plan-chapter]
+    desc: "写作决策锚——任务类型/读者具象/声音人设来源；缺失则简报降级为'无目标写作'"
   - heading: "## §0A 源文对照层（仅改编模式）"
     skills: [mo-writer, adaptation-workflow]
     desc: "改编模式专用——改写深度、保留/改变/新增清单、细节匹配规则"
@@ -8,13 +11,13 @@ sections:
     desc: "主线阶段、篇章位置、角色弧光快照、伏笔操作清单——简报的宏观锚定"
   - heading: "## §1 场景结构层"
     skills: [mo-writer, plan-chapter]
-    desc: "场景表——场景名/功能/设计理由/衔接计划"
+    desc: "场景表——场景名/pov/location/time/功能/设计理由/opening_type/ending_type/asymmetry_weight/衔接计划"
   - heading: "## §2 角色状态层"
     skills: [mo-writer, plan-chapter]
     desc: "出场角色当前状态/本章动机/情感弧线/弧光任务"
   - heading: "## §3 关键节拍层"
     skills: [mo-writer]
-    desc: "每场景必须发生的事件/必须传达的信息/对话关键点/情绪节拍/场景图像"
+    desc: "每场景必须发生的事件/必须传达的信息/对话关键点/情绪节拍/场景图像/rule_break_choice/trigger_reason/safety_valve"
   - heading: "## §4 技法提示层"
     skills: [mo-writer]
     desc: "选用技法/操作要领/执行提醒"
@@ -33,7 +36,27 @@ sections:
 
 > 墨（mo-writer）生成写作简报时使用此模板。简报服务于人类作者：具体而非抽象、启发而非指令、展示而非告知。
 >
+> **感知层契约**（§-1，2026-06-25 集成 opus-writing-dna）：动笔前先回答"写给谁/为什么写/以谁声音写"三件事。缺失则 sensory-writer 走"无读者默认风格"兜底。
+>
 > **改编模式**（mode="adaptation"）时，在标准 §0 之前增加「§0A 源文对照层」。
+
+## §-1 读者与任务层
+
+> 写作决策锚——这一节是后续所有选择的源头。
+> 缺失/空值 → ⚠️ 简报降级为"无目标写作"，sensory-writer 走默认风格。
+
+- **任务类型**（task_type）：[convince / explain / resonate / decide-help / record] — 本章的核心写作任务是什么
+  - convince：让读者改变想法/行动
+  - explain：让读者理解一个机制/事件
+  - resonate：让读者感到"有人懂我"
+  - decide-help：在 A/B 中帮读者看清
+  - record：准确有温度地记录发生过的事
+- **读者具象**（reader_persona）：一句话描述一个具体的人 —— 年龄 + 职业 + 此刻遇到的事
+  - 例：32 岁产品经理，最近在犹豫要不要转管理岗，地铁上刷手机看书
+  - 例：50 岁退休教师，陪老伴住院的间隙读小说打发时间
+- **声音人设来源**（voice_persona_source）：路径 → `{draft_dir}/voice-bible.md`；缺失回退 `author-voice.md`
+
+⚠️ 三项任一为空时降级：sensory-writer 走 "无读者默认风格" 兜底，handoff 标记 `brief_degraded: true`
 
 ## §0A 源文对照层（仅改编模式）
 
@@ -52,8 +75,14 @@ sections:
 
 ## §1 场景结构层
 
-| # | 场景名 | 功能 | 设计理由 | 衔接计划 |
-|---|--------|------|---------|---------|
+| # | 场景名 | pov | location | time | 功能 | 设计理由 | opening_type | ending_type | asymmetry_weight | 衔接计划 |
+|---|--------|-----|----------|------|------|---------|--------------|-------------|------------------|---------|
+
+**本章不对称分布**：[key scene 场景#] 占比 ~[50+]% / 支撑场景 ~[30]% / 缓冲场景 ~[15]%
+
+> opening_type 取值：认知缺口 / 共鸣 / 结果 / 冲突
+> ending_type 取值：闭环 / 开放问题 / 静默 / 停在最有力
+> asymmetry_weight：high / medium / low（high = 关键场景占 50%+ 篇幅）
 
 ## §2 角色状态层
 
@@ -69,6 +98,12 @@ sections:
 - **对话关键点**：
 - **情绪节拍**：
 - **场景图像**：
+- **rule_break_choice**：[长句沉浸 / 抽象收束 / 对称仪式 / 不克制情感 / 不打破]（默认不打破）
+- **trigger_reason**：为什么这里选择打破——引 [§-1 任务类型] 或 [场景情绪目标]
+- **safety_valve**：打破后用什么手段回收——例：长句结尾放一个极短句做"吐气"
+
+> rule_break_choice 不打破时，trigger_reason / safety_valve 可留空。
+> 打破时三项都必须填写——不解释清楚"为什么打破 + 怎么收回" = 简报降级。
 
 ## §4 技法提示层
 
