@@ -6,55 +6,91 @@ AI 辅助长篇小说写作工程。以 Claude Code 为载体，21 个 Skill 协
 
 ## 特性
 
-- **4 session 工作流**：plan → handoff → generate → review → publish，每段独立 session 控制上下文
-- **21 个 Skill 协作**：从规划到发布的完整链路，单层 Skill 架构（Skill 可调 Skill）
+- **ask-yiyi 统一入口**：会话启动自动加载项目状态、智能推荐下一步、菜单按场景分组
+- **4-Skill 对称工作流**：plan → handoff → generate → review → publish，每段独立 session 控制上下文
+- **21 个 Skill 协作**：从冷启动到发布的完整链路，单层 Skill 架构（Skill 可调 Skill）
 - **三层稿件体系**：原稿（只读）/ 草稿（自由）/ 正式稿（已发布锁定）
 - **设定时间线管理**：所有设定按章节版本化，修改时向前扫描冲突
 - **断点续传**：通过检查磁盘产物判断进度，中断后从断点继续
 - **AI 生成整章模式**：plan → handoff → generate → review 全自动生成整章，最多 2 轮 Fix 循环
+- **改编工作流**：支持从已有作品反向提取原作画像 + 逐章改编
 
 ## 快速开始
 
 ```bash
-git clone <repo>
+git clone https://github.com/Stebaze/my_novel
 cd my_novel
 claude  # 启动 Claude Code
 ```
 
-启动后系统自动加载 `CLAUDE.md` 中的项目配置。
+启动后 **ask-yiyi 自动接管会话初始化**：
+1. 检测项目格式（migration-keeper）
+2. 加载项目状态（设定 / 草稿 / 章节进度）
+3. 给出 5 字段摘要 + 智能推荐下一步
 
 **5 分钟上手**：
 
 | 你想做的事 | 说什么 |
 |-----------|--------|
 | 写新章节 | "写第X章" |
+| AI 生成整章 | "继续" / "/generate-chapter {N}" |
 | 评审章节 | "评审第X章" |
 | 发布章节 | "发布第X章" |
 | 导入已有章节 | "导入章节" |
 | 冷启动项目 | "初始化项目" |
 | 改编作品 | "改编这个作品" |
+| 答疑 | "/ask-yiyi qa" / "怎么用" |
 
 完整操作指南见 [`用户使用指南.md`](用户使用指南.md)。
 
-## 4 session 工作流
+## ask-yiyi 统一入口
+
+ask-yiyi 是会话级入口，启动后自动加载。**5 种操作**：
+
+| 操作 | 触发词 | 用途 |
+|------|--------|------|
+| `init` | 会话启动（自动）| 加载项目状态 + 给出摘要 + 推荐下一步 |
+| `route` | `/ask-yiyi` / "创作工坊" / "工坊" | 列出主菜单并路由 |
+| `next` | "继续" / "下一步" | 根据状态机直接给推荐操作 |
+| `qa` | `/ask-yiyi qa` / "怎么用" | 答疑（工具用法）|
+| `qa check` | `/ask-yiyi qa check` / "检查" | 异常审计 |
+
+**主菜单三组**：
+- **继续写这本书**：plan-chapter / generate-chapter / chapter-review / publish-chapter / import-chapter
+- **创建新书**：bootstrap-project / adaptation-workflow
+- **其他工具**：idea-explorer / qing-novelist / qa / qa check
+
+**状态机 → 智能建议**（init 时根据磁盘工件自动判断）：
+
+| 状态 | 推荐 |
+|------|------|
+| `NO_PROJECT` | bootstrap / adaptation |
+| `NO_HANDBOFF` | plan-chapter |
+| `BRIEF_READY` | generate-chapter |
+| `CHAPTER_WRITTEN_NO_REVIEW` | chapter-review |
+| `REVIEWED` | publish-chapter |
+| `ANOMALY` | qa check |
+
+## 4-Skill 对称工作流
 
 ```
 SESSION 1 — 规划（plan）
   /plan-chapter {N}
-    ├── 前置检查 + 设定快照 + 草稿初始化
+    ├── 前置检查 (C0-C8) + 设定快照 + 草稿初始化
     ├── 五更启发式交谈 → 方向卡
     └── Handoff 输出
 
-[HANDOFF] 新会话 /generate-chapter {N}
+[HANDOFF] 用户开新会话
 
 SESSION 2 — 生成（generate）
   /generate-chapter {N}
-    ├── 写作简报（mo-writer）
-    ├── AI 生成整章（sensory-writer per-scene + 200字摘要）
-    ├── 自动评审（chapter-review ai-content）
+    ├── 写作简报 (mo-writer)
+    ├── AI 生成整章 (sensory-writer per-scene + 200字摘要)
+    ├── 自动评审 (chapter-review ai-content)
     └── 最多 2 轮 Fix 循环
 
-SESSION 3 — 人工复审（可选）
+[USER 轻编辑 — 可选]
+SESSION 3 — 人工复审
   /chapter-review {N}（writing mode）
 
 SESSION 4 — 发布（publish）
@@ -67,6 +103,7 @@ SESSION 4 — 发布（publish）
 
 | Skill | 触发词 | 一句话功能 |
 |-------|--------|-----------|
+| **ask-yiyi** | （会话启动）| 统一入口：会话初始化 + 路由 + QA + 智能推荐 |
 | **plan-chapter** | 写第X章 | 章节规划（系统管道 + 五更交谈 + handoff）|
 | **generate-chapter** | /generate-chapter {N} | AI 生成整章（简报 + per-scene + 评审 + Fix）|
 | **chapter-review** | 评审第X章 | 3 mode 评审（writing/ai-content/adaptation）|
@@ -78,7 +115,6 @@ SESSION 4 — 发布（publish）
 | **settings-manager** | （系统调用）| 设定读取/写入/合并/角色状态 |
 | **file-manager** | （系统调用）| 三层文件补齐 |
 | **migration-keeper** | （系统调用）| 格式检测 + 兼容性 + 迁移 |
-| **ask-yiyi** | （会话启动）| 会话初始化管道（检测/同步/进度）|
 | **mo-writer** | （系统调用）| 7 层写作简报生成 |
 | **sensory-writer** | （系统调用）| 感官锚定 AI 章节生成（single/per-scene）|
 | **ping-critic** | （系统调用）| 综合评审（心流 + 指纹 + 校对 + 三维）|
@@ -91,22 +127,28 @@ SESSION 4 — 发布（publish）
 
 ## 文档导航
 
-- **[用户使用指南.md](用户使用指南.md)** —— 作者视角的完整操作手册
+- **[用户使用指南.md](用户使用指南.md)** —— 作者视角的完整操作手册（ask-yiyi 入口视角）
 - **[CLAUDE.md](CLAUDE.md)** —— Agent 视角的强制规则 + 工作流图
 - **[framework/_specs/interaction-spec.md](framework/_specs/interaction-spec.md)** —— Skill 命名/调用/handoff 协议
 - **[framework/_specs/skill-template.md](framework/_specs/skill-template.md)** —— Skill 5 必含字段模板
+- **[framework/guides/](framework/guides/)** —— 17 篇方法论文档
+- **[framework/templates/](framework/templates/)** —— 初始化模板 + 高潮模式库
 
 ## 项目结构
 
 ```
 my_novel/
 ├── CLAUDE.md                  # 8 条强制规则 + 工作流
-├── 用户使用指南.md              # 作者操作手册
+├── 用户使用指南.md              # 作者操作手册（ask-yiyi 视角）
 ├── .claude/skills/            # 21 个 Skill 定义
 ├── framework/                 # 通用框架（specs/guides/templates）
+│   ├── _specs/                # 协议 + 模板
+│   ├── guides/                # 方法论 17 篇
+│   └── templates/             # 初始化模板 + 高潮模式库
+├── reference/                 # 原作存放点（用户上传）
 └── novel/                     # 当前小说实例（⚠️ 不在 git 中）
 ```
 
 ## 许可
 
-MIT
+Apache-2.0
