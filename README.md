@@ -1,19 +1,21 @@
 # my_novel
 
-AI 辅助长篇小说写作工程。以 Claude Code 为载体，21 个 Skill 协作完成大纲规划、写作简报、AI 生成、综合评审到发布的完整流程。
+AI 辅助长篇小说写作工程。以 Claude Code 为载体，22 个 Skill 协作完成书级大纲、章节规划、写作简报、AI 生成、综合评审到发布的完整流程。
 
 > **AI 不写正文**——产出写作简报和修改报告，笔始终在你手里。
 
 ## 特性
 
 - **ask-yiyi 统一入口**：会话启动自动加载项目状态、智能推荐下一步、菜单按场景分组
+- **书级前置 → 章节循环**：outline-tingle（premise→L1→L2→L3）先形成大纲，再进 4-Skill 章节循环
 - **4-Skill 对称工作流**：plan → handoff → generate → review → publish，每段独立 session 控制上下文
-- **21 个 Skill 协作**：从冷启动到发布的完整链路，单层 Skill 架构（Skill 可调 Skill）
+- **22 个 Skill 协作**：从冷启动到发布的完整链路，单层 Skill 架构（Skill 可调 Skill）
 - **三层稿件体系**：原稿（只读）/ 草稿（自由）/ 正式稿（已发布锁定）
 - **设定时间线管理**：所有设定按章节版本化，修改时向前扫描冲突
 - **断点续传**：通过检查磁盘产物判断进度，中断后从断点继续
 - **AI 生成整章模式**：plan → handoff → generate → review 全自动生成整章，最多 2 轮 Fix 循环
 - **改编工作流**：支持从已有作品反向提取原作画像 + 逐章改编
+- **单场景模式**：每章场景数配置驱动，移动端减负
 
 ## 快速开始
 
@@ -32,6 +34,7 @@ claude  # 启动 Claude Code
 
 | 你想做的事 | 说什么 |
 |-----------|--------|
+| 从零写新书（先形成大纲）| "从零写新书" / "形成大纲" / `/outline-tingle` |
 | 写新章节 | "写第X章" |
 | AI 生成整章 | "继续" / "/generate-chapter {N}" |
 | 评审章节 | "评审第X章" |
@@ -57,26 +60,39 @@ ask-yiyi 是会话级入口，启动后自动加载。**5 种操作**：
 
 **主菜单三组**：
 - **继续写这本书**：plan-chapter / generate-chapter / chapter-review / publish-chapter / import-chapter
-- **创建新书**：bootstrap-project / adaptation-workflow
+- **创建新书**：bootstrap-project / outline-tingle / adaptation-workflow
 - **其他工具**：idea-explorer / qing-novelist / qa / qa check
 
 **状态机 → 智能建议**（init 时根据磁盘工件自动判断）：
 
 | 状态 | 推荐 |
 |------|------|
-| `NO_PROJECT` | bootstrap / adaptation |
+| `NO_PROJECT` | bootstrap / outline-tingle / adaptation |
+| `OUTLINE_MISSING` | outline-tingle（书级大纲未填实，🟡 软阻断） |
 | `NO_HANDBOFF` | plan-chapter |
 | `BRIEF_READY` | generate-chapter |
 | `CHAPTER_WRITTEN_NO_REVIEW` | chapter-review |
 | `REVIEWED` | publish-chapter |
 | `ANOMALY` | qa check |
 
-## 4-Skill 对称工作流
+**书级阶段判定**（`outline.md` frontmatter `workflow_position`）：
+- 缺失/空 → 大纲未形成（📝 建议 outline-tingle）
+- `outline-tingle-step1-done` → Session 1 完成（🌱）
+- `outline-tingle-l1-confirmed` → L1 已确认（🌿）
+- `outline-tingle-step2-done` → 大纲形成完成（🌳，可进 plan-chapter）
+
+## 书级前置 + 4-Skill 对称工作流
 
 ```
+SESSION 0 — 书级大纲形成（首次规划前必跑）
+  /outline-tingle
+    Session 1：premise → 主题 → L1
+    Session 2：L2 → L3 → outline.md (workflow_position=outline-tingle-step2-done)
+  改编流由 adaptation-workflow 阶段 0.5 编排（mode="adaptation"）
+
 SESSION 1 — 规划（plan）
   /plan-chapter {N}
-    ├── 前置检查 (C0-C8) + 设定快照 + 草稿初始化
+    ├── 前置检查 (C0-C9) + 设定快照 + 草稿初始化
     ├── 五更启发式交谈 → 方向卡
     └── Handoff 输出
 
@@ -99,27 +115,30 @@ SESSION 4 — 发布（publish）
     └── 发布前琉璃校验
 ```
 
-## 21 个 Skill 入口
+> 原创项目首次规划时，pre-flight-check C9 软阻断检测 `outline.md` L1-L3 实质填充度，未填实则引导 outline-tingle。
+
+## 22 个 Skill 入口
 
 | Skill | 触发词 | 一句话功能 |
 |-------|--------|-----------|
 | **ask-yiyi** | （会话启动）| 统一入口：会话初始化 + 路由 + QA + 智能推荐 |
+| **outline-tingle** | 从零写新书 / 形成大纲 | 书级大纲形成（premise→L1→L2→L3，2 session；original/adaptation 双 mode）|
 | **plan-chapter** | 写第X章 | 章节规划（系统管道 + 五更交谈 + handoff）|
 | **generate-chapter** | /generate-chapter {N} | AI 生成整章（简报 + per-scene + 评审 + Fix）|
 | **chapter-review** | 评审第X章 | 3 mode 评审（writing/ai-content/adaptation）|
 | **publish-chapter** | 发布第X章 | 设定合并 + 草稿同步 + 琉璃校验 |
-| **adaptation-workflow** | 改编这个作品 | 原作画像 + 逐章改编循环 |
+| **adaptation-workflow** | 改编这个作品 | 原作画像 + 阶段 0.5 outline-tingle + 逐章改编循环 |
 | **bootstrap-project** | 初始化项目 | 冷启动（批量导入 + 全文逆向分析 + 工件生成）|
 | **import-chapter** | 导入章节 | 多格式导入（md/txt/docx/epub）+ 设定扫描 |
-| **pre-flight-check** | （系统调用）| C0-C8 就绪检查 + 阻断判定 |
+| **pre-flight-check** | （系统调用）| C0-C9 就绪检查 + 阻断判定 |
 | **settings-manager** | （系统调用）| 设定读取/写入/合并/角色状态 |
 | **file-manager** | （系统调用）| 三层文件补齐 |
 | **migration-keeper** | （系统调用）| 格式检测 + 兼容性 + 迁移 |
 | **mo-writer** | （系统调用）| 7 层写作简报生成 |
 | **sensory-writer** | （系统调用）| 感官锚定 AI 章节生成（single/per-scene）|
 | **ping-critic** | （系统调用）| 综合评审（心流 + 指纹 + 校对 + 三维）|
-| **qing-novelist** | （系统调用）| 12 维启发交谈 + 7 维作者分析 |
-| **idea-explorer** | （系统调用）| 7 种头脑风暴方法 |
+| **qing-novelist** | （系统调用）| 12 维启发交谈 + 7 维作者分析 + 8 维书级 grilling |
+| **idea-explorer** | （系统调用）| 7 种头脑风暴方法（章节级 + 书级 premise 发散）|
 | **voice-sculptor** | （系统调用）| 角色声音实验（生成式/挖掘式）|
 | **technique-selector** | （系统调用）| 技法智能匹配 |
 | **yin-illustrator** | （系统调用）| 场景视觉设计 + 插画 prompt |
@@ -138,9 +157,9 @@ SESSION 4 — 发布（publish）
 
 ```
 my_novel/
-├── CLAUDE.md                  # 8 条强制规则 + 工作流
+├── CLAUDE.md                  # 9 条强制规则 + 工作流
 ├── 用户使用指南.md              # 作者操作手册（ask-yiyi 视角）
-├── .claude/skills/            # 21 个 Skill 定义
+├── .claude/skills/            # 22 个 Skill 定义
 ├── framework/                 # 通用框架（specs/guides/templates）
 │   ├── _specs/                # 协议 + 模板
 │   ├── guides/                # 方法论 17 篇
