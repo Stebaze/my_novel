@@ -6,6 +6,7 @@ mode: original
 workflow_position: ""
 resume_command: /outline-tingle
 pending_confirm: []
+book_settings_dispatched: false
 sections:
   - heading: "## Premise（原始点子）"
     skills: [outline-tingle]
