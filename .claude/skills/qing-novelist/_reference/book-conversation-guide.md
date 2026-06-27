@@ -103,6 +103,49 @@ sections:
    └── 否 → 反推调整 B1 或 B2（grilling 回溯）
 ```
 
+### B9 原作对齐度——详细协议（adaptation mode 专用）
+
+> **仅 adaptation mode 激活**：本维度由 `outline-tingle mode="adaptation"` Session 2 触发，原创流（mode=original）不激活。原 8 维（B1-B8）在 adaptation mode 下全部保留激活，B9 是增量——不在 §二 的 8 维表中，单独声明。
+
+**何时激活**：L1 阶段（B1/B2/B6/B7/B8 后，作为 L1 末门禁前的最后一维）+ L2 每卷 + L3 每篇。
+
+**关键追问方向**：
+- 整体改编深度声明：本作品对原作保留多少 / 改多少 / 新增多少？（百分比或三态陈述）
+- 每条 L1 字段的三态标注：保留（与原作一致）/ 改（原作为基础调整）/ 新增（原作没有）
+- 改编深度的内在一致性：保留的部分是否构成可识别的原作骨架？改的部分是否与保留部分自洽？
+- 与 chapter-review alignment_level（严格/平衡/宽松）的对应：L1 B9 整体声明 → 逐章 alignment_level 选择的依据
+
+**产出落点**（outline.md 字段）：
+- L1「改编深度声明」（整体保留/改/新增三态陈述，50-100 字）
+- L1 每条字段附加三态标注（保留/改/新增）
+- L2 每卷附加三态标注
+- L3 每篇附加三态标注
+
+**追问序列**（grilling 范式，单一焦点持续深挖）：
+
+```
+1. 读原作画像（reference/manuscripts/_analysis/{作品名}.md）+ outline-tingle Session 1 已选定的改编主题方向
+   → 五更复述"原作的核心骨架"与"改编方向"两端
+2. 追问 1："这个改编方向下，原作的什么是必须保留的（保留就还是这本书）？"
+   → 列出"必须保留"清单（主线骨架/核心角色/关键设定/标志性场面 等）
+3. 追问 2："原作的什么是一定要改的（不改就失去改编意义）？"
+   → 列出"必须改"清单（结局/视角/主题侧重/世界观外壳 等）
+4. 追问 3："原作的什么是可以新增的（原作没有但改编需要）？"
+   → 列出"可新增"清单（新支线/新角色/新设定/新主题层次 等）
+5. 三态标注：把 L1 已填字段（B1 主题/B2 弧光/B6 规则/B7 隐喻/B8 终点画面）逐条标"保留/改/新增"
+6. 一致性校验：保留的部分能否构成可识别的原作骨架？改的部分是否与保留部分自洽？
+   ├── 是 → 产出 50-100 字改编深度声明（含三态比例 + 改编理由）→ 作者确认 → 交 outline-tingle 写入 L1
+   └── 否 → grilling 回溯调整 B1 主题或追问 1-3 的清单
+7. L2/L3 阶段对每卷/每篇重复三态标注
+```
+
+**与 chapter-review alignment_level 的关系**：B9 整体改编深度声明是 chapter-review 评审时选择 alignment_level（严格/平衡/宽松）的依据——
+- 保留 ≥ 70% → 严格对齐
+- 保留 40-70% → 平衡对齐（默认）
+- 保留 ≤ 40% → 宽松对齐
+
+**门禁交互**：adaptation mode 下，L1 末门禁 l1_ready 判定除 B1/B2/B6/B7/B8 全部填实外，还需 B9 改编深度声明已产出 + L1 字段三态标注完成。original mode 不激活 B9，l1_ready 仅判 B1/B2/B6/B7/B8。
+
 ---
 
 ## 三、L1→L2→L3 逐层收敛流程
@@ -114,18 +157,21 @@ L1 阶段（宪法层，不可暂缓）：
   ├── B8 终点画面 → L1 终点画面（与 B1/B2 交叉校验）
   ├── B6 不可违背规则 → L1 不可违背的规则（3-5 条带编号）
   ├── B7 核心隐喻 → L1 核心隐喻/意象
-  └── 【L1 末门禁】B1/B2/B6/B7/B8 全部填实 → l1_ready=true → 进 L2
+  ├── B9 原作对齐度（**adaptation mode only**）→ L1 改编深度声明 + L1 字段三态标注
+  └── 【L1 末门禁】B1/B2/B6/B7/B8 全部填实（adaptation mode 额外要求 B9）→ l1_ready=true → 进 L2
       任一含 `（待定）` → l1_ready=false → outline-tingle 拦截（不可暂缓）
 
 L2 阶段（分卷层）：
   ├── 扫描 outline.md L1「计划卷数/总字数」→ 确定卷数
   ├── 逐卷激活 B3（分卷核心问题）→ 每卷 卷主题/情感目标/剧情目标/大高潮/卷末状态/本卷新角色
-  └── B5 关系里程碑（卷级）→ L2 角色弧光阶段
+  ├── B5 关系里程碑（卷级）→ L2 角色弧光阶段
+  └── B9 三态标注（**adaptation mode only**）→ L2 每卷附加"保留/改/新增"
 
 L3 阶段（篇章层，每卷内）：
   ├── 逐卷扫描 L2 → 每卷分若干篇章（每篇 5-7 章）
   ├── 逐篇激活 B4（篇章高潮分布）→ 篇章功能/核心问题/关键事件链/角色聚焦/关系里程碑/情感曲线/结尾钩子 + 章位表
-  └── B5 关系里程碑（篇级）→ L3 关系里程碑
+  ├── B5 关系里程碑（篇级）→ L3 关系里程碑
+  └── B9 三态标注（**adaptation mode only**）→ L3 每篇附加"保留/改/新增"
 
 【Session 2 末门禁】L1-L3 均实质填充（无 `（待定）`）→ handoff_ready=true
   → outline-tingle 推进 frontmatter workflow_position: outline-tingle-step2-done
@@ -162,11 +208,13 @@ L3 阶段（篇章层，每卷内）：
 
 | 门禁 | 位置 | 责任方 | 本 Skill 返回字段 | 阻断级别 |
 |------|------|--------|------------------|---------|
-| 门禁 1 | Session 1 末（主题选定） | idea-explorer mode=book + 作者 | 不涉及（本 Skill 未启动） | 可暂缓 |
-| 门禁 2 | L1 末（B1/B2/B6/B7/B8 填实） | 本 Skill mode=book | `l1_ready: bool` | **不可暂缓** |
-| 门禁 3 | Session 2 末（L1-L3 全填实） | 本 Skill mode=book | `handoff_ready: bool` | 可暂缓（但 outline-tingle 不推进状态机） |
+| 门禁 1 | Session 1 末（主题选定） | idea-explorer mode=book + 作者（original）/ 内联 divergent + 作者（adaptation） | 不涉及（本 Skill 未启动） | 可暂缓 |
+| 门禁 2 | L1 末（B1/B2/B6/B7/B8 填实；adaptation mode 额外要求 B9 改编深度声明 + L1 字段三态标注） | 本 Skill mode=book | `l1_ready: bool` | **不可暂缓** |
+| 门禁 3 | Session 2 末（L1-L3 全填实；adaptation mode 额外要求 L2/L3 B9 三态标注） | 本 Skill mode=book | `handoff_ready: bool` | 可暂缓（但 outline-tingle 不推进状态机） |
 
 **门禁 2 不可暂缓的理由**：L1 是宪法层——L2/L3 全部依赖 L1。L1 未定而进 L2 会产生"分卷不知道在分什么"的悬空结构。作者要求暂缓 L1 时，outline-tingle 提示"建议先回 idea-explorer mode=book 重新发散主题"。
+
+**adaptation mode 门禁 2/3 增量**：除 B1/B2/B6/B7/B8 全部填实外，门禁 2 还需 B9 改编深度声明已产出 + L1 字段三态标注完成；门禁 3 还需 L2 每卷 + L3 每篇 B9 三态标注完成。original mode 不激活 B9，门禁 2/3 仅判 B1-B8。
 
 ---
 

@@ -80,7 +80,7 @@ C0-C9 跑完后，输出有序修复路径。原则：
 | thread-map / character-arcs 空 | `bootstrap-project` Phase 3 |
 | C0 框架漂移 | `migration-keeper` (migrate-project) |
 | outline L1-L3 未填实（含 `（待定）` 占位 / frontmatter `pending_confirm` 含 L1 字段；原创模式） | `outline-tingle`（正向：/outline-tingle + /outline-tingle continue）或 `bootstrap-project`（逆向：Phase 1a）或手动填写 |
-| outline L1-L3 未填实（改编模式） | `bootstrap-project` 或手动填写（不指 outline-tingle——改编大纲由 adaptation-workflow 阶段 0.5 产） |
+| outline L1-L3 未填实（改编模式，`workflow_position` 未达 `outline-tingle-step2-done`） | `/adaptation-workflow` 阶段 0.5（正向，内部调 `outline-tingle mode="adaptation"`）或 `bootstrap-project`（逆向）或手动填写。`workflow_position` 已达 `outline-tingle-step2-done` 时 C9 直接放行 |
 
 **输出格式**（每步）：
 
