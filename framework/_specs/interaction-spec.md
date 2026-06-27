@@ -75,6 +75,10 @@ SESSION 3: publish-chapter  → 设定合并 + 正式稿
 
 入口硬检查（`generate-chapter` 启动时）：✅ 必填字段缺失或 handoff 文件不存在 → 🚫 硬阻断；`workflow_position` 前缀为 `generate-` 时 `brief` 必填。
 
+**书级 handoff 例外**：上述 8 字段契约仅适用于章节级 handoff（`_briefs/chapter-{N}-handoff.md`）。书级大纲形成阶段（premise→L1→L2→L3）以 `outline.md` 本身作为 handoff 载体——不另建 handoff 文件，章节 8 字段契约不适用。
+
+书级状态机改由 `outline.md` frontmatter 的 `workflow_position` 字段表达（状态值流转：`outline-tingle-step1-done` → `outline-tingle-l1-confirmed` → `outline-tingle-step2-done`），由 `outline-tingle` Skill 推进；`format_version: 2` 标识 v2 模板。`plan-chapter` 读 `outline.md` 时多出的 v2 frontmatter 字段忽略，不触发降级。
+
 ## 3. 稿件三层体系 + 设定时间线
 
 | 层 | 目录 | 性质 | 修改权限 |

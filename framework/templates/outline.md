@@ -1,5 +1,15 @@
 ---
+format_version: 2
+produced_by: ""
+produced_at: ""
+mode: original
+workflow_position: ""
+resume_command: /outline-tingle
+pending_confirm: []
 sections:
+  - heading: "## Premise（原始点子）"
+    skills: [outline-tingle]
+    desc: "书级 handoff 起点——原始一句话/灵感来源/期望读者感受；outline-tingle Session 1 由此发散主题"
   - heading: "## L1：全书级"
     skills: [plan-chapter, qing-novelist, mo-writer]
     desc: "宪法级别——书名/核心主题/终点画面/主角起终状态/不可违背规则/一句话概括/类型标签/核心隐喻"
@@ -39,6 +49,16 @@ sections:
 
 ---
 
+## Premise（原始点子）
+
+> **书级 handoff 起点**——`outline-tingle` Session 1 从此段读 premise 发散到主题；frontmatter `workflow_position` 推进书级状态机。
+
+- **原始一句话**：（待定）
+- **灵感来源**（可空）：（待定）
+- **期望读者感受**：（待定）
+
+---
+
 ## L1：全书级
 
 > **宪法级别**。以下内容一旦确定，修改必须记录到 `notes.md` 决策表并同步所有下级大纲。
@@ -47,7 +67,7 @@ sections:
 - **核心主题**：（待定）
 - **终点画面**（最后一卷最后一章，读者合上书看到什么、感受到什么）：（待定）
 - **主角起点状态 → 终点状态**：（待定）
-- **不可违背的规则**（连载膨胀的刹车）：
+- **不可违背的规则**（连载膨胀的刹车；3-5 条，每条带编号，便于门禁精确引用）：
   1. （待定）
   2. （待定）
   3. （待定）
