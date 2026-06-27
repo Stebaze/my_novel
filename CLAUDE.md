@@ -65,6 +65,16 @@ SESSION 3 — publish /publish-chapter {N}
 | `bootstrap-project` | 冷启动 | 编排入口（批量导入→逆向分析→工件生成） |
 | `import-chapter` | 导入章节 | 编排（源文件→草稿迁移→评审队列） |
 
+## 单场景模式
+
+`novel/project-config.md`「节拍配置」的 **`每章场景数`** 字段控制每章场景数。设为 `1` 时启用**单场景模式**——为移动端阅读与决策减负：
+
+- `qing-novelist` 启发交谈 D2 场景清单固定长度 1，D4b（场景衔接）不激活
+- `mo-writer` 简报 §1 只列 1 个场景（无「衔接计划」字段）、§3 作为该唯一场景的完整节拍层、`asymmetry_weight` 固定 1.0
+- `generate-chapter` / `chapter-review` / `sensory-writer` **不动**——per-scene 机器照跑，`scene-summaries.json` 仅 1 条，`scene_index` 恒为 0，评审/Fix 循环链路保住
+
+配置缺失或值 > 1 时按原多场景协议。
+
 ## 关键入口
 
 | 路径 | 作用 |

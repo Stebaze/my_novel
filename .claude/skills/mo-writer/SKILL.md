@@ -45,6 +45,10 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 按序读取：方向卡 / `author-voice.md` / 出场角色档案 / `world/` / 前 1-2 章正文 / `voice-bible.md` / `framework/templates/technique-library.md` / N ≤ 3 时 `cn-webnovel-guide.md`「一、七」。
 
+**读 `novel/project-config.md`「节拍配置」取 `每章场景数`**：
+- `每章场景数 = 1`（单场景模式）→ 设 `single_scene = true`，Step 3 §1/§3 走单场景分支
+- 缺失或 > 1 → `single_scene = false`，按原多场景协议
+
 ### Step 3: Generate Brief（7 层结构）
 
 读 `framework/templates/_brief-template.md` 获取 §-1 + §0A + §0-§5 + §3A（高潮章）格式：
@@ -60,6 +64,11 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 §4 技法提示层
 §5 常见陷阱层
 ```
+
+**单场景模式（`single_scene = true`）**：
+- §1 只列 **1 个场景**，无需「衔接计划」字段（无下一场景）
+- §3 不再"退化为概述"——直接作为该唯一场景的完整节拍层（事件/对话/情绪弧线/场景图像/rule_break_choice/trigger_reason/safety_valve）
+- `asymmetry_weight` 固定为 1.0（单场景无篇幅分配问题）
 
 **§-1 缺失降级协议**：
 - `task_type` 空 → 默认 `"resonate"`（小说最常用任务）
