@@ -14,7 +14,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 | Aspect | Detail |
 |--------|--------|
 | **Called by** | CLAUDE.md（会话启动），用户 `/ask-yiyi` 或自然语言 |
-| **Calls** | `migration-keeper`（detect-format/check-compat/sync-enrich），`file-manager`（ensure-novel），目标 skill（plan-chapter / generate-chapter / chapter-review / publish-chapter / import-chapter / bootstrap-project / adaptation-workflow / qing-novelist / idea-explorer / settings-manager / pre-flight-check） |
+| **Calls** | `migration-keeper`（detect-format/check-compat/sync-enrich），`file-manager`（ensure-novel），目标 skill（plan-chapter / generate-chapter / chapter-review / publish-chapter / import-chapter / bootstrap-project / outline-tingle / adaptation-workflow / qing-novelist / idea-explorer / settings-manager / pre-flight-check） |
 | **Input** | init / route / qa / next / 自然语言意图 |
 | **Output** | 5 字段会话摘要（init） / 路由结果（route） / 智能建议（next） / 答疑模板（qa） / QA 报告（qa check） |
 
@@ -45,14 +45,22 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 3. 调 Skill("migration-keeper", operation="sync-enrich")
 4. 扫描 novel/_drafts/ → 选最新为 draft_dir
 5. 读 {draft_dir}/session-context.md 摘要 / notes.md 摘要
-6. 扫描工件推断阶段：
-   | 工件存在 | 阶段 | 标记 |
-   |---------|------|------|
-   | _briefs/chapter-{N}-direction.md | 方向已定 | 🧭 |
-   | _briefs/chapter-{N}-brief.md | 简报就绪 | 📋 |
-   | chapters/chapter-{N}.md（无 review） | 已写待评审 | ✍️ |
-   | _reviews/chapter-{N}-review.md | 评审完成 | ✅ |
-   异常：有 review 无 chapter = 🔴 / 有 brief 无 direction 或有 chapter 无 brief = 🟡
+6. 扫描工件推断阶段（书级 + 章节级并列）：
+   a. 书级阶段（读 outline.md frontmatter workflow_position）：
+      | workflow_position | 书级阶段 | 标记 |
+      |-------------------|---------|------|
+      | 缺失/空 | 大纲未形成 | 📝（建议 /outline-tingle） |
+      | outline-tingle-step1-done | Session 1 完成 | 🌱 |
+      | outline-tingle-l1-confirmed | L1 已确认 | 🌿 |
+      | outline-tingle-step2-done | 大纲形成完成（可进 plan-chapter） | 🌳 |
+   b. 章节阶段（规则 8 工件存在性）：
+      | 工件存在 | 阶段 | 标记 |
+      |---------|------|------|
+      | _briefs/chapter-{N}-direction.md | 方向已定 | 🧭 |
+      | _briefs/chapter-{N}-brief.md | 简报就绪 | 📋 |
+      | chapters/chapter-{N}.md（无 review） | 已写待评审 | ✍️ |
+      | _reviews/chapter-{N}-review.md | 评审完成 | ✅ |
+      异常：有 review 无 chapter = 🔴 / 有 brief 无 direction 或有 chapter 无 brief = 🟡
 7. 输出 5 字段摘要 + 智能建议下一步
 ```
 
@@ -61,7 +69,9 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 === 创作工坊 · 会话初始化 ===
 📁 草稿目录：{draft_dir}
 📍 当前进度：第 {N} 章 · {阶段}
-🧭 工作流状态：{各章节阶段一览 + 异常}
+🧭 工作流状态：
+   📖 书级：{outline.md workflow_position 推导——大纲未形成/Session 1 完成/L1 已确认/大纲形成完成}
+   📝 章节：{各章节阶段一览 + 异常}
 ⚠️ 格式警告：{detect-format / check-compat 摘要}
 📌 关键上下文：{session-context 摘要}
 
@@ -88,7 +98,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 | `CHAPTER_WRITTEN_NO_REVIEW` | chapter 存在无 review | 3. 评审章节 | "运行 chapter-review 评审" |
 | `REVIEWED` | review 存在未发布 | 4. 发布章节 | "运行 publish-chapter 发布" |
 | `PUBLISHED` | 正式稿存在 | 1. 写新章节 | "开始下一章 plan-chapter 规划" |
-| `ANOMALY` | 检测到 🔴/🟡 异常 | 11. 异常审计 | "运行 `qa check` 跑异常审计" |
+| `ANOMALY` | 检测到 🔴/🟡 异常 | 12. 异常审计 | "运行 `qa check` 跑异常审计" |
 
 **菜单（按使用场景分组 · 默认全显示）**：
 ```
@@ -97,6 +107,8 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 💡 智能建议：{基于 workflow_state 的当前推荐（见上表）}
 
 [继续写这本书]                  {NO_PROJECT 时整组隐藏}
+  ⚠️ {当 outline 未填实（workflow_position ≠ outline-tingle-step2-done 且 L1 含（待定））：
+       书级大纲未形成，建议先跑 /outline-tingle（不硬阻断，可继续写）}
   1. 写新章节 (plan-chapter)
   2. 生成章节 (generate-chapter)
   3. 评审章节 (chapter-review)              ← 💡 推荐   {当 CHAPTER_WRITTEN_NO_REVIEW}
@@ -105,13 +117,14 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 
 [创建新书]
   6. 创建新书（没有原稿重新创建或已有原稿导入原稿）             ← 💡 推荐   {当 NO_PROJECT}
-  7. 从其他形式的参考改编（剧本、跑团 log 等，改编时会检查和原作的一致性）
+  7. 从零写新书 / 形成大纲 (outline-tingle)
+  8. 从其他形式的参考改编（剧本、跑团 log 等，改编时会检查和原作的一致性）
 
 [其他工具]
-  8. 头脑风暴 (idea-explorer)
-  9. 创作教练 (qing-novelist)
- 10. 答疑 (ask-yiyi qa)
- 11. 异常审计 (ask-yiyi qa check)           ← 💡 推荐   {当 ANOMALY}
+  9. 头脑风暴 (idea-explorer)
+ 10. 创作教练 (qing-novelist)
+ 11. 答疑 (ask-yiyi qa)
+ 12. 异常审计 (ask-yiyi qa check)           ← 💡 推荐   {当 ANOMALY}
 
 [元]
  99. 完整菜单（含内部组件）
@@ -119,7 +132,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 ```
 
 > **运行时行为**：`← 💡 推荐` 标记根据当前 workflow_state **动态落到某一菜单项后**。示例中展示了 CHAPTER_WRITTEN_NO_REVIEW / NO_PROJECT / ANOMALY 三种状态下的标记位置——同一时刻只有一个标记。
-> **非继续写流程的推荐**：当推荐是 6. 创建新书 / 7. 从其他形式的参考改编 / 11. 异常审计 时，标记会出现在对应组的对应项上，「继续写这本书」组内不显示标记。
+> **非继续写流程的推荐**：当推荐是 6. 创建新书 / 7. 从零写新书 / 8. 从其他形式的参考改编 / 12. 异常审计 时，标记会出现在对应组的对应项上，「继续写这本书」组内不显示标记。
 
 **完整菜单（编号 99）**：
 ```
@@ -127,15 +140,15 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 
 [继续写这本书]    1-5 同上
 
-[创建新书]        6-7 同上
+[创建新书]        6-8 同上
 
-[其他工具]        8-11 同上
+[其他工具]        9-12 同上
 
 [强依赖工作流 · 通常由上游自动调用]
- 12. 设定管理 (settings-manager)         [plan/publish 内部自动调]
- 13. 预飞检查 (pre-flight-check)         [generate 内部 C0-C8 门禁]
- 14. 文件补齐 (file-manager)             [初始化 / 草稿补齐]
- 15. 格式迁移 (migration-keeper)         [init 步骤 1-3]
+ 13. 设定管理 (settings-manager)         [plan/publish 内部自动调]
+ 14. 预飞检查 (pre-flight-check)         [generate 内部 C0-C8 门禁]
+ 15. 文件补齐 (file-manager)             [初始化 / 草稿补齐]
+ 16. 格式迁移 (migration-keeper)         [init 步骤 1-3]
 
 [元]
   0. 退出
@@ -165,6 +178,7 @@ chapter-review:       chapter={N} mode={mode} draft_dir={draft_dir}
 publish-chapter:      chapter={N} draft_dir={draft_dir}
 import-chapter:       source={path} draft_dir={draft_dir}
 bootstrap-project:    draft_dir={draft_dir}
+outline-tingle:       draft_dir={draft_dir}    {Session 1；/outline-tingle continue 进 Session 2}
 adaptation-workflow:  source={work} draft_dir={draft_dir}
 qing-novelist:        draft_dir={draft_dir}
 idea-explorer:        chapter={N} draft_dir={draft_dir}
