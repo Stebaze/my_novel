@@ -49,12 +49,12 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 ```
 1. 上下文：独立调用 → 解析 chapter + problem_statement；嵌入调用 → 从 plan-chapter 接收 chapter + draft_dir + context_snapshot。草稿优先（CLAUDE.md 规则 4）
 
-2. 设定上下文（5 源）：
-   a. settings-manager read-settings → 截止 Ch{N-1} 设定合并视图
-   b. {draft_dir}/outline.md → 本章在大纲中的位置
-   c. {draft_dir}/notes.md → 「当前进度」+「已做出的决策」
-   d. {draft_dir}/thread-map.md（如存在）→ §二支线 + §三伏笔
-   e. 出场角色档案 + voice-bible.md（如存在）
+2. 设定上下文（5 源，设定文件在正式层 novel/，草稿不镜像；工件读 {draft}/）：
+   a. settings-manager read-settings → 截止 Ch{N-1} 设定合并视图（双源 novel/ + {draft}/_changes.md）
+   b. novel/outline.md → 本章在大纲中的位置
+   c. {draft_dir}/notes.md → 「当前进度」+「已做出的决策」（草稿元数据）
+   d. novel/thread-map.md（如存在）→ §二支线 + §三伏笔
+   e. 出场角色档案（novel/characters/，经 read-settings 合并）+ novel/voice-bible.md（如存在）
 
 3. 困境分类 → 方法路由：
    ├── "完全不知道写什么" → A（如果爆炸）+ B（约束游戏）
@@ -221,9 +221,9 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 | `technique-selector` Skill | Step 2 方法 D/E/G 后 | 🚫 硬阻断——技法匹配不可跳过 |
 | `_reference/brainstorming-methods.md` | Step 2 | ⚠️ 使用内嵌 7 种方法骨架（丢失详细示例和选择指南） |
 | `framework/templates/_exploration-card-template.md` | Step 4 | ⚠️ 使用内嵌探索卡格式骨架 |
-| `{DraftDir}/outline.md` | Step 1b | ⚠️ 无大纲时仅基于已有章节和角色档案推断方向 |
-| `{DraftDir}/thread-map.md` | Step 1d | ⚠️ 无线程地图时头脑风暴可能偏离已有伏笔/弧光方向 |
-| `{DraftDir}/voice-bible.md` | Step 2 sensory-writer 调用 | ⚠️ 角色声音参数降级为从角色档案推断 |
+| `novel/outline.md` | Step 1b | ⚠️ 无大纲时仅基于已有章节和角色档案推断方向 |
+| `novel/thread-map.md` | Step 1d | ⚠️ 无线程地图时头脑风暴可能偏离已有伏笔/弧光方向 |
+| `novel/voice-bible.md` | Step 2 sensory-writer 调用 | ⚠️ 角色声音参数降级为从角色档案推断 |
 
 ## 与其他组件的关系
 

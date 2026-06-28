@@ -31,9 +31,9 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
 ### Step 1: Resolve Context
 
 ```
-0. 扫描 novel/_drafts/ → 最新日期 → draft_dir
-   ├── 有草稿 → draft_dir = 最新日期目录
-   └── 无草稿 → 使用 novel/ 路径（降级）
+0. 检查固定路径 novel/_drafts/ 存在性 → draft_dir = novel/_drafts/
+   ├── 存在 → 直接使用（单草稿贯穿全书）
+   └── 不存在 → 调 file-manager(ensure-draft) 补齐后使用
 1. 从 notes.md「当前进度」节提取「上次写到」字段 → 交叉验证用户指定 N
 2. 解析 mode（默认 "writing"；从 generate-chapter 调用时为 "ai-content"）
 ```

@@ -1,13 +1,13 @@
 ---
 name: pre-flight-check
-description: 写作/改编/审阅前的就绪检查——C0-C10 逐项检测+阻断判定(🚫/🟡/⚠️)，写作/改编/审阅前的系统门禁
+description: 写作/改编/审阅前的就绪检查——C0-C11 逐项检测+阻断判定(🚫/🟡/⚠️)，写作/改编/审阅前的系统门禁
 ---
 
 # Pre-Flight Check — 前置就绪检查
 
 ## Identity
 
-你是系统门禁——在写作、改编、审阅开始前执行 C0-C10 就绪检查并做出阻断判定。你不管后续流程——只做检查+判定+生成修复路径。
+你是系统门禁——在写作、改编、审阅开始前执行 C0-C11 就绪检查并做出阻断判定。你不管后续流程——只做检查+判定+生成修复路径。
 
 ## Contract
 
@@ -29,13 +29,13 @@ description: 写作/改编/审阅前的就绪检查——C0-C10 逐项检测+阻
 ### Preparation
 
 ```
-1. draft_dir 已提供 → 使用。否则扫描 novel/_drafts/ → 最新目录或无草稿降级 novel/
-2. 确定比较基准：有草稿 → 比较 framework vs 草稿；无草稿 → framework vs novel/
+1. draft_dir 已提供 → 使用。否则检查固定路径 novel/_drafts/ 存在性 → 存在则 draft_dir=novel/_drafts/；不存在 → 标记需初始化（C1）
+2. 确定比较基准：framework vs novel/（正式层设定文件）；草稿工件 vs {draft}/
 ```
 
-### C0-C10 检查清单
+### C0-C11 检查清单
 
-按 C0→C10 顺序执行；每个检查的详细判据 + 阻断等级见 `_checks/{CID}.md`：
+按 C0→C11 顺序执行；每个检查的详细判据 + 阻断等级见 `_checks/{CID}.md`：
 
 | ID | 名称 | 等级 | 触发条件 | 详细 |
 |----|------|------|---------|------|
@@ -56,10 +56,11 @@ description: 写作/改编/审阅前的就绪检查——C0-C10 逐项检测+阻
 | **C8** | Handoff 文件验证 | 🚫 硬阻断 | scope=writing | [_checks/C8.md](_checks/C8.md) |
 | **C9** | outline 实质填充检查 | 🟡 软阻断 | scope=writing 且 N 在 L3 已规划篇章范围内 | [_checks/C9.md](_checks/C9.md) |
 | **C10** | 书级设定派发状态检查 | ⚠️ 软提醒 | scope=writing 且 outline `workflow_position: outline-tingle-step2-done` | [_checks/C10.md](_checks/C10.md) |
+| **C11** | 正式层 mtime 一致性 | ⚠️ 提醒 | 永远（novel/_changes.md 存在时） | [_checks/C11.md](_checks/C11.md) |
 
 ### Repair Path Generation
 
-C0-C10 跑完后，输出有序修复路径。原则：
+C0-C11 跑完后，输出有序修复路径。原则：
 
 1. **依赖优先**：A 修复依赖 B → B 排前
 2. **🚫 > 🟡 > ⚠️**：先解硬阻断，再处理警告
@@ -97,12 +98,12 @@ C0-C10 跑完后，输出有序修复路径。原则：
 
 ## Output
 
-返回阻断结果字典 `{c_id: 阻断等级, 原因}` + 修复路径（≤ 4 步）。C5 已拆分为 C5a/C5b。C3.3/C3.4 为 frontmatter 检查。C8 为 generate-chapter 入口硬检查。C9 为 outline L1-L3 实质填充软阻断（scope=writing，尊重边写边定不硬阻断）。C10 为书级设定派发状态软提醒（scope=writing 且 outline 已 step2-done，不阻断）。
+返回阻断结果字典 `{c_id: 阻断等级, 原因}` + 修复路径（≤ 4 步）。C5 已拆分为 C5a/C5b。C3.3/C3.4 为 frontmatter 检查。C8 为 generate-chapter 入口硬检查。C9 为 outline L1-L3 实质填充软阻断（scope=writing，尊重边写边定不硬阻断）。C10 为书级设定派发状态软提醒（scope=writing 且 outline 已 step2-done，不阻断）。C11 为正式层 mtime 一致性提醒（防止人工手改正式层设定文件导致日志与文件脱节，不阻断）。
 
 ## Completion Criterion
 
 - ✅ Checkable：调用方已收到 {检查报告 + 阻断判定字典 + 修复路径}
-- ✅ Exhaustive：C0-C10 全部跑过（含条件项的 skip 标注），无未决 TODO
+- ✅ Exhaustive：C0-C11 全部跑过（含条件项的 skip 标注），无未决 TODO
 - 🚫 Stop：返回字典后不调用任何后续 Skill
 
 ## Dependencies

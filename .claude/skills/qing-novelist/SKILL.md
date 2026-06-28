@@ -69,8 +69,12 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 
 ```
 1. 模式判定（如上自动切换）——mode=book 优先级最高
-2. 草稿优先路径（CLAUDE.md 规则 4）—— 草稿目录优先于 novel/
-3. [启发模式] 读取：outline.md / author-voice.md / voice-bible.md / _character-state.md /
+2. 设定读取策略（CLAUDE.md 规则 6）——设定文件（outline / author-voice / voice-bible /
+   thread-map / character-arcs / characters/ / world/ 等）在正式层 novel/，草稿不镜像；
+   读取走 `settings-manager read-settings` 双源合并（novel/ + {draft}/_changes.md），
+   或直接 Read novel/ 路径；工件（_briefs / _exchanges / _reviews / chapters）读 {draft}/
+3. [启发模式] 读取（设定经 read-settings 合并；工件直接 Read {draft}/）：outline.md /
+   author-voice.md / voice-bible.md / _character-state.md（走 read-character-state 双源）/
    thread-map.md / character-arcs.md / 出场角色档案 / 探索卡（条件） / 前 1-2 章正文
    → 各文件缺失处理见 _reference/qing-conversation-guide.md §文件缺失处理
    → **读取 `novel/project-config.md`「节拍配置」取 `每章场景数`**：`= 1` → 设 `single_scene = true`，Step 3 D2 固定单场景、D4b 不激活
@@ -167,7 +171,7 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 ```
 - 仅做 §1 + §7 维
 - 抽样 4-5 章（前 80 行 + 中 40 行 + 末 40 行）
-- 产出 {draft_dir}/author-voice.md（含 frontmatter）
+- 产出 `novel/author-voice.md`（含 frontmatter）——author-voice 在正式层，草稿不镜像
 - 不入库技法 / 不跨卷对比
 ```
 
@@ -303,12 +307,12 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | `_reference/qing-conversation-guide.md` | Step 3 详细方法论 | ⚠️ 12 维骨架内嵌 |
 | `_reference/author-analysis-7d.md` | Step 4 7 维协议 | ⚠️ 7 维提取骨架内嵌 |
 | `_reference/book-conversation-guide.md` | mode=book 8 维书级 grilling 协议 | ⚠️ 8 维骨架内嵌 |
-| `{DraftDir}/author-voice.md` | D5 风格锚点 | ⚠️ 引导通过内容示例建立 |
-| `{DraftDir}/outline.md` | Step 1a 大纲 | ⚠️ 维度 1 完全依赖用户输入 |
-| `{DraftDir}/voice-bible.md` | D11 声音 | ⚠️ 维度 11 全部角色触发实验 |
-| `{DraftDir}/thread-map.md` | D4c 伏笔 | ⚠️ 跳过伏笔操作清单 |
-| `{DraftDir}/character-arcs.md` | D0/D0b 弧光 | ⚠️ 跳过弧光检查 |
-| `{DraftDir}/_character-state.md` | D0e 状态连续性 | ⚠️ 跳过跨章连续性 |
+| `novel/author-voice.md` | D5 风格锚点 | ⚠️ 引导通过内容示例建立 |
+| `novel/outline.md` | Step 1a 大纲 | ⚠️ 维度 1 完全依赖用户输入 |
+| `novel/voice-bible.md` | D11 声音 | ⚠️ 维度 11 全部角色触发实验 |
+| `novel/thread-map.md` | D4c 伏笔 | ⚠️ 跳过伏笔操作清单 |
+| `novel/character-arcs.md` | D0/D0b 弧光 | ⚠️ 跳过弧光检查 |
+| `{DraftDir}/_character-state.md`（经 read-character-state 双源合并 novel/ + 草稿侧）| D0e 状态连续性 | ⚠️ 跳过跨章连续性 |
 | `framework/guides/jung-character-framework.md` | D6 心理 | 🚫 硬阻断 |
 | `framework/guides/voice-experiments.md` | D11 声音实验方法论 | ⚠️ 内嵌模式选择指南（合并路径后被 `voice-sculptor/_reference/voice-experiments.md` 替代） |
 | `framework/guides/character-enrichment-guide.md` | D12 人设丰富 | ⚠️ 使用内嵌 4 步流程 |

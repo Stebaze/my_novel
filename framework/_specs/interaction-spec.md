@@ -65,12 +65,12 @@ SESSION 3: publish-chapter  → 设定合并 + 正式稿
 | `direction` | path | ✅ | 方向卡路径（`chapter-{N}-direction.md`，相对 `{draft_dir}`） |
 | `brief` | path | 🟡 | 简报路径（`chapter-{N}-brief.md`；planning 阶段可空，generate 阶段必填） |
 | `chapter_file` | path | ✅ | 目标章节路径（`chapters/chapter-{N}.md`） |
-| `character_state` | path | ✅ | 角色状态快照（`{draft_dir}/_character-state.md`） |
-| `style_profile` | path | ✅ | 作者文风档案（`{draft_dir}/author-voice.md`） |
+| `character_state` | path | ✅ | 角色状态快照（`{draft_dir}/_character-state.md`——草稿侧增量；读取走 settings-manager read-character-state 双源合并 novel/ + 草稿侧） |
+| `style_profile` | path | ✅ | 作者文风档案（`novel/author-voice.md`——**正式层路径**，草稿不镜像） |
 | `workflow_position` | string | ✅ | 工作流位置（如 `"plan-step4-direction"` / `"generate-step2-brief"`） |
 | `resume_command` | string | ✅ | 新 Session 启动命令（如 `/generate-chapter {N}`） |
 
-- `path` 字段以 `{draft_dir}` 为根的相对路径
+- `path` 字段默认以 `{draft_dir}` 为根的相对路径；**设定文件字段例外**（如 `style_profile`）以 `novel/` 为根——草稿不镜像设定文件
 - `workflow_position` 用 `<skill>-<step>-<artifact>` 三段式
 
 入口硬检查（`generate-chapter` 启动时）：✅ 必填字段缺失或 handoff 文件不存在 → 🚫 硬阻断；`workflow_position` 前缀为 `generate-` 时 `brief` 必填。
@@ -142,8 +142,8 @@ Skill 主体 SKILL.md ≤ 200 行；详细方法论外移到 `framework/guides/`
 
 每个 Skill 的 Dependencies 节统一为：
 - `framework/guides/{name}.md` 不存在 → ⚠️ {受影响能力}已降级为{降级后行为}
-- `{draft}/author-voice.md` 不存在 → 🚫 硬阻断（仅 pre-flight-check + mo-writer 执行此检查）
-- `{draft}/characters/{name}.md` 不存在 → ⚠️ 角色{能力}检查已降级为{降级后行为}
+- `novel/author-voice.md` 不存在 → 🚫 硬阻断（仅 pre-flight-check + mo-writer 执行此检查；author-voice 在正式层，草稿不镜像）
+- `novel/characters/{name}.md` 不存在 → ⚠️ 角色{能力}检查已降级为{降级后行为}（角色档案在正式层，草稿不镜像；读取走 settings-manager read-settings 双源合并）
 
 降级等级：🚫 硬阻断 / ⚠️ 降级（标注影响后继续）/ ℹ️ 不影响功能。
 

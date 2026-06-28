@@ -43,7 +43,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
 1. 调 Skill("migration-keeper", operation="detect-format")
 2. 调 Skill("migration-keeper", operation="check-compat", target="both")
 3. 调 Skill("migration-keeper", operation="sync-enrich")
-4. 扫描 novel/_drafts/ → 选最新为 draft_dir
+4. 检查固定路径 novel/_drafts/ 存在性 → draft_dir = novel/_drafts/（不存在 → 调 file-manager(ensure-draft) 补齐）
 5. 读 {draft_dir}/session-context.md 摘要 / notes.md 摘要
 6. 扫描工件推断阶段（书级 + 章节级并列）：
    a. 书级阶段（读 outline.md frontmatter workflow_position）：

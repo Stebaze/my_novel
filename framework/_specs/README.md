@@ -6,7 +6,7 @@
 
 | 文件 | 定位 |
 |------|------|
-| `interaction-spec.md` | Skill-Skill 交互规范——单层 Skill 模型、handoff 8 字段契约、稿件三层、调用约定、废弃引用 |
+| `interaction-spec.md` | Skill-Skill 交互规范——单层 Skill 模型、handoff 8 字段契约、稿件两层+临时中转、调用约定、废弃引用 |
 | `skill-template.md` | Skill SKILL.md 写法模板——5 必含字段（Identity/Contract/Flow/Triggers/Completion Criterion）|
 | `agent-template.md` | Agent 写法模板——可选优化组件，仅在 Skill 不适合时使用 |
 | `refactor-2026-06-24-skills-rewrite.md` | 重构方案文档——25 commit 6 阶段执行计划 |

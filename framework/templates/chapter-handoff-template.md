@@ -28,8 +28,8 @@ resume_command: "/generate-chapter {N}"
 | `direction` | path | ✅ | 方向卡文件路径（`_briefs/chapter-{N}-direction.md`） |
 | `brief` | path | 🟡 | 简报路径（plan 阶段可空；generate 阶段必填） |
 | `chapter_file` | path | ✅ | 目标章节文件路径（`chapters/chapter-{N}.md`） |
-| `character_state` | path | ✅ | 角色状态快照（`{draft_dir}/_character-state.md`） |
-| `style_profile` | path | ✅ | 作者文风档案（`{draft_dir}/author-voice.md`） |
+| `character_state` | path | ✅ | 角色状态快照（`{draft_dir}/_character-state.md`——草稿侧增量；读取走 settings-manager read-character-state 双源合并） |
+| `style_profile` | path | ✅ | 作者文风档案（`novel/author-voice.md`——正式层路径，草稿不镜像） |
 | `workflow_position` | string | ✅ | `<skill>-<step>-<artifact>` 三段式（例：`plan-step5-handoff`） |
 | `resume_command` | string | ✅ | 新 Session 启动命令（`/generate-chapter {N}` 或 `/chapter-review {N}`） |
 

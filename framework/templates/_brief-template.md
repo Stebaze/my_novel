@@ -54,7 +54,7 @@ sections:
 - **读者具象**（reader_persona）：一句话描述一个具体的人 —— 年龄 + 职业 + 此刻遇到的事
   - 例：32 岁产品经理，最近在犹豫要不要转管理岗，地铁上刷手机看书
   - 例：50 岁退休教师，陪老伴住院的间隙读小说打发时间
-- **声音人设来源**（voice_persona_source）：路径 → `{draft_dir}/voice-bible.md`；缺失回退 `author-voice.md`
+- **声音人设来源**（voice_persona_source）：路径 → `novel/voice-bible.md`（正式层，草稿不镜像）；缺失回退 `novel/author-voice.md`
 
 ⚠️ 三项任一为空时降级：sensory-writer 走 "无读者默认风格" 兜底，handoff 标记 `brief_degraded: true`
 

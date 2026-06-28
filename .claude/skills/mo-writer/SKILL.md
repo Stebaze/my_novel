@@ -73,7 +73,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 **§-1 缺失降级协议**：
 - `task_type` 空 → 默认 `"resonate"`（小说最常用任务）
 - `reader_persona` 空 → 默认 `"25-35 岁中文网文读者，地铁/睡前刷手机"`
-- `voice_persona_source` 空 → 回退 `{draft_dir}/author-voice.md`
+- `voice_persona_source` 空 → 回退 `novel/author-voice.md`（正式层，草稿不镜像）
 - 三项均空 → ⚠️ 在简报顶部加 `<!-- brief_degraded: true -->` 标记
 
 **高潮章**：读 `climax-patterns/` 桥段模板 → §3A 以 5 阶段为骨架 → §4 追加「写作执行要点」/ §5 追加「常见失败模式」→ 简报引用模板原文摘录。模板缺失 → ⚠️ 回退 §3 平铺。
@@ -132,11 +132,11 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 |-----------|------|------------|
 | `yin-illustrator` Skill | Step 5a | 🚫 硬阻断——场景图像不可降级 |
 | `sensory-writer` Skill | Step 4 参考示例 | 🚫 硬阻断——参考示例不可跳过 |
-| `{DraftDir}/author-voice.md` | Step 2 | 🚫 硬阻断——无风格基准无法生成示例 |
+| `novel/author-voice.md` | Step 2 | 🚫 硬阻断——无风格基准无法生成示例（author-voice 在正式层，草稿不镜像） |
 | `{DraftDir}/_briefs/chapter-{N}-handoff.md` | Step 1（handoff_file） | 🚫 硬阻断——C8 强约束，缺失或字段无效直接阻断 |
-| `{DraftDir}/characters/` | §2 角色状态 | ⚠️ 缺失角色状态从大纲推断 |
+| `novel/characters/`（经 settings-manager read-settings 双源合并）| §2 角色状态 | ⚠️ 缺失角色状态从大纲推断 |
 | `framework/guides/jung-character-framework.md` | §2 面具/阴影 | 🚫 硬阻断——缺失则无法标注人格面具/阴影/自性化阶段 |
-| `{DraftDir}/voice-bible.md` | §2 对话区分 | ⚠️ 角色对话区分仅基于角色档案常识 |
+| `novel/voice-bible.md` | §2 对话区分 | ⚠️ 角色对话区分仅基于角色档案常识 |
 | `framework/templates/technique-library.md` | §4 技法 | ⚠️ 技法选择降级为跳过 |
 | `framework/guides/cn-webnovel-guide.md` | N ≤ 3 时 | ⚠️ 平台节奏提醒跳过 |
 | script 相关模板/guide | script 模式 | ⚠️ 各项降级（使用内嵌模板/块类型/通用表情集） |

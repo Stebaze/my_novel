@@ -7,13 +7,13 @@ description: 多格式章节导入——源文件接收→AI扫描设定摘要�
 
 ## Identity
 
-章节导入编排器——接受作者已有成稿（.md / .txt / .docx / .epub 或直接粘贴），纳入三层稿件体系（原稿→草稿），AI 辅助扫描生成设定摘要，注册评审队列。
+章节导入编排器——接受作者已有成稿（.md / .txt / .docx / .epub 或直接粘贴），纳入两层稿件体系（临时中转→草稿），AI 辅助扫描生成设定摘要，注册评审队列。
 
 **Router 范式**：本 Skill 是薄封装层——做格式识别 + 分派调用 + 文件迁移，不重复实现分析/扫描逻辑（按需调 `settings-manager` / `chapter-review`）。
 
 **核心原则**：
 - **文本原样保留**：导入不修改正文
-- **先入原稿再进草稿**：原始文件存 `novel/_reference/`，转换 .md 进草稿 `chapters/`
+- **临时中转再进草稿**：原始文件存 `novel/_import/{timestamp}/`（临时中转，流程结束可删），转换 .md 进草稿 `chapters/`
 - **设定回填需作者确认**：扫描摘要一律 `🤖 待确认`
 - **导入后必须评审**：未 `chapter-review` 的导入章节不能 `publish-chapter`
 - **草稿优先**：目标为活跃草稿；无活跃草稿时先 `file-manager`（ensure-draft）
@@ -31,7 +31,7 @@ description: 多格式章节导入——源文件接收→AI扫描设定摘要�
 | Aspect | Detail |
 |--------|--------|
 | **Calls** | `file-manager`（ensure-draft / save-reference）, `settings-manager`（record-settings / record-character-state）|
-| **Produces** | `{draft}/chapters/chapter-NN.md`, `{draft}/_changes-draft.md`, `{draft}/_character-state-draft.md`, `{draft}/_thread-map-draft.md`, `{draft}/_character-arcs-draft.md`, `{draft}/_import-analysis/_review-queue.md`, `novel/_reference/{源文件}` |
+| **Produces** | `{draft}/chapters/chapter-NN.md`, `{draft}/_changes-draft.md`, `{draft}/_character-state-draft.md`, `{draft}/_thread-map-draft.md`, `{draft}/_character-arcs-draft.md`, `{draft}/_import-analysis/_review-queue.md`, `novel/_import/{timestamp}/{源文件}` |
 | **Called by** | 用户入口（"导入章节" / "导入第X章"），`bootstrap-project`（步骤 2 复用）|
 
 ## Triggers
@@ -52,7 +52,7 @@ description: 多格式章节导入——源文件接收→AI扫描设定摘要�
 | `.md` / `.txt` 文件 | 直接 Read + 按章节标题（`第X章` / `Chapter X` / `# 第X章`）拆分 |
 | 直接粘贴文本 | 保存为 `{draft}/import-temp/pasted.md` 后同上拆分 |
 
-**1.2 保存原始文件**：`cp {源文件} novel/_reference/`
+**1.2 保存原始文件**：`mkdir -p novel/_import/{timestamp}/ && cp {源文件} novel/_import/{timestamp}/`（临时中转，流程结束可删，不备份）
 
 **1.3 生成导入清单**：写入 `{draft}/import-temp/_import-manifest.md`
 
@@ -113,6 +113,7 @@ description: 多格式章节导入——源文件接收→AI扫描设定摘要�
 - {N} 个章节已放入草稿 {draft}/chapters/
 - {X} 条设定变更 / {Y} 条角色状态 / {V} 条伏笔 / {A} 条弧光 已写入追踪文件
 - 评审队列已就绪：{draft}/_import-analysis/_review-queue.md
+- 原始文件存于 novel/_import/{timestamp}/（临时中转，确认无需保留后可手动删除）
 
 下一步：
 - 逐章评审：说"评审第X章"

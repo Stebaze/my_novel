@@ -356,14 +356,13 @@
 - 抽样 4-5 章（前 80 行 + 中 40 行 + 末 40 行）
 - 不分析情节/关系/世界观/篇幅（这些是作者自己的创作特征）
 - 不入库技法
-- 产出 `{draft_dir}/author-voice.md`（含 frontmatter）
+- 产出 `novel/author-voice.md`（含 frontmatter）——author-voice 在正式层，草稿不镜像
 
 **执行流程**：
 
 ```
 1. 确定抽样范围：
-   - 有 draft_dir → 扫描 {draft_dir}/chapters/ 下的 .md
-   - 降级 → 扫描 novel/chapters/ 下的 .md
+   - 扫描 {draft_dir}/chapters/ 下的 .md（草稿未发布章节）+ novel/chapters/ 下的 .md（已发布）
    - 抽样策略：均匀分布取 4-5 章（< 10 章则全取）
 
 2. 逐章轻量读取（每章前 80 + 中 40 + 末 40 行）：
@@ -375,7 +374,7 @@
    - 填充 §一/§二/§三/§四/§七
    - §五 修炼/战斗 → 战斗章节则填充，否则"待补充"
    - §六 章节结构 → 基础填充（场景数/字数/开章方式）
-   - 写入 {draft_dir}/author-voice.md（含 frontmatter）
+   - 写入 novel/author-voice.md（含 frontmatter）
 
 4. 降级：
    - 章节总数 < 3 → ⚠️ "风格未稳定——建议写 5+ 章后重新提取"

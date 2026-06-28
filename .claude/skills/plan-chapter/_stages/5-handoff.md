@@ -23,7 +23,7 @@
    brief: ""（空——generate-chapter 阶段 1 补生成）
    chapter_file: chapters/chapter-{N}.md
    character_state: _character-state.md（settings-manager 提供路径）
-   style_profile: author-voice.md
+   style_profile: novel/author-voice.md（正式层路径，草稿不镜像）
    workflow_position: "plan-step5-handoff"
    resume_command: "/generate-chapter {N}"
    ```
@@ -47,7 +47,7 @@
   - 方向卡：{draft_dir}/_briefs/chapter-{N}-direction.md
   - 简报：待 generate-chapter 阶段 1 补生成
   - 角色状态：{draft_dir}/_character-state.md
-  - 文风档案：{draft_dir}/author-voice.md
+  - 文风档案：novel/author-voice.md（正式层，草稿不镜像）
   - 续跑命令：/generate-chapter {N}
 
 提示用户：
@@ -62,7 +62,7 @@
    │ 继续 Ch{N} 写作——handoff 如下：              │
    │ chapter: {N}                                │
    │ direction: _briefs/chapter-{N}-direction.md │
-   │ style: author-voice.md                     │
+   │ style: novel/author-voice.md                │
    │ resume: /generate-chapter {N}              │
    └─────────────────────────────────────────────┘"
 ```

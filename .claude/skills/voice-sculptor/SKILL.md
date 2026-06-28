@@ -19,7 +19,7 @@ description: 角色声音实验——生成式(A/B/C)写实验文本并自提取
 | **Called by** | `pre-flight-check` Skill (C6), `qing-novelist` Skill (维度 11) |
 | **Calls** | `sensory-writer` Skill（生成式实验文本写作） |
 | **Input** | `operation` (`generate`/`mine`), `character`, `experiment_type` (A/B/C 或源文本路径), `draft_dir` |
-| **Output** | 实验文本 + 结构化分析结果 → 写入 `{DraftDir}/voice-bible.md` + 追加 `_reference/voice-experiments.md` 实验记录 |
+| **Output** | 实验文本 + 结构化分析结果 → 写入 `novel/voice-bible.md`（正式层，草稿不镜像）+ 追加 `_reference/voice-experiments.md` 实验记录 |
 
 ## Triggers
 
@@ -174,5 +174,5 @@ description: 角色声音实验——生成式(A/B/C)写实验文本并自提取
 | `sensory-writer` Skill | generate Step 1 写实验文本 | 🚫 硬阻断——实验文本不可跳过 |
 | `_reference/voice-experiments.md` | 每次执行 | ⚠️ 使用内嵌四类选题骨架 |
 | `framework/templates/voice-bible.md` | 创建新角色子节时 | ⚠️ 使用 voice-bible 通用结构知识降级 |
-| `{DraftDir}/characters/{角色名}.md` | Step 3 对照 | ⚠️ 跳过档案对照，标注"无档案可对照" |
-| `{DraftDir}/author-voice.md` | generate Step 2 自分析 | ⚠️ 仅基于通用叙事声音常识判断 |
+| `novel/characters/{角色名}.md` | Step 3 对照 | ⚠️ 跳过档案对照，标注"无档案可对照" |
+| `novel/author-voice.md` | generate Step 2 自分析 | ⚠️ 仅基于通用叙事声音常识判断 |

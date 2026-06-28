@@ -21,7 +21,7 @@ framework/
 │   ├── multi-pov-guide.md               多主角叙事指南
 │   ├── voice-experiments.md             角色声音实验方法
 │   ├── villain-design-guide.md          反派设计指南
-│   ├── draft-system.md                  稿件三层体系文档
+│   ├── draft-system.md                  稿件两层体系文档
 │   ├── reference-material.md            参考素材库
 │   ├── bootstrap-workflow-guide.md      冷启动工作流指南
 │   └── character-enrichment-guide.md    角色人设丰富指南
@@ -52,7 +52,7 @@ framework/
 │   ├── _reference-roles.md             参考角色映射记录模板
 │   ├── _bootstrap-progress.md          冷启动进度追踪模板
 │   └── _drafts/                        草稿管理模板
-│       ├── _index.md                   草稿会话索引
+│       ├── _edit-history.md            编辑历史追踪模板
 │       └── session-context.md          跨 Skill 交接文件模板
 ```
 
@@ -65,7 +65,7 @@ framework/
 ### 1. 创建 novel/ 目录
 
 ```bash
-mkdir -p novel/{world,characters,chapters/_experiments,_drafts,_reference}
+mkdir -p novel/{world,characters,chapters,_drafts,_import}
 ```
 
 ### 2. 复制模板
@@ -92,8 +92,7 @@ cp framework/templates/characters/_language-fingerprint-template.md novel/charac
 # 章节
 cp framework/templates/chapters/_chapter-template.md novel/chapters/
 
-# 草稿管理
-cp framework/templates/_drafts/_index.md novel/_drafts/
+# 草稿管理（单草稿固定路径 novel/_drafts/，无需 _index.md）
 # session-context.md 模板在 framework/templates/_drafts/session-context.md，新建草稿时复制到 {draft}/session-context.md
 ```
 

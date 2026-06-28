@@ -54,8 +54,9 @@ description: 编辑顾问/综合评审者——心流五维18项+AI指纹检测+
 2. 读取简报 {DraftDir}/_briefs/chapter-{N}-brief.md
 3. 读取前一章正文 {DraftDir}/chapters/chapter-{N-1}.md
 4. 读取 {DraftDir}/_exchanges/settings-snapshot.md（由 chapter-review 写入）
-   → 不存在 → 标注"设定快照缺失"，降级为直接读取角色档案+world/
-5. 读取 {DraftDir}/outline.md + {DraftDir}/notes.md + author-voice.md（缺失 → 标注降级）
+   → 不存在 → 标注"设定快照缺失"，降级为调 settings-manager(read-settings) 双源合并
+5. 读取 novel/outline.md + {DraftDir}/notes.md + novel/author-voice.md（缺失 → 标注降级）
+   —— outline / author-voice 在正式层 novel/，草稿不镜像；notes 是草稿元数据读 {draft}/
 6. [mode="ai-content"] 读取 {DraftDir}/_exchanges/scene-summaries.json
    → 不存在 → 标注"AI 专项检查降级——无 scene-summaries 可消费"
 ```
@@ -182,7 +183,7 @@ description: 编辑顾问/综合评审者——心流五维18项+AI指纹检测+
 | `framework/guides/psychology-guide.md` | Step 3b（理论背景） | ⚠️ 降为理论百科——操作框架已覆盖核心检查项 |
 | `framework/guides/villain-design-guide.md` | Step 3b（反派时） | ⚠️ 反派检查仅基于常识 |
 | `settings-manager` Skill | Discovery/publish-verify | 🚫 硬阻断——无设定快照无法做一致性检查 |
-| `{DraftDir}/author-voice.md` | Step 1 | ⚠️ 4.1 仅检查内部一致性 |
-| `{DraftDir}/outline.md` | Step 3a | ⚠️ 章节定位从编号推断 |
+| `novel/author-voice.md` | Step 1 | ⚠️ 4.1 仅检查内部一致性 |
+| `novel/outline.md` | Step 3a | ⚠️ 章节定位从编号推断 |
 | 角色档案 | Step 3b | ⚠️ 仅检查本章内部一致性 |
 | `{DraftDir}/_exchanges/scene-summaries.json` | Step 3c-AI（mode="ai-content"） | ⚠️ AI 专项检查降级为纯文本评审（Fix 循环无法精准定位） |

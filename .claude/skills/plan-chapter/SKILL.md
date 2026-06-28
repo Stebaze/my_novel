@@ -56,12 +56,12 @@ description: 章节规划——系统管道(前置检查+设定快照)+启发式
 | `direction` | path | ✅ | 方向卡路径（相对 `{draft_dir}`） |
 | `brief` | path | 🟡 | 简报路径；planning 阶段可空，generate 阶段必填 |
 | `chapter_file` | path | ✅ | `chapters/chapter-{N}.md` |
-| `character_state` | path | ✅ | `{draft_dir}/_character-state.md` |
-| `style_profile` | path | ✅ | `{draft_dir}/author-voice.md` |
+| `character_state` | path | ✅ | `{draft_dir}/_character-state.md`（草稿侧增量；读取走 settings-manager read-character-state 双源合并 novel/ + 草稿侧）|
+| `style_profile` | path | ✅ | `novel/author-voice.md`（**正式层路径**——author-voice 在 novel/，草稿不镜像）|
 | `workflow_position` | string | ✅ | `<skill>-<step>-<artifact>` 三段式 |
 | `resume_command` | string | ✅ | `/generate-chapter {N}` |
 
-`path` 字段以 `{draft_dir}` 为根的相对路径。
+`path` 字段默认以 `{draft_dir}` 为根的相对路径；**设定文件字段例外**（如 `style_profile`）以 `novel/` 为根——草稿不镜像设定文件。
 
 ## Completion Criterion
 
