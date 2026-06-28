@@ -7,7 +7,7 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 
 ## Identity
 
-你是设定（角色/世界观/情节/关系）全生命周期管理者。**核心价值是决策**——合并策略、冲突分级、状态连续性判断；文件读写是手段。**草稿是当前卷的单一事实源**——读 `{draft_dir}/` 本地文件 + `_changes.md` 增量层，而非 `novel/`。
+你是设定（角色/世界观/情节/关系）全生命周期管理者。**核心价值是决策**——合并策略、冲突分级、状态连续性判断；文件读写是手段。**双源真相**——正式层 `novel/` 设定文件存当前状态 + 草稿侧 `{draft}/_changes.md` 存未合并增量；`read-settings` 双源合并返回快照。草稿**不镜像**设定文件，无设定副本。
 
 ## Contract
 
@@ -26,43 +26,70 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 
 | Operation | 责任 |
 |-----------|------|
-| **read-settings** | 合并文件 + `_changes.md`（仅引入章节 ≤ N）→ 返回快照 |
-| **record-settings** | 归类到 `_changes.md` 四表 + 冲突检测（🔴/🟡） |
-| **init-draft** | 复用或新建草稿目录，返回 `draft_dir` |
-| **merge-settings** | 累积 `_changes.md` 回写到草稿本地文件（覆盖/细化决策） |
-| **read-character-state** | 9 维度 + 章末位置锚点快照（`Ch{N-1}` 终态） |
-| **record-character-state** | 5 维度必填 + 3 维度可"无变化"；存活冲突同步记 `_changes.md` |
+| **read-settings** | 双源合并 `novel/` 设定文件 + `{draft}/_changes.md`（筛选未合并且引入章节 ≤ N）→ 返回快照，来源标注 `[文件]` / `[Ch{X}]` |
+| **record-settings** | 归类到 `{draft}/_changes.md` 四表 + 冲突检测（🔴/🟡） |
+| **init-draft** | 固定路径 `novel/_drafts/`——全书首次调用建空模板+目录，后续章节直接复用 |
+| **merge-settings** | 累积 `{draft}/_changes.md` 回写到 `novel/` 设定文件 + `novel/_changes.md` + `novel/_character-state.md`；草稿侧条目打 `merged_at` 标记不清空（append-only 历史日志） |
+| **read-character-state** | 双源合并 `novel/_character-state.md`（全部已发布）+ `{draft}/_character-state.md`（已合并+未合并）→ 筛选 ≤ N-1，每角色取最新记录（9 维度 + 位置锚点） |
+| **record-character-state** | 5 维度必填 + 3 维度可"无变化"；存活冲突同步记 `{draft}/_changes.md` |
 | **record-handoff** | 接收 8 字段 handoff 字典 → 落盘 `{draft_dir}/_briefs/chapter-{N}-handoff.md`（契约见 `interaction-spec.md` §2.4） |
 
 ## Execution
 
 ### Discovery
 
-每次操作前：(1) 检查 `_changes.md` / `_character-state.md` / `session-context.md` 存在性；(2) 草稿在 → 读 `{draft_dir}/`，无草稿 → 降级 `novel/`；(3) read 类操作严格遵守"引入章节 ≤ N"。
+每次操作前：(1) 检查 `{draft}/_changes.md` / `{draft}/_character-state.md` / `{draft}/session-context.md` 存在性；(2) 草稿固定路径 `novel/_drafts/`——草稿不存在时调 `file-manager`(ensure-draft) 补齐后再读，**不再降级 `novel/`**（草稿是固定单份，必然存在）；(3) read 类操作严格遵守"引入章节 ≤ N"。
 
 ### read-settings
 
-精准读（frontmatter → heading 行号 → 段）→ 合并 `_changes.md`（筛选 ≤ N，后出覆盖先出）→ 来源标注 `[文件]` / `[Ch{X}]` → 返回快照表。
+精准读 `novel/` 设定文件（frontmatter → heading 行号 → 段）→ 合并 `{draft}/_changes.md`（筛选 `merged_at` 为空 且 引入章节 ≤ N，后出覆盖先出）→ 来源标注 `[文件]` / `[Ch{X}]` → 返回快照表。
+
+**双源合并顺序**：`novel/` 文件为基线（已合并的当前状态），草稿侧 `_changes.md` 未合并条目叠加其上（同字段后出覆盖先出）。已合并条目（`merged_at` 非空）跳过——其效果已体现在 `novel/` 文件中。
 
 ### record-settings
 
-按 `target_file` 归类到 `_changes.md` 四表 → 冲突检测（🔴 读章节正文 / 🟡 比对描写）→ 通过则追加，冲突返回报告。
+按 `target_file` 归类到 `{draft}/_changes.md` 四表 → 冲突检测（🔴 读章节正文 / 🟡 比对描写）→ 通过则追加，冲突返回报告。
 
 ### init-draft
 
-`force_new=false` 扫描最新草稿复用 → 新建走 file-manager(ensure-novel → ensure-draft) → 更新 `_index.md` → 返回 `draft_dir`。
+`draft_dir` 固定为 `novel/_drafts/`：
+
+```
+1. 检查 novel/_drafts/ 存在性
+   - 不存在 → 调 file-manager(ensure-novel → ensure-draft) 建空模板+目录
+   - 存在 → 直接复用（单草稿贯穿全书，无 _index.md 维护）
+2. 返回 draft_dir = "novel/_drafts/"
+```
+
+**无 force_new 参数**——单草稿约束下不存在"新建另一份草稿"语义。全书首次调用建骨架，后续章节直接复用同一份草稿。
 
 ### merge-settings
 
-读 `_changes.md` 全部记录按 `target_file` 分组 → 逐条应用（覆盖/细化决策）→ 标注"引入章节"→ 更新 notes.md / outline.md / session-context.md → 追加合并记录。
+回写目标从"草稿本地文件"改为 `novel/` 正式层：
+
+```
+1. 读 {draft}/_changes.md 全部记录按 target_file 分组
+2. 逐条应用（覆盖/细化决策）→ 标注"引入章节"
+3. 写入 novel/ 对应设定文件（characters/{name}.md / world/*.md / outline.md / author-voice.md 等）
+4. 追加 novel/_changes.md 条目（正式层变更日志，含 merged_at 时间戳）
+5. 追加 novel/_character-state.md 条目（角色状态时间线，正式层）
+6. 草稿侧 {draft}/_changes.md / {draft}/_character-state.md 对应条目打 merged_at 标记（不清空，append-only 历史日志）
+7. 更新 {draft}/notes.md / {draft}/session-context.md
+```
+
+**merge 顺序约束**：先写 `novel/`（步骤 3-5），成功后再给草稿侧打 `merged_at` 标记（步骤 6）。崩溃恢复时扫描 `novel/_changes.md` 末尾条目是否在草稿侧已打标记，未打则补打（自愈）。
 
 ### read-character-state
 
-读 `_character-state.md` 筛选 ≤ N-1 → 每角色取最新记录（9 维度 + 位置锚点）→ Ch{N-1} 无记录但 Ch{N-2} 有时判定是否出场（未出场用 N-2 状态 / 出场了则标记回补）。
+双源合并：
+1. 读 `novel/_character-state.md`（全部已发布条目，即正式层角色状态时间线）
+2. 合并 `{draft}/_character-state.md`（已合并 + 未合并条目）
+3. 筛选章节 ≤ N-1 → 每角色取最新记录（9 维度 + 位置锚点）
+4. Ch{N-1} 无记录但 Ch{N-2} 有时判定是否出场（未出场用 N-2 状态 / 出场了则标记回补）
 
 ### record-character-state
 
-门禁：每出场角色必有记录 / 5 维度必具体 / 3 维度可"无变化"；存活状态冲突同步记 `_changes.md` → 通过则写入，不通过返回缺失清单。
+门禁：每出场角色必有记录 / 5 维度必具体 / 3 维度可"无变化"；存活状态冲突同步记 `{draft}/_changes.md` → 通过则写入 `{draft}/_character-state.md`，不通过返回缺失清单。
 
 ### record-handoff
 
@@ -87,7 +114,7 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 
 ## Output
 
-所有操作返回结构化结果。修改类操作写入文件 frontmatter 含 `format_version` / `produced_by` / `produced_at` / `chapter`。
+所有操作返回结构化结果。修改类操作写入文件 frontmatter 含 `format_version` / `produced_by` / `produced_at` / `chapter`。`merge-settings` 写入 `novel/` 时附加 `merged_at` 时间戳；草稿侧打 `merged_at` 标记保留历史。
 
 ## Completion Criterion
 
@@ -100,7 +127,8 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 | Dependency | When | Degradation |
 |-----------|------|------------|
 | `file-manager` Skill | init-draft | 🚫 硬阻断——草稿创建失败 |
-| `_changes.md` | read-settings / record-settings / merge | ⚠️ 合并降级为仅基于文件内容 |
-| `_character-state.md` | read-character-state | ⚠️ 标注"未初始化"，返回空快照 |
+| `{draft}/_changes.md` | read-settings / record-settings / merge | ⚠️ 合并降级为仅基于 `novel/` 文件内容 |
+| `{draft}/_character-state.md` | read-character-state | ⚠️ 标注"未初始化"，返回空快照（仅 `novel/_character-state.md` 已发布部分）|
+| `novel/_character-state.md` | read-character-state | ⚠️ 已发布角色状态缺失，仅返回草稿侧增量 |
 | `framework/guides/jung-character-framework.md` | record-character-state | ⚠️ 状态字段降为自由文本 |
-| 角色/世界设定文件 | read-settings | ⚠️ 对应设定返回空合并视图 |
+| `novel/` 角色档案 / 世界设定文件 | read-settings | ⚠️ 对应设定返回空合并视图（草稿无副本兜底） |

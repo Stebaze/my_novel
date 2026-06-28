@@ -4,7 +4,7 @@ AI 辅助长篇小说写作工程。Claude Code 载体，21 个 Skill 协作完�
 
 - **核心机制**：AI 产出"写作简报"引导作者执笔，**或启用 AI 生成整章模式**（4 session）
 - **架构**：单层 Skill 架构（运行在当前会话）+ 显式 handoff 协议（多 session 衔接）
-- **稿件管理**：三层体系（原稿只读/草稿自由/正式稿锁定）+ 设定变更追踪
+- **稿件管理**：两层体系（正式层机械写入/草稿层自由）+ 临时中转 + 设定变更追踪
 - **架构规范**：[`framework/_specs/interaction-spec.md`](framework/_specs/interaction-spec.md)
 - **当前作品**：[见 `novel/project-config.md`]
 
@@ -20,9 +20,9 @@ AI 辅助长篇小说写作工程。Claude Code 载体，21 个 Skill 协作完�
 
 5. **作者风格档案强制规则**：写作规划时如用户指定对标某作者风格，而 `profiles/authors/` 中不存在该作者档案，**必须先执行 `qing-novelist`（作者分析模式）的七维分析流程**，建立档案并写入磁盘后，方可进入简报生成阶段。没有例外。
 
-6. **文件路径强制规则**：草稿优先。当存在活跃草稿（`novel/_drafts/` 下最新日期目录）时，Skill 的文件读写一律以草稿目录为根——草稿是 `novel/` 的完整镜像（由 `file-manager` ensure-draft 在 `settings-manager` init-draft 时创建），无需回退到 `novel/` 或 `framework/templates/`。**Handoff 模式同样适用：handoff 文件（`_briefs/chapter-{N}-handoff.md`）、简报、章节正文、评审报告一律落盘到草稿对应子目录**。无活跃草稿时降级使用 `novel/` 路径。
+6. **文件路径强制规则**：草稿优先。草稿固定路径 `novel/_drafts/`（单份、扁平化、贯穿全书，无日期目录无 `_index.md`）。草稿**只存工作产物 + 增量日志**（`_changes.md` / `_character-state.md` / `_edit-history.md`，append-only），**不镜像设定文件**——设定读写一律走 `settings-manager read-settings`（双源合并 `novel/` + `{draft}/_changes.md`），禁止直接 `Read({draft}/characters/...)` / `Read({draft}/world/...)`（草稿无副本，直接读会读空）。**Handoff 模式同样适用：handoff 文件（`_briefs/chapter-{N}-handoff.md`）、简报、章节正文、评审报告一律落盘到草稿对应子目录**。无活跃草稿时降级使用 `novel/` 路径。
 
-7. **改编原作画像强制规则**：任何改编规划请求**必须先在 `adaptation-workflow` 阶段 0 完成六维原作画像提取**（`reference/manuscripts/_analysis/{作品名}.md`），原作画像不存在时禁止进入改编规划。没有例外。
+7. **改编原作画像强制规则**：任何改编规划请求**必须先在 `adaptation-workflow` 阶段 0 完成六维原作画像提取**（`reference/manuscripts/_analysis/{作品名}.md`），原作画像不存在时禁止进入改编规划。注意：此处的 `reference/manuscripts/` 是**改编原作分析目录**（项目根下，存原作画像），与稿件体系中已删除的 `novel/_reference/` 原"原稿层"无关——两者同名但完全独立，不要混淆。没有例外。
 
 8. **工作流进度追踪规则**：每次会话启动时**必须**检查当前活跃草稿下的工件文件（`_briefs/`、`chapters/`、`_reviews/`），根据工件存在性确定各章节所处阶段，检测异常（跳过步骤），在会话初始化摘要中呈现给用户。**章节阶段判定标志**：`_briefs/chapter-{N}-direction.md` 存在 → plan-chapter 阶段 3 完成；`_briefs/chapter-{N}-handoff.md` 存在 → plan-chapter 全部完成（可进入 generate-chapter）；`_briefs/chapter-{N}-brief.md` 存在 → generate-chapter Step 1 完成；`_exchanges/scene-summaries.json` 存在 → generate-chapter Step 2 完成（per-scene 生成完成）；`chapters/chapter-{N}.md` 存在 → 章节已写；`_reviews/chapter-{N}-review.md` 存在 → 评审已做；`_reviews/chapter-{N}-fix-log.md` 存在 → Fix 循环已执行。**书级阶段判定标志**：`outline.md` frontmatter `workflow_position = outline-tingle-step1-done` → outline-tingle Session 1 完成；`= outline-tingle-l1-confirmed` → L1 已确认；`= outline-tingle-step2-done` → 大纲形成完成（可进 plan-chapter）；`book_settings_dispatched = true` → outline-tingle 2.8.5 书级设定派发完成（characters/character-arcs/world/thread-map 已含骨架）。**禁止**在不满足前置条件时进入下一阶段。没有例外。
 
@@ -87,9 +87,9 @@ SESSION 3 — publish /publish-chapter {N}
 | `framework/_specs/interaction-spec.md` | 架构规范（Skill 命名/调用/handoff 协议） |
 | `framework/guides/` / `framework/templates/` | 方法论文档（21 篇）/ 初始化模板 |
 | `novel/project-config.md` | 项目配置（创作模式/原作来源/输出格式） |
-| `novel/_drafts/{latest}/notes.md` | 项目状态（活跃期间唯一真相源） |
-| `novel/_drafts/{latest}/session-context.md` | 跨 session Skill 交接上下文 |
-| `novel/chapters/` / `novel/_reference/` | 正式稿 / 原稿（只读） |
+| `novel/_drafts/notes.md` | 项目状态（活跃期间唯一真相源） |
+| `novel/_drafts/session-context.md` | 跨 session Skill 交接上下文 |
+| `novel/chapters/` / `novel/_import/{ts}/` | 正式稿 / 临时中转（流程结束可删） |
 | `profiles/authors/` | 作者风格档案（`qing-novelist` 作者分析模式产出）— 个体档案不入版本管理，本地保留 + `_index` 重建 |
 
 `novel/` 不在版本管理中。完整文件列表用 `ls framework/ novel/` 获取。
@@ -114,15 +114,15 @@ SESSION 3 — publish /publish-chapter {N}
 
 所有产物含 frontmatter 版本标记（`format_version` / `produced_by` / `produced_at` / `chapter`）。handoff 8 字段契约见 [`interaction-spec.md` §2.4](framework/_specs/interaction-spec.md)。
 
-## 稿件三层体系
+## 稿件两层体系
 
 | 层 | 目录 | 性质 | 修改权限 |
 |----|------|------|---------|
-| 原稿 | `novel/_reference/` | 上传原始素材 | 只读 |
-| 草稿 | `novel/_drafts/{latest}/` | 实验性写作 | 自由 |
-| 正式稿 | `novel/chapters/` | 已发布 | 谨慎 |
+| 临时中转 | `novel/_import/{ts}/` | 导入外部成稿暂存 | 流程结束可删，不备份 |
+| 正式层 | `novel/` 根设定 + `novel/_changes.md` + `novel/_character-state.md` + `novel/chapters/` | 静态设定 + 正式增量日志 + 已发布章节正文 | 机械写入（publish/merge）/ 人工慎改 |
+| 草稿层 | `novel/_drafts/`（扁平化，单份，贯穿全书） | 工作产物 + 草稿增量 | 自由 |
 
-迁移：`原稿 → author-voice.md → 草稿 → 正式稿`。草稿管理由 `settings-manager` 处理（初始化/写作期/合并/废弃）。**设定时间线**：每条设定标注"引入章节"；评审/修改第 N 章时只参考引入章节 ≤ N 的条目；修改时向前扫描章节号 > 旧引入章节的章节是否冲突。冲突分级：🔴 必须修 / 🟡 应修。详细操作见 `settings-manager` Skill。
+草稿**不镜像设定文件**——只存工作产物 + 增量日志（`_changes.md` / `_character-state.md` / `_edit-history.md`，append-only，merge 打 `merged_at` 不清空）。设定读写全部走 `settings-manager read-settings`（双源合并 `novel/` + `{draft}/_changes.md`），草稿无设定副本。单草稿约束：固定路径 `novel/_drafts/`，无日期目录无 `_index.md`，贯穿全书复用。publish 是正式层的单次合并写入（章节 sync + 设定 merge + 日志追加），用两阶段暂存-提交保证原子性；publish 后草稿章节正文删除，伴生工件 + `_edit-history.md` 归档到 `_archive/chapter-{N}/`。正式层 `_changes.md` 与设定文件双轨：文件存当前状态，日志存变更历史；**正式层设定文件不可手改**，pre-flight-check C11 检测 mtime 一致性。**设定时间线**：每条设定标注"引入章节"；评审/修改第 N 章时只参考引入章节 ≤ N 的条目；修改时向前扫描章节号 > 旧引入章节的章节是否冲突。冲突分级：🔴 必须修 / 🟡 应修。详细操作见 `settings-manager` Skill。
 
 ## 降级策略
 

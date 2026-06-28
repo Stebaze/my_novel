@@ -298,4 +298,4 @@ migration-keeper:     operation={op} target={scope}            [完整菜单]
 | 目标 skill（plan-chapter 等） | route/next | 🚫 硬阻断——若未安装则报告 |
 | `pre-flight-check` Skill | qa check 步骤 2 | 🚫 硬阻断 |
 | `framework/.framework-version` | init | ⚠️ 视为 v2，标注缺失 |
-| `novel/_drafts/{latest}/` | 状态扫描 | ⚠️ 降级到 novel/ |
+| `novel/_drafts/` | 状态扫描 | ⚠️ 草稿不存在时调 file-manager(ensure-draft) 补齐 |

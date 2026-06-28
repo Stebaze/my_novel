@@ -7,9 +7,9 @@
 ## 步骤 1：Resolve Context
 
 ```
-1. 扫描 novel/_drafts/ → 最新日期目录 → draft_dir；无草稿 → draft_dir = novel/
+1. 检查 novel/_drafts/ 存在性 → draft_dir = novel/_drafts/（固定路径，单草稿）；不存在 → 标记需初始化（阶段 2 调 init-draft）
 2. 读 {draft_dir}/notes.md「当前进度」→ target_chapter
-3. 读 {draft_dir}/project-config.md「创作模式」→ output_format（默认 "prose"）
+3. 读 novel/project-config.md「创作模式」→ output_format（默认 "prose"）——project-config 在正式层，草稿不镜像
 4. 从大纲 + 前一章角色状态推断出场角色列表 chapter_characters
 5. 工作流模式判定（贯穿阶段 5）：
    └── 统一走 4-Skill 对称架构（阶段 5 写 handoff 后退出）

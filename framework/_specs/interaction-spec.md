@@ -79,15 +79,25 @@ SESSION 3: publish-chapter  → 设定合并 + 正式稿
 
 书级状态机改由 `outline.md` frontmatter 的 `workflow_position` 字段表达（状态值流转：`outline-tingle-step1-done` → `outline-tingle-l1-confirmed` → `outline-tingle-step2-done`），由 `outline-tingle` Skill 推进；`format_version: 2` 标识 v2 模板。`plan-chapter` 读 `outline.md` 时多出的 v2 frontmatter 字段忽略，不触发降级。
 
-## 3. 稿件三层体系 + 设定时间线
+## 3. 稿件两层体系 + 临时中转 + 设定时间线
 
 | 层 | 目录 | 性质 | 修改权限 |
 |----|------|------|---------|
-| 原稿 | `novel/_reference/` | 上传原始素材 | 只读 |
-| 草稿 | `novel/_drafts/{latest}/` | 实验性写作 | 自由 |
-| 正式稿 | `novel/chapters/` | 已发布 | 谨慎 |
+| 临时中转 | `novel/_import/{ts}/` | 导入外部成稿暂存 | 流程结束可删，不备份 |
+| 正式层 | `novel/` 根设定 + `novel/_changes.md` + `novel/_character-state.md` + `novel/chapters/` | 静态设定 + 正式增量日志 + 已发布章节正文 | 机械写入（publish/merge）/ 人工慎改 |
+| 草稿层 | `novel/_drafts/`（扁平化，单份，贯穿全书） | 工作产物 + 草稿增量 | 自由 |
 
-迁移：`原稿 → author-voice.md → 草稿 → 正式稿`。草稿管理由 `settings-manager` 处理（初始化/写作期/合并/废弃）。
+**层划分本质**：按修改路径与权限划分，而非文件分布。正式层 = 机械写入 + 人工慎改；草稿层 = 工作中自由改。`chapters/` 与 `novel/` 根设定文件只是正式层内的文件分布，不是子层。
+
+**草稿内容清单**：工件（`_briefs/` / `_exchanges/` / `_reviews/` / `chapters/` 仅未发布）+ 增量日志（`_changes.md` / `_character-state.md` / `_edit-history.md`，append-only）+ 元数据（`session-context.md` / `notes.md`）+ 归档（`_archive/chapter-{N}/`）+ 暂存（`_publish-staging/`）。**草稿不镜像设定文件**——设定读写全部走 `settings-manager read-settings`（双源合并 `novel/` + `{draft}/_changes.md`）。
+
+**单草稿约束**：全局只一份 `novel/_drafts/`，无日期目录无 `_index.md`，贯穿全书复用，`session-context.md` 常驻判断当前阶段。
+
+**`novel/_character-state.md`**：正式角色状态时间线，与静态角色档案 `characters/{name}.md` 分离——档案存"这角色是谁"，状态日志存"每章在哪/情绪/能力"。草稿侧 `{draft}/_character-state.md` 是写作期增量，publish 时 merge 进 `novel/_character-state.md`。
+
+**双轨关系**（正式层 `_changes.md` vs 设定文件）：文件存当前状态（写作时直接读），日志存变更历史（评审/追溯用）。职责分离非冗余。强约束：**正式层设定文件不可手改**，只能通过 publish merge 更新——pre-flight-check C11 检测 mtime 一致性。
+
+迁移：草稿章节通过 `publish-chapter` 两阶段暂存-提交写入正式层（章节 sync + 设定 merge + 日志追加 + 工件归档）。草稿管理由 `settings-manager` 处理（初始化/写作期/合并/归档）。
 
 **设定时间线**：每条设定标注"引入章节"。评审/修改第 N 章时只参考引入章节 ≤ N 的条目；修改时向前扫描章节号 > 旧引入章节的已有章节是否冲突。冲突分级：🔴 必须修（直接矛盾/能力越界）/ 🟡 应修（关系跳跃/细节不一致）。
 
