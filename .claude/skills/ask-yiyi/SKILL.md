@@ -63,7 +63,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
       异常：有 review 无 chapter = 🔴 / 有 brief 无 direction 或有 chapter 无 brief = 🟡
    c. 灵感池（横切工件，读 novel/inspiration-log.md——绕过草稿）：
       - 文件不存在 → 静默跳过（inspiration-log 是可选工件，不报缺失）
-      - 存在 → Read 末尾 50 行 → grep `^- \[` 提取真实 bullet（排除 `<!--` 注释行）→ 取最近 5 条 + 总 bullet 计数
+      - 存在 → Read 末尾 50 行 → grep `^- \[` 提取真实 bullet（模板示例 bullet 缩进 2 空格在 HTML 注释内，不会被 `^- \[` 匹配）→ 取最近 5 条 + 总 bullet 计数
 7. 输出 5 字段摘要 + 智能建议下一步
 ```
 
