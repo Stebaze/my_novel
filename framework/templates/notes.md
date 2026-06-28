@@ -14,7 +14,7 @@ sections:
     desc: "写角色时的临时心得——确认后合并到角色档案"
   - heading: "## 灵感速记"
     skills: [mo-writer, qing-novelist]
-    desc: "写作过程中冒出的灵感——确认后移到inspiration-log.md"
+    desc: "写作过程中冒出的灵感——建议作者用 /spark 记入 inspiration-log.md（不自动迁移，由作者决定）"
   - heading: "## 近期模式使用记录"
     skills: [ping-critic]
     desc: "近N章的桥段/断章/情绪句式记录——用于模式新鲜度检查"

@@ -229,7 +229,7 @@ L3 阶段（篇章层，每卷内）：
 | `outline.md` Premise 段含 `（待定）` | （无补齐——由 idea-explorer mode=book 产） | 🚫 硬阻断——Premise 未定无法 grilling 主题。提示"请先跑 /outline-tingle Session 1（调 idea-explorer mode=book）选定主题" |
 | `novel/project-config.md` | `file-manager` ensure-novel | ⚠️ 标注"无项目配置"，按原创模式（original）继续；adaptation 模式判定降级为 original |
 | `framework/guides/narrative-engineering.md` | 框架文件 | ⚠️ 五级大纲体系方法论缺失，L1→L2→L3 收敛降级为常识推理 |
-| 草稿 `inspiration-log.md` | `file-manager` ensure-draft | ⚠️ 标注"无灵感日志"，grilling 中产生的好点子直接交 outline-tingle 写入 outline.md（不暂存） |
+| `novel/inspiration-log.md` | `spark` Skill 首次写入时 ensure-file | ⚠️ 标注"无灵感日志"——横切工件绕过草稿，由 spark 按需补齐 `novel/inspiration-log.md`（草稿侧不副本）。grilling 中产生的好点子提示作者用 `/spark` 记录，不自动写入 |
 
 **与章节级文件缺失处理的差异**：章节级依赖 author-voice.md / voice-bible.md / thread-map.md / character-arcs.md / _character-state.md（执行层输入）；书级**不依赖**这些——书级 grilling 时这些文件可能尚不存在（outline-tingle 是项目最早阶段，角色档案还未建立）。书级只依赖 outline.md + project-config.md。
 

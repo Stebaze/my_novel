@@ -81,7 +81,7 @@ sections:
 1. 已写好的章节草稿或片段（如 `novel/_drafts/` 中的内容）
 2. 角色档案中的台词/对话笔记（如 `novel/characters/` 中的文字）
 3. 参考作品中某个角色的对话段落（如 `reference/` 中的素材）
-4. 灵感日志中的台词片段（`novel/inspiration-log.md`）
+4. 灵感日志中的台词片段（`novel/inspiration-log.md`——横切工件，grep `^- \[` 提取带 `#台词` 标签的 bullet）
 
 **挖掘流程**（Agent 执行）：
 
