@@ -65,19 +65,29 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 
 ### merge-settings
 
-回写目标从"草稿本地文件"改为 `novel/` 正式层：
+回写目标从"草稿本地文件"改为 `novel/` 正式层。支持两种模式：
+
+**直接模式**（默认，独立调用）：直接写 `novel/` + 草稿侧打标记。
+**暂存模式**（`staging=true`，由 publish-chapter 调用）：产出落 `{draft}/_publish-staging/`，不写正式层——由 publish-chapter 提交阶段执行实际写入。
 
 ```
 1. 读 {draft}/_changes.md 全部记录按 target_file 分组
 2. 逐条应用（覆盖/细化决策）→ 标注"引入章节"
-3. 写入 novel/ 对应设定文件（characters/{name}.md / world/*.md / outline.md / author-voice.md 等）
-4. 追加 novel/_changes.md 条目（正式层变更日志，含 merged_at 时间戳）
-5. 追加 novel/_character-state.md 条目（角色状态时间线，正式层）
-6. 草稿侧 {draft}/_changes.md / {draft}/_character-state.md 对应条目打 merged_at 标记（不清空，append-only 历史日志）
-7. 更新 {draft}/notes.md / {draft}/session-context.md
+3. 直接模式：写入 novel/ 对应设定文件 + 追加 novel/_changes.md + novel/_character-state.md 条目
+   暂存模式：产出落 {draft}/_publish-staging/：
+     - settings-diff.md（novel/ 设定文件待 apply diff）
+     - changes-to-append.md（novel/_changes.md 待追加条目）
+     - character-state-to-append.md（novel/_character-state.md 待追加条目）
+     - draft-merged-at.md（草稿侧待打 merged_at 标记条目清单）
+4. 草稿侧 {draft}/_changes.md / {draft}/_character-state.md 对应条目打 merged_at 标记（不清空，append-only 历史日志）
+   - 直接模式：步骤 3 写 novel/ 成功后立即打标记
+   - 暂存模式：由 publish-chapter 提交阶段执行打标记（步骤 5）
+5. 更新 {draft}/notes.md / {draft}/session-context.md
 ```
 
-**merge 顺序约束**：先写 `novel/`（步骤 3-5），成功后再给草稿侧打 `merged_at` 标记（步骤 6）。崩溃恢复时扫描 `novel/_changes.md` 末尾条目是否在草稿侧已打标记，未打则补打（自愈）。
+**merge 顺序约束**（直接模式）：先写 `novel/`（步骤 3），成功后再给草稿侧打 `merged_at` 标记（步骤 4）。崩溃恢复时扫描 `novel/_changes.md` 末尾条目是否在草稿侧已打标记，未打则补打（自愈）。
+
+**暂存模式崩溃恢复**：暂存产出落 `_publish-staging/`，正式层零影响；publish-chapter 提交阶段失败时保留 staging，下次 publish 检测残留提示继续/回滚。
 
 ### read-character-state
 
