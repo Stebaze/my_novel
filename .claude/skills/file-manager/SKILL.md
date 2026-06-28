@@ -13,7 +13,7 @@ description: 文件补齐工具——ensure-novel/ensure-draft/create-backup/ens
 
 | Aspect | Detail |
 |--------|--------|
-| **Called by** | `ask-yiyi` Skill（NO_PROJECT 时 ensure-novel）、`settings-manager` Skill（init-draft 时 ensure-novel + ensure-draft）、`migration-keeper` Skill（migrate-project 时 create-backup）、各 Skill 降级策略、用户直接调用 |
+| **Called by** | `ask-yiyi` Skill（NO_PROJECT 时 ensure-novel）、`settings-manager` Skill（init-draft 时 ensure-novel + ensure-draft）、`migration-keeper` Skill（migrate-project 时 create-backup）、`spark` Skill（首次写入前 ensure-file 补齐 `novel/inspiration-log.md`）、各 Skill 降级策略、用户直接调用 |
 | **Input** | `operation` + 目标路径（`novel/` / `{draft_dir}` / `target_dir`） |
 | **Output** | 补齐报告（已复制 X / 已跳过 Y / 验证结果） |
 
@@ -27,6 +27,7 @@ description: 文件补齐工具——ensure-novel/ensure-draft/create-backup/ens
 |-----------|-----|------|------|
 | **ensure-novel** | `framework/templates/` | `novel/` | 补齐 14 个实例文件 + 4 个目录骨架；已存在不覆盖 |
 | **ensure-draft** | `novel/` + `framework/templates/_drafts/` | `{draft_dir}/` | 复制用户文件 + 新建 `_changes.md`/`_character-state.md`/`_edit-history.md` 空模板 |
+| **ensure-file** | `framework/templates/{file}` | `{target}{file}` | 单文件补齐——从模板复制指定文件到 `novel/` 或 `{draft_dir}/`，已存在不覆盖 |
 | **create-backup** | `novel/`（排除 `_reference/` `_drafts/`）| `novel/_reference/migration-backup/{ts}/` | 迁移前备份 + 字节验证 + 备份清单 |
 | **ensure-frontmatter** | `framework/templates/` | `target_dir` 下所有 .md | 缺失 `sections:` frontmatter 时从对应模板注入 |
 
@@ -54,10 +55,31 @@ description: 文件补齐工具——ensure-novel/ensure-draft/create-backup/ens
 
 ### ensure-draft
 
-复制清单（16 个文件）：
+复制清单（15 个文件）：
 - 用户章节 → `{draft}/chapters/`；用户档案 → `{draft}/characters/`；世界 → `{draft}/world/`
-- 顶层文件：`project-config.md` `notes.md` `outline.md` `author-voice.md` `voice-bible.md` `style-guide.md` `thread-map.md` `character-arcs.md` `vocabulary-bank.md` `inspiration-log.md` 从 `novel/` 复制
+- 顶层文件：`project-config.md` `notes.md` `outline.md` `author-voice.md` `voice-bible.md` `style-guide.md` `thread-map.md` `character-arcs.md` `vocabulary-bank.md` 从 `novel/` 复制
 - 新建（空模板）：`session-context.md`（从 `framework/templates/_drafts/`）+ `_changes.md` + `_character-state.md` + `_edit-history.md`
+
+**不复制 `inspiration-log.md`**：横切工件，绕过草稿隔离，权威源为 `novel/inspiration-log.md`。草稿侧不副本，避免双副本不一致。
+
+### ensure-file
+
+单文件补齐——从 `framework/templates/{file}` 复制到 `{target}{file}`，已存在不覆盖。
+
+**参数**：
+- `file`：模板文件名（必须）
+- `target`：目标目录，限定 `novel/` 或 `{draft_dir}/`（必须）
+
+**参数校验**：
+1. `file` 必须在 file-manager 已知模板清单内（ensure-novel line 49 的 10 个顶层文件 + 3 个 world 文件）。不在清单内 → 🚫 拒绝（防止绕过清单复制 `_template` 等纯模板）
+2. `target` 必须是 `novel/` 或合法 `{draft_dir}/` 路径。其他路径 → 🚫 拒绝
+3. **横切文件例外清单**：`inspiration-log.md` 的 `target` 只允许 `novel/`——硬编码业务约束（防回归到草稿）。调用 `ensure-file(file="inspiration-log.md", target="{draft_dir}/")` → 🚫 拒绝
+
+**返回**：`{ensured: bool, path: "{target}{file}", already_existed: bool}`
+
+**调用方**：`spark` Skill（首次写入前检查 `novel/inspiration-log.md` 缺失时补齐）。
+
+**幂等**：已存在不覆盖，重复调用安全。
 
 ### create-backup
 

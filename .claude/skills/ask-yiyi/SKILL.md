@@ -61,6 +61,9 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
       | chapters/chapter-{N}.md（无 review） | 已写待评审 | ✍️ |
       | _reviews/chapter-{N}-review.md | 评审完成 | ✅ |
       异常：有 review 无 chapter = 🔴 / 有 brief 无 direction 或有 chapter 无 brief = 🟡
+   c. 灵感池（横切工件，读 novel/inspiration-log.md——绕过草稿）：
+      - 文件不存在 → 静默跳过（inspiration-log 是可选工件，不报缺失）
+      - 存在 → Read 末尾 50 行 → grep `^- \[` 提取真实 bullet（排除 `<!--` 注释行）→ 取最近 5 条 + 总 bullet 计数
 7. 输出 5 字段摘要 + 智能建议下一步
 ```
 
@@ -74,6 +77,7 @@ description: 创作工坊——会话生命周期管理 + 用户入口 + 路由 
    📝 章节：{各章节阶段一览 + 异常}
 ⚠️ 格式警告：{detect-format / check-compat 摘要}
 📌 关键上下文：{session-context 摘要}
+✨ 灵感池：{novel/inspiration-log.md 最近 5 条 + 总数；文件不存在则此行不渲染}
 
 💡 下一步：{智能建议}
 ```
