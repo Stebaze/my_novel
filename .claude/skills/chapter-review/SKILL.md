@@ -60,6 +60,13 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
 
 ### Step 3: Call ping-critic
 
+**3.0 字数统计 + 回填**（调 ping-critic 前执行，让 DoD 字数检查用实测值而非占位）：
+- 读 `{draft_dir}/chapters/chapter-{N}.md` 正文区（`## 正文` 到章末钩子之间，剔除 `### 场景头` 与 `---` 分隔符）
+- 计算实测字数（口径=中文+中文标点，Unicode 范围见 interaction-spec §2.2）
+- 回填章节文件：frontmatter `word_count` 字段 + `## 元数据 → **实测字数**` 行
+- **职责归属**：字数统计统一在 chapter-review 做，generate-chapter 不做（Fix 循环重拼后字数变化，由下一轮 Step 3 评审自动覆盖）
+- 失败 → ⚠️ 标注"字数统计降级，DoD 字数检查用 frontmatter 既有值"，不阻断
+
 调 `Skill("ping-critic", operation="comprehensive-review", mode={mode})` 一次完成：
 
 > [mode="ai-content"] 若 Step 2.5 解析到 fingerprint-tracker.json,把累计分布(flag=true 项)作为指纹归因输入传入 ping-critic——供 Fix 循环优先定位跨场景累计超标的指纹,而非只看单场景。
