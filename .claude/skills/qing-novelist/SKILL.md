@@ -121,7 +121,7 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | D2 | 场景选择 | 必有 | 场景清单 + 主导态（日常/战斗/情感/过渡）；**`single_scene = true` 时清单固定长度 1，不引导多场景设计** |
 | D2.5 | 与原文关系 | 仅 adaptation 模式 | 改写深度 L1-L6 + 保留范围 |
 | D3 | 写法方向 | 场景有多种叙述方式时 | 2 个场景开头对比 |
-| D4 | 技法选用 | 必有 | 调 `technique-selector` 获 Top-5 + 用户选定 |
+| D4 | 技法选用 | 必有 | 为每个场景各调 `technique-selector` match 获 Top-N,每场景可选 1 技法写入方向卡场景清单「技法」列;**仅很适合时指定,可留空=墨生成时 sensory-writer 自决**。不再产章级技法清单 |
 | D4b | 衔接设计 | ≥2 场景时（`single_scene = true` 时永不激活） | 调 `technique-selector` 获场景/章边界衔接技法 |
 | D4c | 伏笔操作 | 必有（thread-map 存在时） | 回收/新埋/推进清单 |
 | D5 | 风格锚点 | 必有 | author-voice.md 风格类 + 声音类型 Top-3 |

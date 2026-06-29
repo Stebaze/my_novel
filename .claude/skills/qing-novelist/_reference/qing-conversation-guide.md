@@ -24,7 +24,7 @@
 | D2 | 场景选择 | 必有 | 计划写哪几个场景？以哪种"态"为主（日常/探索/战斗/情感/过渡/高潮）？ |
 | D2.5 | 与原文关系 | 仅 `mode="adaptation"` | 源文片段定位 + 改写深度 L1-L6（用内容呈现，让作者"读到感觉"） + 保留范围 + 细节匹配 |
 | D3 | 写法方向 | 某场景有多种可行叙述方式时 | 2 个简短场景开头让作者感受 |
-| D4 | 技法选用 | 必有 | 调 `technique-selector.match()` → 展示 Top-5 → 用户接受/替换/追加 |
+| D4 | 技法选用 | 必有 | 为每个场景各调 `technique-selector.match()` → 展示 Top-N → 每场景可选 1 技法写入方向卡场景清单「技法」列。**仅很适合时指定,可留空=墨生成时 sensory-writer 自决**。不产章级技法清单(章级技法命令是 Ch2 母题泛滥的载体,已废) |
 | D4b | 衔接设计 | ≥2 场景时 | 对每个场景切换点调 `technique-selector.match()` 获 Top-2；章边界（Ch>1）传入 prev_chapter_end |
 | D4c | 伏笔操作 | thread-map 存在时 | 提取本章相关伏笔（计划揭示/临近/可埋/逾期）→ 产出操作清单 |
 | D5 | 风格锚点 | 必有 | author-voice.md 风格类 + `technique-selector.get-voice-types()` 获 Top-3 |
