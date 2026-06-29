@@ -50,13 +50,19 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
    → 失败 → 🚫 硬阻断（无设定快照无法做一致性检查）
 4. [mode="ai-content"] 解析 {draft_dir}/_exchanges/scene-summaries.json
    → 不存在 → ⚠️ 标注"AI 专项检查降级为纯文本评审（Fix 循环无法精准定位）"
-5. [mode="adaptation"] 加载 {source_portrait_path} 作为额外评审基准
+5. [mode="ai-content"] 解析 {draft_dir}/_exchanges/fingerprint-tracker.json
+   → 不存在 → ⚠️ 标注"指纹累计追踪缺失,降级为章末一次性检测（无跨场景分布可参考）"
+   → 存在 → 提取各场景 cumulative + flag,作为 ping-critic 指纹归因的分布参考（flag=true 项优先定位 Fix）
+   → 缺失不阻断（旧章节/非 generate-chapter 产出的章节无此文件）
+6. [mode="adaptation"] 加载 {source_portrait_path} 作为额外评审基准
    → 对齐级别（严格/平衡/宽松）由用户在评审前选择
 ```
 
 ### Step 3: Call ping-critic
 
 调 `Skill("ping-critic", operation="comprehensive-review", mode={mode})` 一次完成：
+
+> [mode="ai-content"] 若 Step 2.5 解析到 fingerprint-tracker.json,把累计分布(flag=true 项)作为指纹归因输入传入 ping-critic——供 Fix 循环优先定位跨场景累计超标的指纹,而非只看单场景。
 
 - **基础能力**（所有 mode）：心流五维 18 项检测 + 加载指纹归因 + 加载校对结果 + 三维评审（结构/角色设定/文本质地） + DoD 检查
 - **mode="ai-content" 额外**：5 项机器化校验（事件落地 / 场景连贯 / 突兀收束 / POV 连续 / 伏笔核对）——🔴 项必须含 `scene_index` 字段供 generate-chapter Step 4 Fix 循环精准定位
@@ -154,4 +160,5 @@ opus-dna 5 自检（**仅 mode="ai-content"** 渲染）：
 | `{draft_dir}/chapters/chapter-{N}.md` | Step 2 | 🚫 硬阻断——无正文无法评审 |
 | `{draft_dir}/_briefs/chapter-{N}-brief.md` | Step 2 | ⚠️ 标注"无简报基准"，仅基于常识判断 |
 | `{draft_dir}/_exchanges/scene-summaries.json` | Step 2（mode="ai-content"） | ⚠️ AI 专项检查降级为纯文本评审（Fix 循环无法精准定位单场景） |
+| `{draft_dir}/_exchanges/fingerprint-tracker.json` | Step 2（mode="ai-content"） | ⚠️ 指纹累计追踪缺失,降级为章末一次性检测（无跨场景分布参考） |
 | `{source_portrait_path}` | Step 2（mode="adaptation"） | 🚫 硬阻断——原作画像缺失无法做对齐检查 |
