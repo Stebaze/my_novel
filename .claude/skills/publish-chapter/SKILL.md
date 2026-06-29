@@ -59,6 +59,7 @@ merge-settings 内部顺序约束：先准备 novel/ 写入内容（暂存），
   1. mv {draft}/_publish-staging/chapter-{N}.md → novel/chapters/chapter-{N}.md
      （章节正文按 output_format 提取：prose 跳注释块 / script 提取剧本段）
      标题下添加发布元数据：> 发布：YYYY-MM-DD | 平台：XXX | 状态：⭐ 已发布
+     重算 word_count（output_format 提取后正文可能变化，以正式层落盘版本为准重测，口径=中文+中文标点，见 interaction-spec §2.2），同步更新 frontmatter `word_count` + `## 元数据 → **实测字数**`
   2. apply settings-diff.md → 更新 novel/ 设定文件（characters/{name}.md / world/*.md / outline.md 等）
   3. 追加 novel/_changes.md 条目（含 merged_at 时间戳）
   4. 追加 novel/_character-state.md 条目（角色状态时间线）

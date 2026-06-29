@@ -44,6 +44,12 @@ Skill 之间结构化信息交换优先走磁盘文件。对话上下文仅传�
 
 所有产物 frontmatter 必含 `format_version` / `produced_by` / `produced_at` / `chapter`。`file-manager` 用 `format_version` 判格式迁移。
 
+章节正文（`chapters/chapter-{N}.md`）frontmatter 额外含两个字段：
+- `target_word_count`：规划期目标字数（`mo-writer` Step 5b 预填，来自 direction 卡「全章预估字数」）
+- `word_count`：实测字数（`generate-chapter` Step 2c/4 + `publish-chapter` Step 3.1 回填）
+
+**字数口径**：中文 + 中文标点。Unicode 范围 = CJK Unified `U+4E00–U+9FFF` + CJK Symbols/Punctuation `U+3000–U+303F` + Halfwidth/Fullwidth Forms `U+FF00–U+FFEF` + 省略号 `U+2026` + 破折号 `U+2014` + 中文引号 `U+2018/2019/201C/201D`。排除空白、英文、数字、西文标点。**测量范围**：仅 `## 正文` 段之后至文件末尾的内容（排除 frontmatter、章节标题、`> 发布：` 行、`## 元数据` 段、场景分隔 `---`、200 字摘要折叠块）。`## 元数据` markdown 段的「目标字数」「实测字数」两行与 frontmatter 同步。
+
 ### 2.3 Handoff 协议——写作链工作流
 
 长工作流拆分多 Session。`plan-chapter` 末→`generate-chapter` 首为 handoff 切分点。写作链为线性 3 session；`publish-chapter` 为发布旁路，作者独立触发，与写作链正交（可跨章攒批、可跳过、可乱序），不作为写作链的线性后续。

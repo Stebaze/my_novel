@@ -104,6 +104,7 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
     → 单场景失败 → 重试一次，仍失败 → 🚫 硬阻断（不允许部分章节）
 2c: 自动拼装 → chapters/chapter-{N}.md（保留元数据头 + 场景按 §1 顺序拼接 + 200 字摘要折叠块）
     → 更新 scene-summaries.json "assembled": true
+    → 计算实测字数（口径=中文+中文标点，Unicode 范围见 interaction-spec §2.2），回填 frontmatter `word_count` + `## 元数据 → **实测字数**` 行
 ```
 
 ### Step 3: Auto Review (ai-content mode)
@@ -133,7 +134,7 @@ Round 1（修复）：
   3. 重调 Skill("sensory-writer", mode="per-scene", opus_dna_contract=true) → 仅针对 needs_rewrite=true 的场景
      → 传入：上一版本 prose + 评审问题列表（含 5 自检 fail 项） + 上一版本 200 字摘要
      → opus_dna_contract=true 保持：5 自检 fail 项在重写时通过元认知层显式对冲
-  4. 更新 scene-summaries.json + 重新拼装章节
+  4. 更新 scene-summaries.json + 重新拼装章节（重拼后必须重算 `word_count` + `## 元数据 → **实测字数**`，Fix 改了场景文本字数会变）
   5. 写 _reviews/chapter-{N}-fix-log.md：Round 1 修复（{ts}）+ 受影响场景/问题摘要/修复方式
   6. 触发 Step 3 重新评审
 

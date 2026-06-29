@@ -2,7 +2,7 @@
 sections:
   - heading: "## 元数据"
     skills: [mo-writer, ping-critic, chapter-review]
-    desc: "卷/章/标题/状态/字数/日期——章节基本信息"
+    desc: "卷/章/标题/状态/目标字数/实测字数/日期——章节基本信息"
   - heading: "## 本章纲要"
     skills: [mo-writer, plan-chapter]
     desc: "200-300字——这一章发生了什么/为什么必须存在"
@@ -46,7 +46,8 @@ sections:
 - **卷/章**：第 X 卷 第 Y 章
 - **标题**：
 - **状态**：⬜ 纲要 / ✍️ 初稿中 / ✅ 初稿完成 / 🔴 需重写 / ⭐ 定稿
-- **字数**：（目标 2000-4000，硬上限 4500；超标时填写拆分计划）
+- **目标字数**：（规划期填写，参考 project-config「每章目标字数」）
+- **实测字数**：（写后由 generate-chapter/publish-chapter 自动回填，口径=中文+中文标点）
 - **日期**：
 
 ## 本章纲要
