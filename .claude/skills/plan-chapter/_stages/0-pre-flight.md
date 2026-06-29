@@ -9,9 +9,8 @@
 ```
 1. 检查 novel/_drafts/ 存在性 → draft_dir = novel/_drafts/（固定路径，单草稿）；不存在 → 标记需初始化（阶段 2 调 init-draft）
 2. 读 {draft_dir}/notes.md「当前进度」→ target_chapter
-3. 读 novel/project-config.md「创作模式」→ output_format（默认 "prose"）——project-config 在正式层，草稿不镜像
-4. 从大纲 + 前一章角色状态推断出场角色列表 chapter_characters
-5. 工作流模式判定（贯穿阶段 5）：
+3. 从大纲 + 前一章角色状态推断出场角色列表 chapter_characters
+4. 工作流模式判定（贯穿阶段 5）：
    └── 统一走 4-Skill 对称架构（阶段 5 写 handoff 后退出）
 ```
 
@@ -60,7 +59,7 @@
 
 ## 输出
 
-- `draft_dir` / `target_chapter` / `scope` / `chapter_characters` / `output_format` 传递给后续阶段
+- `draft_dir` / `target_chapter` / `scope` / `chapter_characters` 传递给后续阶段
 - 路由结果：续跑入口（从阶段 N 继续）/ 全新开始（从阶段 0 开始）
 - 阻断摘要：🚫 项列表 + 修复路径（来自 pre-flight-check）
 

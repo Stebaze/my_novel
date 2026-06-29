@@ -144,7 +144,6 @@ description: 编辑顾问/综合评审者——心流五维18项+AI指纹检测+
 - **3a. 结构层**：场景功能/因果链/章节定位/衔接/断章/字数
 - **3b. 角色与设定层**：设定一致性/心理一致性/逻辑质疑/心流中断点归因/模式新鲜度
 - **3c. 文本质地层**：五维逐维判定 + AI 指纹归因（来自 Step 2a）+ 15 项自检汇总（2b）+ 校对问题汇总（2f）+ 词汇多样性扫描汇总（2g）
-- **3c2. [条件] AVG 脚本专项检查**（仅 `output_format="script"`）：立绘完整性/表情标注/演出注质量/bg prompt/CG prompt/计时/时长汇总/立绘退场/表情名有效性
 - **3c-AI. [条件] AI 生成章节专项检查**（仅 `mode="ai-content"`，供 Fix 循环定位）：
   - **3c-AI-1 关键事件落地**：scene-summaries.key_actions vs 简报 §3 events → 缺失 🔴/多余 ⚠️
   - **3c-AI-2 场景间连贯**：scene N.next_link vs scene N+1.core_event → 吻合/跳跃/断裂

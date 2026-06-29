@@ -81,7 +81,7 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
 
 ```
 调 Skill("mo-writer")
-  传入：chapter={N}, draft_dir, direction_file（从 handoff.direction 读取）, output_format
+  传入：chapter={N}, draft_dir, direction_file（从 handoff.direction 读取）
   → 产出 _briefs/chapter-{N}-brief.md + chapters/chapter-{N}.md（骨架）
   → 更新 handoff.brief + workflow_position = "generate-step1-brief"
 

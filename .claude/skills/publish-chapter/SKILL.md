@@ -29,9 +29,8 @@ description: 正式稿发布——两阶段暂存-提交 merge+章节sync+工件
 ```
 1. 检查 novel/_drafts/ 固定路径存在性 → draft_dir = novel/_drafts/；不存在 → 🚫 硬阻断
 2. 读取 {draft_dir}/notes.md「当前进度」→ 确认 N 在「上次写到」范围内
-3. 读取 novel/project-config.md → 取 output_format（project-config 在正式层，草稿不镜像）
-4. 三重校验：草稿 chapter-{N}.md 存在 / 与 novel/chapters/ 最后一章连续 / 通过琉璃综合评审
-5. 残留暂存检测：{draft}/_publish-staging/ 非空 → 提示"上次 publish 未完成，继续提交 / 回滚"二选一
+3. 三重校验：草稿 chapter-{N}.md 存在 / 与 novel/chapters/ 最后一章连续 / 通过琉璃综合评审
+4. 残留暂存检测：{draft}/_publish-staging/ 非空 → 提示"上次 publish 未完成，继续提交 / 回滚"二选一
 ```
 
 ### Step 2: Merge Settings（暂存阶段）
@@ -57,9 +56,9 @@ merge-settings 内部顺序约束：先准备 novel/ 写入内容（暂存），
 ```
 提交阶段（原子序列，任一步失败保留 staging 等下次续传）：
   1. mv {draft}/_publish-staging/chapter-{N}.md → novel/chapters/chapter-{N}.md
-     （章节正文按 output_format 提取：prose 跳注释块 / script 提取剧本段）
+     （章节正文为 prose：跳注释块）
      标题下添加发布元数据：> 发布：YYYY-MM-DD | 平台：XXX | 状态：⭐ 已发布
-     重算 word_count（output_format 提取后正文可能变化，以正式层落盘版本为准重测，口径=中文+中文标点，见 interaction-spec §2.2），同步更新 frontmatter `word_count` + `## 元数据 → **实测字数**`
+     重算 word_count（以正式层落盘版本为准重测，口径=中文+中文标点，见 interaction-spec §2.2），同步更新 frontmatter `word_count` + `## 元数据 → **实测字数**`
   2. apply settings-diff.md → 更新 novel/ 设定文件（characters/{name}.md / world/*.md / outline.md 等）
   3. 追加 novel/_changes.md 条目（含 merged_at 时间戳）
   4. 追加 novel/_character-state.md 条目（角色状态时间线）

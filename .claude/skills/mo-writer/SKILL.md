@@ -83,14 +83,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ### Step 4: Reference Sample
 
-简报 §0-§5 完成后调 `Skill("sensory-writer", mode="single")` 生成附录：
-
-| output_format | 附录章节 | sensory-writer 模式 |
-|:---:|------|:---:|
-| `prose`（默认） | 附录：全章参考示例 | 方法一+二 |
-| `script` | 附录：全章脚本参考示例 | 方法三 |
-
-共同参数：`mode="single"` / `scene_spec`（§3）/ `character_voices`（§2）/ `style_profile` / `output_format`。
+简报 §0-§5 完成后调 `Skill("sensory-writer", mode="single")` 生成附录「全章参考示例」。参数：`mode="single"` / `scene_spec`（§3）/ `character_voices`（§2）/ `style_profile`。
 
 → sensory-writer 一过式返回完整文本，写入简报附录。**调用失败 → 🚫 硬阻断**（参考示例不可跳过）。
 
@@ -100,11 +93,8 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 5a. 简报 §3 各场景预留「场景图像」字段 → 调 Skill("yin-illustrator") 填入
     （文字场景描述：画面/构图/光线/色彩/情绪基调）
     → 用户跳过 → 标注"场景图像：用户跳过"
-5b. 选章节模板：
-    ├── prose → framework/templates/chapters/_chapter-template.md
-    └── script → framework/templates/chapters/_script-chapter-template.md
+5b. 选章节模板：prose → framework/templates/chapters/_chapter-template.md
     → 预填元数据/纲要/心流参数/本章功能/本章爆点/AI 生成模式/视觉锚点
-    → script 模板缺失 → ⚠️ 使用内嵌脚本模板骨架
 5c. 创建 {DraftDir}/chapters/chapter-{N}.md（已存在则警告，不覆盖）
 ```
 
