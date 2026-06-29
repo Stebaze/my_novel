@@ -59,15 +59,16 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 §0 宏观上下文层
 §1 场景结构层（per-scene 模式）——name/pov/location/time/功能/设计理由/opening_type/ending_type/asymmetry_weight/衔接计划
 §2 角色声音层
-§3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/rule_break_choice/trigger_reason/safety_valve
+§3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/技法(可选,从 technique-library 选)/rule_break_choice/trigger_reason/safety_valve
 §3A 高潮节拍层（条件）
-§4 技法提示层
 §5 常见陷阱层
 ```
 
+> **2026-06-29 §4 砍除说明**：原 §4 章节级技法提示层已删除。根因：§4 是下达全局技法命令的唯一载体（如 Ch2「所有感官强调错位」母题），被 sensory-writer 忠实执行成全章 AI 指纹泛滥。技法决策下沉到 §3 场景级「技法」字段（可选，从 technique-library 选，不可造词）。§4 原承载的四类内容零丢失：选用技法→下沉 §3；递进/呼应→§1 设计理由已含；操作要领→sensory-writer Step 2 内置；执行提醒(视角/文风)→§-1 voice_persona_source + author-voice.md。探查确认 §4 无人消费（generate-chapter 2a 解析清单不含 §4，sensory-writer 不读 §4），砍除零影响。
+
 **单场景模式（`single_scene = true`）**：
 - §1 只列 **1 个场景**，无需「衔接计划」字段（无下一场景）
-- §3 不再"退化为概述"——直接作为该唯一场景的完整节拍层（事件/对话/情绪弧线/场景图像/rule_break_choice/trigger_reason/safety_valve）
+- §3 不再"退化为概述"——直接作为该唯一场景的完整节拍层（事件/对话/情绪弧线/场景图像/技法(可选)/rule_break_choice/trigger_reason/safety_valve）
 - `asymmetry_weight` 固定为 1.0（单场景无篇幅分配问题）
 
 **§-1 缺失降级协议**：
@@ -76,7 +77,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 - `voice_persona_source` 空 → 回退 `novel/author-voice.md`（正式层，草稿不镜像）
 - 三项均空 → ⚠️ 在简报顶部加 `<!-- brief_degraded: true -->` 标记
 
-**高潮章**：读 `climax-patterns/` 桥段模板 → §3A 以 5 阶段为骨架 → §4 追加「写作执行要点」/ §5 追加「常见失败模式」→ 简报引用模板原文摘录。模板缺失 → ⚠️ 回退 §3 平铺。
+**高潮章**：读 `climax-patterns/` 桥段模板 → §3A 以 5 阶段为骨架 → §3A 追加「写作执行要点」/ §5 追加「常见失败模式」→ 简报引用模板原文摘录。模板缺失 → ⚠️ 回退 §3 平铺。
 
 **示例质量标准**：匹配 author-voice.md 风格 + 落地场景结构/角色任务/关键节拍 + 展示技法应用 + 保留"作者可以写得不同"的空间。
 
@@ -137,6 +138,6 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 | `novel/characters/`（经 settings-manager read-settings 双源合并）| §2 角色状态 | ⚠️ 缺失角色状态从大纲推断 |
 | `framework/guides/jung-character-framework.md` | §2 面具/阴影 | 🚫 硬阻断——缺失则无法标注人格面具/阴影/自性化阶段 |
 | `novel/voice-bible.md` | §2 对话区分 | ⚠️ 角色对话区分仅基于角色档案常识 |
-| `framework/templates/technique-library.md` | §4 技法 | ⚠️ 技法选择降级为跳过 |
+| `framework/templates/technique-library.md` | §3 场景级技法字段（可选） | ⚠️ 技法字段降级为留空（sensory-writer 自决） |
 | `framework/guides/cn-webnovel-guide.md` | N ≤ 3 时 | ⚠️ 平台节奏提醒跳过 |
 | script 相关模板/guide | script 模式 | ⚠️ 各项降级（使用内嵌模板/块类型/通用表情集） |

@@ -17,10 +17,7 @@ sections:
     desc: "出场角色当前状态/本章动机/情感弧线/弧光任务"
   - heading: "## §3 关键节拍层"
     skills: [mo-writer]
-    desc: "每场景必须发生的事件/必须传达的信息/对话关键点/情绪节拍/场景图像/rule_break_choice/trigger_reason/safety_valve"
-  - heading: "## §4 技法提示层"
-    skills: [mo-writer]
-    desc: "选用技法/操作要领/执行提醒"
+    desc: "每场景必须发生的事件/必须传达的信息/对话关键点/情绪节拍/场景图像/技法(可选,从 technique-library 选)/rule_break_choice/trigger_reason/safety_valve"
   - heading: "## §5 常见陷阱层"
     skills: [mo-writer, plan-chapter]
     desc: "易崩点/OOC边界/节奏陷阱/设定雷区/伏笔操作陷阱"
@@ -98,18 +95,14 @@ sections:
 - **对话关键点**：
 - **情绪节拍**：
 - **场景图像**：
+- **技法**：[可选,从 technique-library 选 1 个组织手法(开头方式/场景桥段/场景衔接/结尾断章);留空= sensory-writer 自决。不可自造技法名]（默认留空）
 - **rule_break_choice**：[长句沉浸 / 抽象收束 / 对称仪式 / 不克制情感 / 不打破]（默认不打破）
 - **trigger_reason**：为什么这里选择打破——引 [§-1 任务类型] 或 [场景情绪目标]
 - **safety_valve**：打破后用什么手段回收——例：长句结尾放一个极短句做"吐气"
 
 > rule_break_choice 不打破时，trigger_reason / safety_valve 可留空。
 > 打破时三项都必须填写——不解释清楚"为什么打破 + 怎么收回" = 简报降级。
-
-## §4 技法提示层
-
-- **选用技法**：
-- **操作要领**：
-- **执行提醒**：
+> 「技法」与 rule_break_choice 正交:技法是组织手法,rule_break 是节奏层破例,各管各的。
 
 ## §5 常见陷阱层
 
