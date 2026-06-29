@@ -1,8 +1,8 @@
 # 小说写作项目
 
-AI 辅助长篇小说写作工程。Claude Code 载体，22 个 Skill 协作完成规划→简报→AI 生成章节→评审→发布。**4-Skill 对称架构**将单 session 长流程切分为 4 阶段：`plan → handoff → generate → review → publish`。
+AI 辅助长篇小说写作工程。Claude Code 载体，22 个 Skill 协作完成规划→简报→AI 生成章节→评审→发布。**写作链**（线性，3 session）：`plan → handoff → generate → review`；**发布**为正交旁路（`publish`），由作者独立决定何时触发，不绑定刚生成的章节。
 
-- **核心机制**：AI 产出"写作简报"引导作者执笔，**或启用 AI 生成整章模式**（4 session）
+- **核心机制**：AI 产出"写作简报"引导作者执笔，**或启用 AI 生成整章模式**（写作链 3 session + 发布旁路）
 - **架构**：单层 Skill 架构（运行在当前会话）+ 显式 handoff 协议（多 session 衔接）
 - **稿件管理**：两层体系（正式层机械写入/草稿层自由）+ 临时中转 + 设定变更追踪
 - **架构规范**：[`framework/_specs/interaction-spec.md`](framework/_specs/interaction-spec.md)
@@ -30,9 +30,9 @@ AI 辅助长篇小说写作工程。Claude Code 载体，22 个 Skill 协作完�
 
 ## 工作流
 
-### 4 Skill 对称架构
+### 写作链 + 发布旁路
 
-> **书级前置（Session 0）**：`xuanji`（碎片收敛 grilling，产 `_briefs/premise-seed.md`，任意时点可调）→ `outline-tingle`（2 session：seed→主题→L3）是 plan-chapter 的前置阶段——产出 `outline.md`（L1-L3 填实 + frontmatter `workflow_position: outline-tingle-step2-done`）后才进入下方 4-Skill 章节级循环。outline-tingle Session 1 入口检查 seed 存在（🟡 软阻断，缺失导 `/xuanji`）。改编流由 `adaptation-workflow` 阶段 0.5 编排 xuanji（改编意图碎片）→ outline-tingle (mode="adaptation")。
+> **书级前置（Session 0）**：`xuanji`（碎片收敛 grilling，产 `_briefs/premise-seed.md`，任意时点可调）→ `outline-tingle`（2 session：seed→主题→L3）是 plan-chapter 的前置阶段——产出 `outline.md`（L1-L3 填实 + frontmatter `workflow_position: outline-tingle-step2-done`）后才进入下方章节级写作链（3 session）+ 发布旁路。outline-tingle Session 1 入口检查 seed 存在（🟡 软阻断，缺失导 `/xuanji`）。改编流由 `adaptation-workflow` 阶段 0.5 编排 xuanji（改编意图碎片）→ outline-tingle (mode="adaptation")。
 
 ```
 SESSION 1 — plan /plan-chapter {N}
@@ -48,14 +48,17 @@ SESSION 2 — generate /generate-chapter {N}
   Step 4：[条件] Fix 循环（最多 2 轮）→ 重写受影响场景
   → chapters/chapter-{N}.md + _reviews/
 [USER 轻编辑 — 可选 /chapter-review {N} 复审]
-SESSION 3 — publish /publish-chapter {N}
+── 写作链结束（章 N 草稿就绪，停在草稿层）──
+
+▼ 发布旁路（作者独立决定，与写作链正交，可跨章攒批、可跳过、可乱序）
+publish /publish-chapter {N}  — 作者告知"第N章已发布到平台"时触发
   settings-manager(merge) → 设定更新；ping-critic(publish-verify) → 发布前校验
-  → 正式稿
+  → 正式稿 novel/chapters/chapter-{N}.md
 ```
 
 ### 改编流
 
-`adaptation-workflow` 编排全循环：`plan-chapter` 用 `mode="adaptation"`，加原作画像（阶段 0）+ 原作对齐检查（严格/平衡/宽松）。逐章循环：`plan-chapter → /generate-chapter → /chapter-review → /publish-chapter`，每步产物同 4 session 架构。
+`adaptation-workflow` 编排全循环：`plan-chapter` 用 `mode="adaptation"`，加原作画像（阶段 0）+ 原作对齐检查（严格/平衡/宽松）。逐章写作链：`plan-chapter → /generate-chapter → /chapter-review`；`/publish-chapter` 同样为发布旁路，作者独立触发，不在写作链线性后续中。每步产物同写作链架构。
 
 ## 用户入口
 
@@ -65,7 +68,7 @@ SESSION 3 — publish /publish-chapter {N}
 | `generate-chapter` | `/generate-chapter {N}` | 生成（简报 + AI 章节 + auto 评审） |
 | `chapter-review` | 评审第X章 | 评审（3 mode） |
 | `publish-chapter` | 发布第X章 | 发布（设定合并 + 校验） |
-| `adaptation-workflow` | 改编这个作品 | 薄封装层（原作感知 + 4 Skill 循环） |
+| `adaptation-workflow` | 改编这个作品 | 薄封装层（原作感知 + 写作链循环 + 发布旁路） |
 | `outline-tingle` | 从零写新书 / 形成大纲 | 大纲形成（seed→主题→L3，2 session） |
 | `xuanji` | /xuanji / 理清碎片 | 碎片收敛 grilling（产 premise-seed，outline-tingle 前置） |
 | `bootstrap-project` | 冷启动 | 编排入口（批量导入→逆向分析→工件生成） |

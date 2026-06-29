@@ -44,17 +44,18 @@ Skill 之间结构化信息交换优先走磁盘文件。对话上下文仅传�
 
 所有产物 frontmatter 必含 `format_version` / `produced_by` / `produced_at` / `chapter`。`file-manager` 用 `format_version` 判格式迁移。
 
-### 2.3 Handoff 协议——4 Session 工作流
+### 2.3 Handoff 协议——写作链工作流
 
-长工作流拆分多 Session。`plan-chapter` 末→`generate-chapter` 首为 handoff 切分点。
+长工作流拆分多 Session。`plan-chapter` 末→`generate-chapter` 首为 handoff 切分点。写作链为线性 3 session；`publish-chapter` 为发布旁路，作者独立触发，与写作链正交（可跨章攒批、可跳过、可乱序），不作为写作链的线性后续。
 
 ```
 SESSION 1: plan-chapter  → _briefs/chapter-{N}-handoff.md
 SESSION 2: generate-chapter (C8 硬阻断验证 handoff) → chapter + review
-SESSION 3: publish-chapter  → 设定合并 + 正式稿
+── 写作链结束 ──
+SIDE: publish-chapter（作者决定，独立触发） → 设定合并 + 正式稿
 ```
 
-所有章节统一走 4-Skill 对称架构：plan-chapter 阶段 5 写 handoff 后退出，不内联简报/参考示例生成；mo / yin / 5c 在 generate-chapter Session 2 内执行。
+所有章节统一走写作链（plan-chapter 阶段 5 写 handoff 后退出，不内联简报/参考示例生成；mo / yin / 5c 在 generate-chapter Session 2 内执行）；publish-chapter 为发布旁路，作者独立触发，不在写作链 session 序列内。
 
 ### 2.4 Handoff 字段契约
 
