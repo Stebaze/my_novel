@@ -1,6 +1,6 @@
 # 小说写作项目
 
-AI 辅助长篇小说写作工程。Claude Code 载体，21 个 Skill 协作完成规划→简报→AI 生成章节→评审→发布。**4-Skill 对称架构**将单 session 长流程切分为 4 阶段：`plan → handoff → generate → review → publish`。
+AI 辅助长篇小说写作工程。Claude Code 载体，22 个 Skill 协作完成规划→简报→AI 生成章节→评审→发布。**4-Skill 对称架构**将单 session 长流程切分为 4 阶段：`plan → handoff → generate → review → publish`。
 
 - **核心机制**：AI 产出"写作简报"引导作者执笔，**或启用 AI 生成整章模式**（4 session）
 - **架构**：单层 Skill 架构（运行在当前会话）+ 显式 handoff 协议（多 session 衔接）
@@ -24,15 +24,15 @@ AI 辅助长篇小说写作工程。Claude Code 载体，21 个 Skill 协作完�
 
 7. **改编原作画像强制规则**：任何改编规划请求**必须先在 `adaptation-workflow` 阶段 0 完成六维原作画像提取**（`reference/manuscripts/_analysis/{作品名}.md`），原作画像不存在时禁止进入改编规划。注意：此处的 `reference/manuscripts/` 是**改编原作分析目录**（项目根下，存原作画像），与稿件体系中已删除的 `novel/_reference/` 原"原稿层"无关——两者同名但完全独立，不要混淆。没有例外。
 
-8. **工作流进度追踪规则**：每次会话启动时**必须**检查当前活跃草稿下的工件文件（`_briefs/`、`chapters/`、`_reviews/`），根据工件存在性确定各章节所处阶段，检测异常（跳过步骤），在会话初始化摘要中呈现给用户。**章节阶段判定标志**：`_briefs/chapter-{N}-direction.md` 存在 → plan-chapter 阶段 3 完成；`_briefs/chapter-{N}-handoff.md` 存在 → plan-chapter 全部完成（可进入 generate-chapter）；`_briefs/chapter-{N}-brief.md` 存在 → generate-chapter Step 1 完成；`_exchanges/scene-summaries.json` 存在 → generate-chapter Step 2 完成（per-scene 生成完成）；`chapters/chapter-{N}.md` 存在 → 章节已写；`_reviews/chapter-{N}-review.md` 存在 → 评审已做；`_reviews/chapter-{N}-fix-log.md` 存在 → Fix 循环已执行。**书级阶段判定标志**：`outline.md` frontmatter `workflow_position = outline-tingle-step1-done` → outline-tingle Session 1 完成；`= outline-tingle-l1-confirmed` → L1 已确认；`= outline-tingle-step2-done` → 大纲形成完成（可进 plan-chapter）；`book_settings_dispatched = true` → outline-tingle 2.8.5 书级设定派发完成（characters/character-arcs/world/thread-map 已含骨架）。**禁止**在不满足前置条件时进入下一阶段。没有例外。
+8. **工作流进度追踪规则**：每次会话启动时**必须**检查当前活跃草稿下的工件文件（`_briefs/`、`chapters/`、`_reviews/`），根据工件存在性确定各章节所处阶段，检测异常（跳过步骤），在会话初始化摘要中呈现给用户。**章节阶段判定标志**：`_briefs/chapter-{N}-direction.md` 存在 → plan-chapter 阶段 3 完成；`_briefs/chapter-{N}-handoff.md` 存在 → plan-chapter 全部完成（可进入 generate-chapter）；`_briefs/chapter-{N}-brief.md` 存在 → generate-chapter Step 1 完成；`_exchanges/scene-summaries.json` 存在 → generate-chapter Step 2 完成（per-scene 生成完成）；`chapters/chapter-{N}.md` 存在 → 章节已写；`_reviews/chapter-{N}-review.md` 存在 → 评审已做；`_reviews/chapter-{N}-fix-log.md` 存在 → Fix 循环已执行。**书级阶段判定标志**：`_briefs/premise-seed.md` 存在 + frontmatter `convergence_status = done` → xuanji 碎片收敛完成（可进 outline-tingle Session 1）；`outline.md` frontmatter `workflow_position = outline-tingle-step1-done` → outline-tingle Session 1 完成；`= outline-tingle-l1-confirmed` → L1 已确认；`= outline-tingle-step2-done` → 大纲形成完成（可进 plan-chapter）；`book_settings_dispatched = true` → outline-tingle 2.8.5 书级设定派发完成（characters/character-arcs/world/thread-map 已含骨架）。**禁止**在不满足前置条件时进入下一阶段。没有例外。
 
-9. **书级大纲形成强制规则**：原创项目首次规划请求时，`pre-flight-check` C9 检测 `novel/outline.md` L1-L3 实质填充度——含 `（待定）` 占位 / frontmatter `workflow_position` 非 `outline-tingle-step2-done`/`bootstrap-completed` 时报 **🟡 软阻断**（尊重网文边写边定，不硬阻断，用户可确认放行继续写）。C9 修复路径指向 `outline-tingle`（正向）/ `bootstrap-project`（逆向）。改编流由 `adaptation-workflow` 阶段 0.5 强制调用 `outline-tingle mode="adaptation"`——**改编流大纲未达门禁为 🚫 硬阻断**（adaptation-workflow 阶段 0.5 门禁，禁止进逐章循环）。原创软阻断 vs 改编硬阻断的不对称是设计意图：改编流以原作为锚，大纲未定则无对齐基准。**C10 提醒**：`book_settings_dispatched ≠ true`（且 L1-L3 已填实）→ 书级设定未派发到 characters/character-arcs/world/thread-map，下游 plan-chapter 设定快照这些文件返回空，仅 outline.md 可读（⚠️ 软提醒不阻断）。**C11 提醒**：`novel/` 设定文件 mtime 晚于 `novel/_changes.md` 最后 `merged_at` → 正式层设定文件被人工手改（违反"正式层不可手改"约束），⚠️ 软提醒不阻断，提示从 _backup/ 恢复或回填 _changes.md。没有例外。
+9. **书级大纲形成强制规则**：原创项目首次规划请求时，`pre-flight-check` C9 检测 `novel/outline.md` L1-L3 实质填充度——含 `（待定）` 占位 / frontmatter `workflow_position` 非 `outline-tingle-step2-done`/`bootstrap-completed` 时报 **🟡 软阻断**（尊重网文边写边定，不硬阻断，用户可确认放行继续写）。C9 修复路径指向 `outline-tingle`（正向）/ `bootstrap-project`（逆向）。**seed 前置**：`outline-tingle` Session 1 入口检查 `_briefs/premise-seed.md`（`xuanji` 产，`convergence_status: done`）——作者持有的残留碎片需先由 `xuanji` 收敛成 seed，下游 idea-explorer / qing-novelist 读 seed 富材料发散/grilling；seed 缺失 🟡 软阻断（作者可确认放行走降级路径：口述 premise，下游读三字段 Premise 无富材料）。改编流由 `adaptation-workflow` 阶段 0.5 强制调用 `outline-tingle mode="adaptation"`——改编 seed（作者改编意图碎片：留/砍/注入）由阶段 0.5 前置 `xuanji` 产，与原作画像（外部素材）分离共喂内联 divergent——**改编流大纲未达门禁为 🚫 硬阻断**（adaptation-workflow 阶段 0.5 门禁，禁止进逐章循环）。原创软阻断 vs 改编硬阻断的不对称是设计意图：改编流以原作为锚，大纲未定则无对齐基准。**C10 提醒**：`book_settings_dispatched ≠ true`（且 L1-L3 已填实）→ 书级设定未派发到 characters/character-arcs/world/thread-map，下游 plan-chapter 设定快照这些文件返回空，仅 outline.md 可读（⚠️ 软提醒不阻断）。**C11 提醒**：`novel/` 设定文件 mtime 晚于 `novel/_changes.md` 最后 `merged_at` → 正式层设定文件被人工手改（违反"正式层不可手改"约束），⚠️ 软提醒不阻断，提示从 _backup/ 恢复或回填 _changes.md。没有例外。
 
 ## 工作流
 
 ### 4 Skill 对称架构
 
-> **书级前置（Session 0）**：`outline-tingle`（2 session：premise→L3）是 plan-chapter 的前置阶段——产出 `outline.md`（L1-L3 填实 + frontmatter `workflow_position: outline-tingle-step2-done`）后才进入下方 4-Skill 章节级循环。改编流由 `adaptation-workflow` 阶段 0.5 编排 outline-tingle (mode="adaptation")。
+> **书级前置（Session 0）**：`xuanji`（碎片收敛 grilling，产 `_briefs/premise-seed.md`，任意时点可调）→ `outline-tingle`（2 session：seed→主题→L3）是 plan-chapter 的前置阶段——产出 `outline.md`（L1-L3 填实 + frontmatter `workflow_position: outline-tingle-step2-done`）后才进入下方 4-Skill 章节级循环。outline-tingle Session 1 入口检查 seed 存在（🟡 软阻断，缺失导 `/xuanji`）。改编流由 `adaptation-workflow` 阶段 0.5 编排 xuanji（改编意图碎片）→ outline-tingle (mode="adaptation")。
 
 ```
 SESSION 1 — plan /plan-chapter {N}
@@ -66,7 +66,8 @@ SESSION 3 — publish /publish-chapter {N}
 | `chapter-review` | 评审第X章 | 评审（3 mode） |
 | `publish-chapter` | 发布第X章 | 发布（设定合并 + 校验） |
 | `adaptation-workflow` | 改编这个作品 | 薄封装层（原作感知 + 4 Skill 循环） |
-| `outline-tingle` | 从零写新书 / 形成大纲 | 大纲形成（premise→L3，2 session） |
+| `outline-tingle` | 从零写新书 / 形成大纲 | 大纲形成（seed→主题→L3，2 session） |
+| `xuanji` | /xuanji / 理清碎片 | 碎片收敛 grilling（产 premise-seed，outline-tingle 前置） |
 | `bootstrap-project` | 冷启动 | 编排入口（批量导入→逆向分析→工件生成） |
 | `import-chapter` | 导入章节 | 编排（源文件→草稿迁移→评审队列） |
 
@@ -102,6 +103,7 @@ SESSION 3 — publish /publish-chapter {N}
 
 | 产出物 | 含义 |
 |--------|------|
+| `_briefs/premise-seed.md` | xuanji 碎片收敛完成（`convergence_status: done`），**可进入 outline-tingle Session 1** |
 | `_briefs/chapter-{N}-direction.md` | 阶段 3 完成，方向卡已产出 |
 | `_briefs/chapter-{N}-exploration.md` | 阶段 3.5 头脑风暴完成 |
 | `_briefs/chapter-{N}-handoff.md` | handoff 落盘，**可进入 generate-chapter** |

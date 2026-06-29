@@ -16,8 +16,8 @@ description: 大纲形成编排——从零 premise→主题→L1→L2→L3，2 
 | Aspect | Detail |
 |--------|--------|
 | **Input `mode`** | `original` \| `adaptation`（默认 `original`；`adaptation` 由 `adaptation-workflow` 阶段 0.5 调用，详见下方 adaptation mode 分支） |
-| **Calls** | `pre-flight-check`（启动门禁，含 C9 outline 实质填充检查）, `idea-explorer`(mode=book, Session 1, **original mode only**), `qing-novelist`(mode=book, Session 2；adaptation mode 额外激活 B9 原作对齐度), `file-manager`(ensure-novel/ensure-draft，经 init-draft 间接调), `settings-manager`(init-draft, Session 2 末) |
-| **Produces** | `outline.md`（Premise 段 + L1-L3 填实 + frontmatter `workflow_position` 推进；adaptation mode 额外含 B9 三态标注 + 改编深度声明）/ `project-config.md`（最小集）/ `_briefs/book-exploration.md`（idea-explorer 产，**original mode only**）/ 草稿目录 |
+| **Calls** | `pre-flight-check`（启动门禁，含 C9 outline 实质填充检查）, `xuanji`（Session 1 前置——seed 缺失时引导作者调，**不直接 Skill 调用**，由作者执行 `/xuanji`）, `idea-explorer`(mode=book, Session 1, **original mode only**, 接 `seed_path` 从 seed 富材料发散), `qing-novelist`(mode=book, Session 2；adaptation mode 额外激活 B9 原作对齐度；读 outline.md + `seed_path`), `file-manager`(ensure-novel/ensure-draft，经 init-draft 间接调), `settings-manager`(init-draft, Session 2 末) |
+| **Produces** | `outline.md`（Premise 段含 seed 指针 prose + 三字段蒸馏 + L1-L3 填实 + frontmatter `workflow_position` 推进；adaptation mode 额外含 B9 三态标注 + 改编深度声明）/ `project-config.md`（最小集）/ `_briefs/book-exploration.md`（idea-explorer 产，**original mode only**）/ 草稿目录。**seed 文件由 `xuanji` 产出，本 Skill 只读不写** |
 | **Called by** | 用户入口（`/outline-tingle` Session 1 / `/outline-tingle continue` Session 2）；adaptation mode 由 `adaptation-workflow` 阶段 0.5 内部调 |
 
 ## Triggers
@@ -65,19 +65,24 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 #### Session 1：原作画像 → 候选改编主题（adaptation mode, divergent 替换）
 
 ```
+1.0A seed 前置检查（同原创流 1.0，🟡 软阻断 + 降级路径）：
+    改编 seed = 作者改编意图碎片（留什么/砍什么/注入什么），由 xuanji 产出（adaptation-workflow 阶段 0.5 引导）。
+    seed 存在 + convergence_status: done → 进 1.1A；缺失 → 软阻断提示先 /xuanji（降级路径无 seed 富材料）。
 1.1A 读原作画像 reference/manuscripts/_analysis/{作品名}.md：
-    六维画像（主题/角色/情节/世界观/风格/缺陷标记）作为改编主题发散的素材源
+    六维画像（主题/角色/情节/世界观/风格/缺陷标记）作为改编主题发散的外部素材源
+    + 读 _briefs/premise-seed.md「核心种子 + 碎片表」——作者改编意图碎片（留/砍/注入）作为内部素材源
 1.2A 内联 divergent（不调 idea-explorer mode=book）：
-    列 3-5 个候选改编主题方向，每个 50-100 字陈述句，覆盖典型改编策略：
+    以原作画像 + seed 改编意图为素材，列 3-5 个候选改编主题方向，每个 50-100 字陈述句，覆盖典型改编策略：
     - 保留主线：复刻原作主线骨架，仅置换世界观外壳
     - 删减支线：剥离 1-2 条次要支线，主线节奏收紧
     - 改结局：保留前段铺垫，重写结局走向（悲/喜反转、开放式）
     - 换视角：从原作配角/反派视角重述主线
     - 主题转译：原作主题在当代/异文化语境的变体
-    每条陈述含"保留什么/改什么/为何这样改"三要素
+    每条陈述含"保留什么/改什么/为何这样改"三要素（保留/改/注入对照 seed 意图碎片）
 1.3A 作者选定改编主题方向（同原创流 1.3，本 Skill 引导作者从一览表选）
 1.4A 写入 outline.md Premise 段（原始一句话=原作一句话概括 + 改编方向标签；
-    灵感来源=原作画像路径；期望读者感受=改编主题陈述）+ L1 核心主题/一句话/终点画面草稿
+    灵感来源=原作画像路径；期望读者感受=改编主题陈述）+ 加 seed 指针 prose 行
+    + L1 核心主题/一句话/终点画面草稿
 1.5A 推进 frontmatter：workflow_position: outline-tingle-step1-done /
     produced_by: outline-tingle / produced_at: <ts> / mode: adaptation / resume_command: /outline-tingle continue
 1.6A 【门禁 1·可暂缓】同原创流 1.6
@@ -88,8 +93,9 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 ```
 2.1A 读 outline.md 现状（Premise 段 + L1 已填部分字段 + frontmatter）
     → 确认 workflow_position = outline-tingle-step1-done（否则提示先跑 Session 1）
-2.2A 调 Skill("qing-novelist", mode="book", outline_path=<outline.md>, adaptation=true)
+2.2A 调 Skill("qing-novelist", mode="book", outline_path=<outline.md>, seed_path=<_briefs/premise-seed.md>, adaptation=true)
     → 补 L1：与原创流 2.2 相同的 B1/B2/B6/B7/B8 + 新增 B9 原作对齐度
+    （qing-novelist 读 outline.md + seed 核心种子/缺口/冲突；adaptation mode seed 含改编意图碎片）
     （详见 qing-novelist/_reference/book-conversation-guide.md §B9；adaptation=true 参数激活 B9）
     B9 在 L1 末激活：每条 L1 字段标注"保留 / 改 / 新增"三态之一，汇总为改编深度声明
 2.3A-2.6A 同原创流 2.3-2.6（门禁 2/3 + L2/L3 grilling，B9 在 L2/L3 阶段对每卷/每篇
@@ -110,12 +116,21 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 
 ### Session 1：Premise → 主题（original mode, divergent）
 
+> **seed 前置**：`_briefs/premise-seed.md`（由 `xuanji` 产出，frontmatter `convergence_status: done`）是 Session 1 的工作输入。三字段 Premise 不再由作者当场口述——作者持有的残留碎片由 `xuanji` 先收敛成 seed，本 Skill 从 seed 三字段蒸馏写 Premise 段。
+
 ```
-1.1 读 premise：
-    ├── 口述（用户当场给）→ 写入 outline.md Premise 段 3 子项（原始一句话/灵感来源/期望读者感受）
-    └── novel/inspiration-log.md 已有记录 → grep `^- \[` 提取 bullet 流（横切工件，绕过草稿）→ 复述确认 → 写入 Premise 段
-1.2 调 Skill("idea-explorer", mode="book", premise=<Premise 段>)
-    → 产 _briefs/book-exploration.md（7 法应用到 premise→候选主题方向，≥3 个方向，50-100 字主题陈述句）
+1.0 seed 前置检查：
+    ├── seed 存在 + convergence_status: done → 读 seed 三字段蒸馏段，进 1.1（seed 路径）
+    └── seed 缺失 / status: in-progress → 🟡 软阻断：
+        "seed 未收敛——建议先 /xuanji 理清残留碎片（下游 idea-explorer/qing-novelist 读 seed 富材料发散/grilling）。
+         确认放行则走降级路径：口述 premise 直写 Premise 段 3 字段（无 seed 指针），下游读 3 字段 Premise（无富材料）。"
+        作者确认放行 → 降级路径（1.1' 口述 premise → 写 Premise 段 3 字段无指针；1.2 idea-explorer 不传 seed_path）
+1.1 [seed 路径] 读 _briefs/premise-seed.md「三字段蒸馏」段 → 写入 outline.md Premise 段 3 子项
+    + 加指针 prose 行：> **seed**：`_briefs/premise-seed.md`（璇玑产出，下游 idea-explorer/qing-novelist 读作工作输入）
+1.2 调 Skill("idea-explorer", mode="book", seed_path=<_briefs/premise-seed.md>)
+    → 思源从 seed 富材料（核心种子 + 碎片表 + 缺口）发散，产 _briefs/book-exploration.md
+    （7 法应用到 seed→候选主题方向，≥3 个方向，50-100 字主题陈述句）
+    [降级路径] 不传 seed_path → 思源读 outline.md Premise 段 3 字段发散（旧行为）
 1.3 作者选定主题（idea-explorer 不做选择，本 Skill 引导作者从一览表选）
 1.4 写入 outline.md L1 部分字段（草稿）：
     核心主题（选定主题）/ 一句话概括（草稿，B1 细化）/ 终点画面（草稿，B8 细化）
@@ -130,7 +145,8 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 ```
 2.1 读 outline.md 现状（Premise 段 + L1 已填部分字段 + frontmatter）
     → 确认 workflow_position = outline-tingle-step1-done（否则提示先跑 Session 1）
-2.2 调 Skill("qing-novelist", mode="book", outline_path=<outline.md>) → 补 L1：
+2.2 调 Skill("qing-novelist", mode="book", outline_path=<outline.md>, seed_path=<_briefs/premise-seed.md>) → 补 L1：
+    （qing-novelist 读 outline.md 现状 + seed 核心种子/缺口/冲突作 grilling 参考；seed 缺失降级读 outline.md only）
     B1 主题深度（细化核心主题+一句话）/ B2 主角弧光起终 / B8 终点画面（细化）/
     B6 不可违背规则（3-5 条带编号）/ B7 核心隐喻
     每维 50-100 字结构陈述句，作者确认 → 本 Skill 写入 outline.md L1 对应字段
@@ -199,8 +215,9 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 
 | Dependency | When | Degradation |
 |-----------|------|------------|
-| `idea-explorer` Skill（mode=book） | Session 1 步骤 1.2（**original mode only**；adaptation mode 内联 divergent 不调） | 🚫 硬阻断——主题发散不可降级（adaptation mode 不适用） |
-| `qing-novelist` Skill（mode=book，adaptation mode 激活 B9） | Session 2 步骤 2.2/2.4/2.5 | 🚫 硬阻断——书级 grilling 不可降级 |
+| `idea-explorer` Skill（mode=book，接 `seed_path`） | Session 1 步骤 1.2（**original mode only**；adaptation mode 内联 divergent 不调） | 🚫 硬阻断——主题发散不可降级（adaptation mode 不适用） |
+| `qing-novelist` Skill（mode=book，接 `outline_path` + `seed_path`，adaptation mode 激活 B9） | Session 2 步骤 2.2/2.4/2.5 | 🚫 硬阻断——书级 grilling 不可降级 |
+| `_briefs/premise-seed.md`（xuanji 产出，`convergence_status: done`） | Session 1 步骤 1.0 前置检查（original + adaptation） | 🟡 软阻断——缺失提示先 `/xuanji`；作者确认放行走降级路径（口述 premise，下游无富材料） |
 | `reference/manuscripts/_analysis/{作品名}.md` 原作画像 | adaptation mode 启动判定步骤 2（**adaptation mode only**） | 🚫 硬阻断——画像缺失提示先跑 `/adaptation-workflow` 阶段 0 |
 | `settings-manager` Skill（init-draft） | Session 2 步骤 2.8 | 🚫 硬阻断——草稿初始化不可跳过 |
 | `file-manager` Skill | Session 2 步骤 2.8（init-draft 间接调） | 🚫 硬阻断——草稿目录无法建立 |
@@ -212,8 +229,9 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 
 | 组件 | 关系 |
 |------|------|
-| `idea-explorer` Skill | Session 1 调用（mode=book，**original mode only**）——premise→候选主题方向，产 `book-exploration.md`；adaptation mode 不调用，改内联读原作画像发散 |
-| `qing-novelist` Skill | Session 2 调用（mode=book）——主题→L1→L2→L3 书级 grilling，产结构决策由本 Skill 写入 outline.md；adaptation mode 额外激活 B9 原作对齐度（保留/改/新增三态 + 改编深度声明，详见 `_reference/book-conversation-guide.md` §B9） |
+| `idea-explorer` Skill | Session 1 调用（mode=book，**original mode only**，接 `seed_path`）——seed→候选主题方向，产 `book-exploration.md`；adaptation mode 不调用，改内联读原作画像 + seed 发散 |
+| `qing-novelist` Skill | Session 2 调用（mode=book，接 `outline_path` + `seed_path`）——主题→L1→L2→L3 书级 grilling，读 seed 核心种子/缺口/冲突作参考；adaptation mode 额外激活 B9 原作对齐度（保留/改/新增三态 + 改编深度声明，详见 `_reference/book-conversation-guide.md` §B9） |
+| `xuanji` Skill | 上游——产出 `_briefs/premise-seed.md`（`convergence_status: done`）作 Session 1/2 工作输入；本 Skill 只读 seed 不写，seed 缺失时软阻断引导作者 `/xuanji` |
 | `plan-chapter` Skill | 下游——本 Skill 产出 outline.md L1-L3 填实后，plan-chapter 读大纲跑章节规划 |
 | `adaptation-workflow` Skill | 改编流——阶段 0.5 调本 Skill mode="adaptation"（本 commit 实现）；original mode 启动判定检测到改编模式时硬阻断导向 adaptation-workflow |
 | `bootstrap-project` Skill | 互补可串——本 Skill 正向产大纲后，bootstrap 可逆向补 voice/character/world（Commit 7 加跳过 1a 逻辑）；启动判定检测到已有成稿时建议 bootstrap |

@@ -10,7 +10,7 @@ book_settings_dispatched: false
 sections:
   - heading: "## Premise（原始点子）"
     skills: [outline-tingle]
-    desc: "书级 handoff 起点——原始一句话/灵感来源/期望读者感受；outline-tingle Session 1 由此发散主题"
+    desc: "书级 handoff 起点——三字段蒸馏自 _briefs/premise-seed.md（xuanji 产）+ seed 指针；outline-tingle Session 1 由此发散主题"
   - heading: "## L1：全书级"
     skills: [plan-chapter, qing-novelist, mo-writer]
     desc: "宪法级别——书名/核心主题/终点画面/主角起终状态/不可违背规则/一句话概括/类型标签/核心隐喻"
@@ -52,7 +52,8 @@ sections:
 
 ## Premise（原始点子）
 
-> **书级 handoff 起点**——`outline-tingle` Session 1 从此段读 premise 发散到主题；frontmatter `workflow_position` 推进书级状态机。
+> **书级 handoff 起点**——三字段由 `outline-tingle` Session 1 从 `_briefs/premise-seed.md`（`xuanji` 产出）三字段蒸馏写入；frontmatter `workflow_position` 推进书级状态机。
+> **seed 指针**：`_briefs/premise-seed.md`（璇玑产出——7 类型打标碎片 + 核心种子/缺口/冲突/未决停车场；下游 idea-explorer / qing-novelist 读作工作输入）。seed 缺失（降级路径）时无此指针，下游读三字段 Premise。
 
 - **原始一句话**：（待定）
 - **灵感来源**（可空）：（待定）

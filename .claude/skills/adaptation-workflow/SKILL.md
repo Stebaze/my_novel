@@ -11,7 +11,7 @@ description: 文学作品的体系化改编——原作画像提取+逐章改编
 
 **核心差异**（vs 标准写作流）：
 - **阶段 0 强制前置**：六维原作画像提取——改编流独有阶段（描述性，原作是什么）
-- **阶段 0.5 强制前置**：改编大纲形成（调 `outline-tingle mode="adaptation"`）——改编流独有阶段（规范性，改成什么）；原作画像与改编大纲分两层
+- **阶段 0.5 强制前置**：改编 seed 收敛（`xuanji` 产 `_briefs/premise-seed.md`——改编意图碎片：留什么/砍什么/注入什么）+ 改编大纲形成（调 `outline-tingle mode="adaptation"`）——改编流独有阶段（规范性，改成什么）；原作画像（外部素材）/ 改编 seed（内部意图）/ 改编大纲分三层
 - **plan-chapter 模式**：`mode="adaptation"` 增加 §0A 源文对照层 + L1-L6 改写深度选择
 - **chapter-review 模式**：`mode="adaptation"` 增加原作对齐维度（严格/平衡/宽松）
 
@@ -19,8 +19,8 @@ description: 文学作品的体系化改编——原作画像提取+逐章改编
 
 | Aspect | Detail |
 |--------|--------|
-| **Calls** | `qing-novelist`（六维原作画像 — 分析模式）, `ping-critic`（defect-marking 缺陷标记）, `outline-tingle`（mode="adaptation"，阶段 0.5 产改编大纲）, `plan-chapter`（mode="adaptation"）, `chapter-review`（mode="adaptation"） |
-| **Produces** | `reference/manuscripts/_analysis/{作品名}.md`, `outline.md`（mode=adaptation，阶段 0.5 产）, `{draft}/_adaptation-tracker.md` |
+| **Calls** | `qing-novelist`（六维原作画像 — 分析模式）, `ping-critic`（defect-marking 缺陷标记）, `xuanji`（阶段 0.5 前置——改编 seed 缺失时引导作者调，**不直接 Skill 调用**，由作者执行 `/xuanji`）, `outline-tingle`（mode="adaptation"，阶段 0.5 产改编大纲）, `plan-chapter`（mode="adaptation"）, `chapter-review`（mode="adaptation"） |
+| **Produces** | `reference/manuscripts/_analysis/{作品名}.md`, `outline.md`（mode=adaptation，阶段 0.5 产）, `{draft}/_adaptation-tracker.md`。**注**：`_briefs/premise-seed.md` 由 `xuanji` 产（阶段 0.5 前置 0.5.0 引导作者 `/xuanji`），本 Skill 只路由不写 |
 | **Called by** | 用户入口（"改编这个作品" / "逐章改编"） |
 
 ## Triggers
@@ -50,13 +50,24 @@ description: 文学作品的体系化改编——原作画像提取+逐章改编
 ### 阶段 0.5：改编大纲形成（🚫 硬阻断前置）
 
 > 原作画像（描述性，原作是什么）后、逐章循环前，产出改编大纲（规范性，改成什么）。调 `outline-tingle mode="adaptation"` 完成 premise→L1→L2→L3。原作画像与改编大纲分两层——前者是原作的客观画像，后者是改编后的目标结构。
+>
+> **改编 seed 前置**：阶段 0.5 调 outline-tingle 前，作者改编意图碎片（留什么/砍什么/注入什么）需先由 `xuanji` 收敛成 `_briefs/premise-seed.md`（`convergence_status: done`）。原作画像是外部素材源（原作有什么），seed 是内部意图源（作者想怎么改）——两者共喂 outline-tingle Session 1 内联 divergent。两流对称 wiring：与原创流 outline-tingle Session 1 的 seed 前置检查一致。
+
+**0.5.0 seed 前置检查**：
+
+1. 检查 `_briefs/premise-seed.md` 存在 + frontmatter `convergence_status: done`
+   ├── 存在 + done → 进 0.5.1
+   └── 缺失 / in-progress → 🟡 软阻断："改编 seed 未收敛——建议先 /xuanji 理清改编意图碎片（留什么/砍什么/注入什么）。
+       确认放行则 outline-tingle 降级路径（无 seed 富材料，仅靠原作画像 + 口述）"
+   作者确认放行 → 进 0.5.1（outline-tingle 走降级路径）
 
 **0.5.1 调 outline-tingle mode="adaptation"**：
 
-1. 读 `reference/manuscripts/_analysis/{作品名}.md` 已落盘（阶段 0 产物）→ 作为 outline-tingle Session 1 divergent 的素材源
+1. 读 `reference/manuscripts/_analysis/{作品名}.md` 已落盘（阶段 0 产物）→ 作为 outline-tingle Session 1 divergent 的外部素材源
+   + 读 `_briefs/premise-seed.md`（0.5.0 产物）→ 作为内部意图源（留/砍/注入碎片）
 2. 调 `Skill("outline-tingle", mode="adaptation")` → 触发 outline-tingle 2 session 流程：
-   - **Session 1**：内联读原作画像 → 列 3-5 个候选改编主题方向（保留主线/删减支线/改结局/换视角/主题转译）→ 作者选定 → 写 `outline.md` Premise + L1 草稿
-   - **Session 2**：调 `qing-novelist mode=book`（含第九维「原作对齐度」B9）→ 补 L1/L2/L3 + 写 `project-config.md`（创作模式=改编）+ `init-draft`
+   - **Session 1**：内联读原作画像 + seed → 列 3-5 个候选改编主题方向（保留主线/删减支线/改结局/换视角/主题转译，保留/改/注入对照 seed 意图）→ 作者选定 → 写 `outline.md` Premise + L1 草稿
+   - **Session 2**：调 `qing-novelist mode=book`（接 `seed_path`，含第九维「原作对齐度」B9）→ 补 L1/L2/L3 + 写 `project-config.md`（创作模式=改编）+ `init-draft`
 3. outline-tingle 完成后 `outline.md` frontmatter `mode: adaptation` + `workflow_position: outline-tingle-step2-done`
 
 **0.5.2 门禁**：`outline.md` L1-L3 实质填充（无 `（待定）`）+ frontmatter `mode: adaptation` + `workflow_position: outline-tingle-step2-done` → 阶段 0.5 完成 → 进入逐章循环
@@ -110,6 +121,7 @@ Step 4: 询问下一章源文位置 + 内容方向 → 回到 Step 1
 | `qing-novelist`（分析模式） | 阶段 0.1 | 🚫 硬阻断——原作画像不可降级 |
 | `ping-critic`（defect-marking） | 阶段 0.2 | 🚫 硬阻断——缺陷标记不可跳过 |
 | `outline-tingle`（mode="adaptation"） | 阶段 0.5 | 🚫 硬阻断——改编大纲不可降级 |
+| `_briefs/premise-seed.md`（xuanji 产，`convergence_status: done`） | 阶段 0.5 前置（0.5.0 检查） | 🟡 软阻断——缺失提示先 `/xuanji`；作者确认放行走降级路径（无改编意图富材料，仅靠原作画像 + 口述） |
 | `plan-chapter` | Step 1 | 🚫 硬阻断——改编规划不可跳过 |
 | `chapter-review` | Step 2 | 🚫 硬阻断——改编评审不可跳过 |
 | `reference/manuscripts/{原作}.md` | 阶段 0 | 🚫 硬阻断——源文不可读则无法开始 |

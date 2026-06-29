@@ -25,11 +25,12 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 |--------|--------|
 | **Input `mode`** | `chapter` \| `book`（默认 `chapter`，向后兼容——不传 = `chapter`，启发模式与分析模式行为完全不变） |
 | **Input `outline_path`** | mode=book 时传入 outline.md 路径（草稿优先路径解析后的绝对路径）。本 Skill 读 outline.md 现状（Premise 段 + L1-L3 + frontmatter `workflow_position`）作为 grilling 起点 |
+| **Input `seed_path`** | mode=book 时传入 `_briefs/premise-seed.md` 路径（由 `xuanji` 产出）。本 Skill 读 seed 核心种子/缺口/冲突作 L1 grilling 参考——核心种子驱动 B1 主题深度/B2 主角弧光，缺口指向待补字段，冲突需 L1 前裁决。seed_path 缺失降级读 outline.md only（无富材料参考） |
 | **Input `adaptation`** | bool，默认 false。mode=book 下 `adaptation=true` 激活第九维 B9 原作对齐度（保留/改/新增三态 + 改编深度声明，详见 `_reference/book-conversation-guide.md` §B9）。`adaptation=true` 时本 Skill 额外读 `reference/manuscripts/_analysis/{作品名}.md`（原作画像）作为 B9 grilling 素材 |
 | **Dispatches to** | `ping-critic`（设定校验）, `sensory-writer`（示例文本生成）, `voice-sculptor`（声音实验） |
 | **Produces** | 启发模式（mode=chapter）：`_briefs/chapter-{N}-direction.md`；分析模式：`profiles/authors/{作者名}.md` + 技法入库；书级 grilling 模式（mode=book）：**不单独产 direction.md**——产出结构决策由调用方（outline-tingle）直接写入 `outline.md` 对应字段（L1/L2/L3） |
-| **Consumes** | 启发模式：`outline.md` / `author-voice.md` / `voice-bible.md` / `_character-state.md` / 探索卡（可选）；分析模式：`reference/novels/{作品名}/`；书级 grilling 模式：`outline.md`（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ `project-config.md`（如存在） |
-| **Called by** | `plan-chapter`（阶段 3 启发，mode=chapter）, `bootstrap-project`, `outline-tingle`（Session 2，mode=book）, 用户直接调用 |
+| **Consumes** | 启发模式：`outline.md` / `author-voice.md` / `voice-bible.md` / `_character-state.md` / 探索卡（可选）；分析模式：`reference/novels/{作品名}/`；书级 grilling 模式：`outline.md`（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ `_briefs/premise-seed.md`（核心种子/缺口/冲突，由 `xuanji` 产出）/ `project-config.md`（如存在） |
+| **Called by** | `plan-chapter`（阶段 3 启发，mode=chapter）, `bootstrap-project`, `outline-tingle`（Session 2，mode=book，传 `outline_path` + `seed_path`）, 用户直接调用 |
 
 ## Triggers
 
@@ -219,7 +220,7 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | 维度 | mode=chapter（启发） | 作者分析模式 | mode=book |
 |------|---------------------|------------|-----------|
 | 焦点 | 第 N 章方向 | 参考作品风格提取 | 整本书的 L1→L2→L3 结构定型 |
-| 输入 | 设定快照/大纲/线程图/角色档案 | reference/novels/{作品}/ 全量 | outline.md（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ project-config.md |
+| 输入 | 设定快照/大纲/线程图/角色档案 | reference/novels/{作品}/ 全量 | outline.md（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ project-config.md / **seed**（`_briefs/premise-seed.md`——核心种子/缺口/冲突作 grilling 参考；seed 缺失降级读 outline.md only） |
 | grilling 维度 | 12 维（D0-D12） | 7 维（§1-§7） | 8 维（B1-B8） |
 | 内容呈现载体 | 50-100 字场景片段（调 sensory-writer） | 文本证据引用 | 50-100 字**结构陈述句**（不调 sensory-writer——书级阶段无具体场景；B8 终点画面可用简短画面陈述） |
 | 产出落点 | `_briefs/chapter-{N}-direction.md` | `profiles/authors/{作者}.md` + 技法入库 | **不单独产 direction.md**——产出由调用方（outline-tingle）直接写入 `outline.md` 对应字段 |
@@ -330,7 +331,8 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 |------|------|
 | `plan-chapter` Skill | 阶段 3 调用本 Skill（启发模式） |
 | `bootstrap-project` | 阶段 2 轻量自我提取可触发本 Skill |
-| `outline-tingle` Skill | Session 2 调用本 Skill（mode=book）——书级 grilling 引擎，产 L1-L3 结构决策供 outline-tingle 写入 outline.md（本 commit 仅声明调用方关系，outline-tingle 由 issue Commit 5 实现） |
+| `outline-tingle` Skill | Session 2 调用本 Skill（mode=book，传 `outline_path` + `seed_path`）——书级 grilling 引擎，产 L1-L3 结构决策供 outline-tingle 写入 outline.md（本 commit 仅声明调用方关系，outline-tingle 由 issue Commit 5 实现） |
+| `xuanji` Skill | 上游——产出 `_briefs/premise-seed.md`（核心种子/缺口/冲突）作 mode=book L1 grilling 参考；本 Skill 只读 seed 不写。冲突清单是 L1 前裁决指向，缺口指向待补字段 |
 | `settings-manager` Skill | 交谈前调 read-settings + read-character-state |
 | `technique-selector` Skill | D4/D4b/D5 调 match()/get-voice-types() |
 | `ping-critic` Skill | Step 5 同步参与设定校验；mode=book 结构决策写入前校验一致性 |

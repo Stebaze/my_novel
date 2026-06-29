@@ -30,6 +30,7 @@ Skill 之间结构化信息交换优先走磁盘文件。对话上下文仅传�
 
 | 文件 | 写入者 | 含义 |
 |------|--------|------|
+| `_briefs/premise-seed.md` | xuanji | 碎片收敛 grilling 产出（`convergence_status: done`）；下游 idea-explorer / qing-novelist 读作工作输入（seed 富材料）；outline-tingle Session 1 前置 |
 | `_briefs/chapter-{N}-direction.md` | qing-novelist | 阶段 3 完成，方向卡已产出 |
 | `_briefs/chapter-{N}-exploration.md` | idea-explorer | 阶段 3.5 头脑风暴完成 |
 | `_briefs/chapter-{N}-handoff.md` | plan-chapter | plan→generate 跨 Session 状态交接（字段契约见 §2.4） |

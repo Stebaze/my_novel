@@ -19,11 +19,11 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 
 | Aspect | Detail |
 |--------|--------|
-| **Input `mode`** | `chapter` \| `book`（默认 `chapter`，向后兼容——不传 = `chapter`，行为完全不变） |
-| **Called by** | `plan-chapter` Skill（阶段 3.5 条件触发，mode=chapter），`outline-tingle` Skill（Session 1，mode=book），用户直接调用 |
-| **Calls** | mode=chapter：`sensory-writer`（场景片段生成）, `settings-manager`（设定快照）, `technique-selector`（技法匹配）, `ping-critic`（设定一致性校验）；mode=book：`settings-manager`（设定快照，如 outline 已有 L1 则读） |
+| **Input `mode`** | `chapter` \| `book`（默认 `chapter`，向后兼容——不传 = `chapter`，行为完全不变）。mode=book 额外接 `seed_path`（`_briefs/premise-seed.md`，由 `xuanji` 产出）；seed_path 缺失降级读 `outline.md` Premise 段 3 字段 |
+| **Called by** | `plan-chapter` Skill（阶段 3.5 条件触发，mode=chapter），`outline-tingle` Skill（Session 1，mode=book，传 `seed_path`），用户直接调用 |
+| **Calls** | mode=chapter：`sensory-writer`（场景片段生成）, `settings-manager`（设定快照）, `technique-selector`（技法匹配）, `ping-critic`（设定一致性校验）；mode=book：`settings-manager`（设定快照，如 outline 已有 L1 则读）。**不调 `xuanji`**——seed 由上游产出，本 Skill 只读 |
 | **Produces** | mode=chapter：`_briefs/chapter-{N}-exploration.md` + 追加 `session-context.md`；mode=book：`_briefs/book-exploration.md`（frontmatter `mode: book` / `produced_by: idea-explorer`） |
-| **Consumes** | mode=chapter：续跑时读取已有 `_briefs/chapter-{N}-exploration.md`；mode=book：续跑时读取已有 `_briefs/book-exploration.md` |
+| **Consumes** | mode=chapter：续跑时读取已有 `_briefs/chapter-{N}-exploration.md`；mode=book：`_briefs/premise-seed.md`（核心种子 + 碎片表 + 缺口作发散素材）+ 续跑时读取已有 `_briefs/book-exploration.md` |
 
 ## Triggers
 
@@ -37,8 +37,8 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 - `outline-tingle` Session 1（mode=book，作者拿着模糊 premise 进入系统）
 
 **书级发散调用（mode=book）**：
-- "帮我从 premise 发散主题" / "这本书到底写什么"
-- 由 `outline-tingle` Session 1 触发（premise 阶段，作者拿着模糊点子进入系统）
+- "帮我从 seed 发散主题" / "这本书到底写什么"
+- 由 `outline-tingle` Session 1 触发（接 `seed_path`，作者持有的残留碎片已由 `xuanji` 收敛成 seed）
 
 ---
 
@@ -163,14 +163,14 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 
 ## Book Mode (mode=book)
 
-> 当作者拿着模糊 premise（"想写一个 XX 的故事"）进入系统时，由 `outline-tingle` Session 1 调用本 Skill（mode=book）。**书级 divergent 引擎**——7 法不应用到章节困境→场景片段，而是应用到 premise→候选主题方向。
+> 当作者持有的残留碎片已由 `xuanji` 收敛成 seed 时，由 `outline-tingle` Session 1 调用本 Skill（mode=book，接 `seed_path`）。**书级 divergent 引擎**——7 法不应用到章节困境→场景片段，而是应用到 seed→候选主题方向。
 
 **与 mode=chapter 的差异**：
 
 | 维度 | mode=chapter | mode=book |
 |------|-------------|-----------|
 | 焦点 | 第 N 章困境 | 整本书的 premise |
-| 输入 | 设定快照/大纲/线程图/角色档案 | premise（口述或 `novel/inspiration-log.md` bullet 流/`outline.md` Premise 段） |
+| 输入 | 设定快照/大纲/线程图/角色档案 | **seed**（`_briefs/premise-seed.md`，由 `xuanji` 产出——核心种子 + 碎片表 + 缺口作发散素材；seed 缺失降级读 `outline.md` Premise 段 3 字段） |
 | 7 法产出载体 | 50-100 字场景片段（调 `sensory-writer`） | 50-100 字**主题陈述句**（不调 `sensory-writer`——书级阶段没有具体场景，主题是抽象层） |
 | 收敛辅助去向 | 探索卡 → 五更（plan-chapter 阶段 4） | 一览表 → `outline-tingle` 写入 `outline.md` L1 部分字段（核心主题/一句话/终点画面） |
 | 产出文件 | `_briefs/chapter-{N}-exploration.md` | `_briefs/book-exploration.md`（frontmatter `mode: book` / `produced_by: idea-explorer`） |
@@ -230,7 +230,8 @@ description: 发散性思维伙伴——7种结构化头脑风暴方法生成"�
 | 组件 | 关系 |
 |------|------|
 | `plan-chapter` Skill | 阶段 3.5 条件调用；独立调用后路由到 plan-chapter 阶段 4 |
-| `outline-tingle` Skill | Session 1 调用本 Skill（mode=book）——书级 divergent 引擎，产 `book-exploration.md` 供 outline-tingle 写入 outline.md L1 部分字段 |
+| `outline-tingle` Skill | Session 1 调用本 Skill（mode=book，传 `seed_path`）——书级 divergent 引擎，产 `book-exploration.md` 供 outline-tingle 写入 outline.md L1 部分字段 |
+| `xuanji` Skill | 上游——产出 `_briefs/premise-seed.md` 作 mode=book 发散素材（核心种子 + 碎片表 + 缺口）；本 Skill 只读 seed 不写，seed 缺失降级读 outline.md Premise 段 |
 | `qing-novelist` Skill | 互补——思源发散（打开可能性空间），五更收敛（在地图上选路径）。产出探索卡供五更消费 |
 | `settings-manager` / `sensory-writer` / `technique-selector` / `ping-critic` Skill | 4 个硬阻断依赖（见 Dependencies 表） |
 | `mo-writer` Skill | 间接——探索卡中的场景候选池可被墨在简报生成时参考 |
