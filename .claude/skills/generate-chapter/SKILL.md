@@ -17,7 +17,7 @@ description: 章节生成编排（4-Skill 对称架构 Session 2）——plan �
 |--------|--------|
 | **Trigger** | `/generate-chapter {N}` / `--resume`（断点续跑）/ `--resume-from={step}`（显式跳步） |
 | **Calls** | `pre-flight-check`（C8 handoff 验证）, `settings-manager`（read-character-state）, `mo-writer`（Step 1 简报）, `sensory-writer`（Step 2 + Step 4 per-scene）, `chapter-review`（Step 3, mode="ai-content"）, `file-manager`（Step 0 兜底） |
-| **Produces** | `_briefs/chapter-{N}-brief.md` + `chapters/chapter-{N}.md` + `_reviews/chapter-{N}-review.md` + `_reviews/chapter-{N}-fix-log.md`（条件）+ `_exchanges/scene-summaries.json` |
+| **Produces** | `_briefs/chapter-{N}-brief.md` + `chapters/chapter-{N}.md` + `_reviews/chapter-{N}-review.md` + `_reviews/chapter-{N}-fix-log.md`（条件）+ `_exchanges/scene-summaries.json` + `_exchanges/fingerprint-tracker.json` |
 
 ## Triggers
 
@@ -102,6 +102,18 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
     → 写入 _exchanges/scene-summaries.json
     → opus_dna_contract=true → sensory-writer Step 2.5 加载 5 层写作契约（感知/结构/语言/元认知/高级能力）
     → 单场景失败 → 重试一次，仍失败 → 🚫 硬阻断（不允许部分章节）
+2b-gate: 指纹累计追踪（每场景 prose 产出后、2c 拼装前执行）
+    → 对该场景 prose 跑 Bash grep 硬计数（复用 ping-critic 2a-0 同套命令,零 LLM 判断）：
+        - V3 词频：grep -o "词" | wc -l,词表 慢慢/忽然/原来/突然/不禁/仿佛/缓缓/深深/似乎/非常/然后/美丽/壮观
+        - V7 否定断言排比：grep -nE "不是[^。]*。[^。]*是" 计行数
+        - fp5 否定式双句排比：grep -nE "他没|她没|没问自己|没意识到|没在脑子里|没去想|没想过" 计行数
+        - 叙述者解码锚词：grep -nE "忽然懂了|忽然明白|忽然意识到|懂了一件事|忽然就懂" 计行数
+        - 抽象情感标签：grep -nE "斟酌|复杂|难以言喻|说不清" 计行数
+    → 维护章级累计计数,追加到 _exchanges/fingerprint-tracker.json：
+        schema: {chapter, scenes: [{scene_index, fingerprint_counts: {v3_words:{慢慢:N,...}, v7_negation:N, fp5_negation:N, narrator_decode:N, abstract_emotion:N}, cumulative: {..截至本场景累计..}, flag: bool}]}
+    → 阈值（Q1 阈值制）:单指纹累计 ≥3 → flag=true（🔴 标记,章末 chapter-review 处理）
+    → **不拦截、不重写**（Q9=B）——只记录累计分布,让指纹可见;是否该删交章末 chapter-review 统一判定（能看全章,避免误删章名点题的有效修辞）
+    → tracker.json 缺失/失败 → ⚠️ 标注"指纹追踪降级",不阻断（章末 ping-critic 仍一次性检测）
 2c: 自动拼装 → chapters/chapter-{N}.md（保留元数据头 + 场景按 §1 顺序拼接 + 200 字摘要折叠块）
     → 更新 scene-summaries.json "assembled": true
     → 计算实测字数（口径=中文+中文标点，Unicode 范围见 interaction-spec §2.2），回填 frontmatter `word_count` + `## 元数据 → **实测字数**` 行
@@ -111,7 +123,7 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
 
 ```
 调 Skill("chapter-review", mode="ai-content", auto=true)
-  传入：chapter={N}, draft_dir, scene_summaries={draft_dir}/_exchanges/scene-summaries.json
+  传入：chapter={N}, draft_dir, scene_summaries={draft_dir}/_exchanges/scene-summaries.json, fingerprint_tracker={draft_dir}/_exchanges/fingerprint-tracker.json
   → 内部执行：ping-critic（指纹+校对+心流五维18项+三维评审）
   → AI 专项检查：事件落地 / 场景连贯 / 突兀收束 / POV 连续 / 伏笔核对
   → 产出 _reviews/chapter-{N}-review.md + 🔴 项场景定位列表
