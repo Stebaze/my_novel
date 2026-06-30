@@ -90,7 +90,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 §0 宏观上下文层
 §1 场景结构层（per-scene 模式）——name/pov/location/time/功能/设计理由/opening_type/ending_type/asymmetry_weight/衔接计划
 §2 角色声音层
-§3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/技法(可选,从 technique-library 选)/rule_break_choice/trigger_reason/safety_valve
+§3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/质感钩子/技法(可选,从 technique-library 选)/rule_break_choice/trigger_reason/safety_valve
 §3A 高潮节拍层（条件）
 §5 常见陷阱层
 ```
