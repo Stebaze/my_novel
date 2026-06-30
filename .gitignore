@@ -6,6 +6,9 @@ reference/*
 
 !reference/README.md
 
+# 设计/重构文档（不纳入版本管理，保留本地）
+docs/*
+
 # 作者风格档案（不纳入版本管理，保留本地）
 profiles/authors/*
 
