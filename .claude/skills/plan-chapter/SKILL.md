@@ -46,9 +46,9 @@ description: 章节规划——系统管道(前置检查+设定快照)+启发式
   → 退出
 ```
 
-### Handoff 8 字段契约
+### Handoff 12 字段契约（v2.0——5 维正交风格档案）
 
-`{draft_dir}/_briefs/chapter-{N}-handoff.md` frontmatter 必含 8 字段。完整定义见 `framework/_specs/interaction-spec.md` §2.4：
+`{draft_dir}/_briefs/chapter-{N}-handoff.md` frontmatter 必含 12 字段。完整定义见 `framework/_specs/interaction-spec.md` §2.4：
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|:---:|------|
@@ -77,6 +77,6 @@ description: 章节规划——系统管道(前置检查+设定快照)+启发式
 | `settings-manager` Skill | 阶段 1 / 阶段 5 | 🚫 硬阻断——设定快照 + record-handoff 不可跳过 |
 | `idea-explorer` Skill | 阶段 3 | ⚠️ 不可用时跳过阶段 3，标注"思源不可用" |
 | `qing-novelist` Skill | 阶段 4 | 🚫 硬阻断——方向卡必须产出 |
-| `framework/_specs/interaction-spec.md` §2.4 | 阶段 5 | 🚫 硬阻断——handoff 8 字段契约定义缺失则无法写 handoff |
+| `framework/_specs/interaction-spec.md` §2.4 | 阶段 5 | 🚫 硬阻断——handoff 12 字段契约定义缺失则无法写 handoff |
 | `framework/templates/chapter-handoff-template.md` | 阶段 5 | 🚫 硬阻断——handoff 模板缺失则字段契约不明确 |
 | `{draft_dir}/_briefs/chapter-{N}-direction.md` | 阶段 5 | 🚫 硬阻断——方向卡缺失则无法写 handoff |

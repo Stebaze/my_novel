@@ -104,19 +104,33 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
 ### record-handoff
 
 ```
-输入：8 字段 handoff 字典
+输入：12 字段 handoff 字典（v2.0，5 维正交风格档案）
   - chapter（int, 必填）
   - direction（path, 必填）
   - brief（path, 可空；plan 阶段可空，generate 阶段必填）
   - chapter_file（path, 必填）
   - character_state（path, 必填）
-  - style_profile（path, 必填）
+  - style_profile_type（string, 必填 1 个——基底；对应 framework/templates/_style-bases/{type}.md）
+  - style_profile_themes（list[string], 必填 1-N 个——主题叠加；每个对应 framework/templates/_themes/{theme}.md）
+  - style_profile_variant（string, 可选 0-1 个——作家风格；对应 framework/templates/_styles/{variant}.md）
+  - style_profile_subvariant（string, 可选 0-1 个——子变体；嵌入在 {variant} 风格层文件中）
+  - style_profile_specialization（string, 可选 0-1 个——题材特化；对应 framework/templates/_style-bases/specializations/{specialization}.md）
   - workflow_position（string, 必填；<skill>-<step>-<artifact> 三段式）
   - resume_command（string, 必填；以 / 开头）
 执行：
-  1. 校验 8 字段类型 + 必填；workflow_position 格式校验
-  2. 校验 path 字段文件存在性（direction/character_state/style_profile 必查；brief plan 阶段可空）
-  3. 拼装 frontmatter（format_version / produced_by: "settings-manager" / produced_at / 8 字段）
+  1. 校验 12 字段类型 + 必填；workflow_position 格式校验
+     - 必填字段（缺/None/空字符串即报缺失）：chapter / direction / chapter_file / character_state / style_profile_type / style_profile_themes / style_profile_variant / style_profile_subvariant
+     - 可选字段（空字符串=合法）：style_profile_specialization（题材特化可选为空）
+     - 空集合判定：空 list [] = 缺失；非空 list 合法
+  2. 校验 path 字段文件存在性：
+     - direction/character_state 必查
+     - brief plan 阶段可空，generate 阶段必查
+     - style_profile_type 必查（对应 _style-bases/{type}.md）
+     - style_profile_themes 任一必查（对应 _themes/{theme}.md）
+     - style_profile_variant 如非空必查（对应 _styles/{variant}.md）
+     - style_profile_subvariant 如非空必查（嵌入在 {variant} 风格层文件——可省略具体路径校验）
+     - style_profile_specialization 如非空必查（对应 _style-bases/specializations/{specialization}.md）
+  3. 拼装 frontmatter（format_version: "2.0" / produced_by: "settings-manager" / produced_at / 12 字段）
   4. 写入 {draft_dir}/_briefs/chapter-{N}-handoff.md
 输出：{handoff_path, written: true}
 失败：缺失/类型不符 → 返回 {error: "missing_field", field} → 调用方 🚫 硬阻断

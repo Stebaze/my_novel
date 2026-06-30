@@ -23,16 +23,30 @@
    brief: ""（空——generate-chapter 阶段 1 补生成）
    chapter_file: chapters/chapter-{N}.md
    character_state: _character-state.md（settings-manager 提供路径）
-   style_profile: novel/author-voice.md（正式层路径，草稿不镜像）
+   # 5 维正交风格档案（v2.0）——字段值=文件物理名（无 v 后缀）
+   style_profile_type: {project-config.md「主风格档案」字段，1 个基底}
+   style_profile_themes: {project-config.md「主题」字段，1-N 个}
+   style_profile_variant: {project-config.md「风格变体」字段，0-1 个}
+   style_profile_subvariant: {project-config.md「子变体」字段，0-1 个}
+   style_profile_specialization: {project-config.md「题材特化」字段，0-1 个}
    workflow_position: "plan-step5-handoff"
    resume_command: "/generate-chapter {N}"
    ```
+
+   5 维字段值从 `novel/project-config.md` 读取：
+   - `style_profile_type` ← `主风格档案`（如 `japanese-light-novel-base`）
+   - `style_profile_themes` ← `主题` 列表（如 `["daily-life", "romance"]`）
+   - `style_profile_variant` ← `风格变体`（如 `kuiguannan-style`，可空）
+   - `style_profile_subvariant` ← `子变体`（如 `biyang-conference`，可空）
+   - `style_profile_specialization` ← `题材特化`（可空）
+
+   缺失/无效 → 🚫 硬阻断"project-config.md 5 维字段缺失或未配置"
 
 2. **调 `Skill("settings-manager", operation="read-character-state")`** → 获取最新角色状态快照路径 → 填入 `character_state` 字段。失败 → 🚫 硬阻断。
 
 3. **调 `Skill("settings-manager", operation="record-handoff")`** → 落盘 handoff 文件：
    - 路径：`{draft_dir}/_briefs/chapter-{N}-handoff.md`
-   - frontmatter 必含：`format_version` / `produced_by: "settings-manager"` / `produced_at` / `chapter` / 8 字段
+   - frontmatter 必含：`format_version: "2.0"` / `produced_by: "settings-manager"` / `produced_at` / `chapter` / 12 字段（含 5 维风格档案）
    - 缺失或字段无效 → generate-chapter C8 入口硬阻断
 
 4. **跳到 Part B**（handoff 提示 + 退出）
@@ -47,7 +61,12 @@
   - 方向卡：{draft_dir}/_briefs/chapter-{N}-direction.md
   - 简报：待 generate-chapter 阶段 1 补生成
   - 角色状态：{draft_dir}/_character-state.md
-  - 文风档案：novel/author-voice.md（正式层，草稿不镜像）
+  - 5 维风格档案：
+    - 基底：{style_profile_type}
+    - 主题：{style_profile_themes}
+    - 风格：{style_profile_variant}
+    - 子变体：{style_profile_subvariant}
+    - 题材特化：{style_profile_specialization}
   - 续跑命令：/generate-chapter {N}
 
 提示用户：
