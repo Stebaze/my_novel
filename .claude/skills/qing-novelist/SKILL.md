@@ -29,7 +29,7 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | **Input `adaptation`** | bool，默认 false。mode=book 下 `adaptation=true` 激活第九维 B9 原作对齐度（保留/改/新增三态 + 改编深度声明，详见 `_reference/book-conversation-guide.md` §B9）。`adaptation=true` 时本 Skill 额外读 `reference/manuscripts/_analysis/{作品名}.md`（原作画像）作为 B9 grilling 素材 |
 | **Dispatches to** | `ping-critic`（设定校验）, `sensory-writer`（示例文本生成）, `voice-sculptor`（声音实验） |
 | **Produces** | 启发模式（mode=chapter）：`_briefs/chapter-{N}-direction.md`；分析模式：`profiles/authors/{作者名}.md` + 技法入库；书级 grilling 模式（mode=book）：**不单独产 direction.md**——产出结构决策由调用方（outline-tingle）直接写入 `outline.md` 对应字段（L1/L2/L3） |
-| **Consumes** | 启发模式：`outline.md` / `author-voice.md` / `voice-bible.md` / `_character-state.md` / 探索卡（可选）；分析模式：`reference/novels/{作品名}/`；书级 grilling 模式：`outline.md`（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ `_briefs/premise-seed.md`（核心种子/缺口/冲突，由 `xuanji` 产出）/ `project-config.md`（如存在） |
+| **Consumes** | 启发模式：5 维风格档案（按 handoff frontmatter 12 字段加载——见 `/chapter-{N}-handoff.md`）/ `outline.md` / `voice-bible.md` / `_character-state.md` / 探索卡（可选）；分析模式：`reference/novels/{作品名}/`；书级 grilling 模式：`outline.md`（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/ `_briefs/premise-seed.md`（核心种子/缺口/冲突，由 `xuanji` 产出）/ `project-config.md`（如存在） |
 | **Called by** | `plan-chapter`（阶段 3 启发，mode=chapter）, `bootstrap-project`, `outline-tingle`（Session 2，mode=book，传 `outline_path` + `seed_path`）, 用户直接调用 |
 
 ## Triggers
@@ -70,19 +70,26 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 
 ```
 1. 模式判定（如上自动切换）——mode=book 优先级最高
-2. 设定读取策略（CLAUDE.md 规则 6）——设定文件（outline / author-voice / voice-bible /
+2. 设定读取策略（CLAUDE.md 规则 6）——设定文件（outline / voice-bible /
    thread-map / character-arcs / characters/ / world/ 等）在正式层 novel/，草稿不镜像；
    读取走 `settings-manager read-settings` 双源合并（novel/ + {draft}/_changes.md），
    或直接 Read novel/ 路径；工件（_briefs / _exchanges / _reviews / chapters）读 {draft}/
-3. [启发模式] 读取（设定经 read-settings 合并；工件直接 Read {draft}/）：outline.md /
-   author-voice.md / voice-bible.md / _character-state.md（走 read-character-state 双源）/
+3. [启发模式] 读取 5 维风格档案（v2.0 关键变更）：
+   3a. 读 `{draft}/_briefs/chapter-{N}-handoff.md` frontmatter 5 维字段
+   3b. 加载基底：Read `framework/templates/_style-bases/{style_profile_type}.md`（7 跨主题坐标轴）
+   3c. 加载主题（多文件，按 style_profile_themes 列表顺序）：Read `framework/templates/_themes/{theme}.md`（每个主题一个文件）
+   3d. 加载风格（可选）：Read `framework/templates/_styles/{style_profile_variant}.md`（作者特定）
+   3e. 加载子变体（嵌入在风格层文件中，不需额外 Read）
+   3f. 加载题材特化（可选）：Read `framework/templates/_style-bases/specializations/{style_profile_specialization}.md`
+   3g. 解析 5 维字段组合 → 写入 5 维风格档案会话上下文
+4. [启发模式] 继续读取其他文件：outline.md / voice-bible.md / _character-state.md（走 read-character-state 双源）/
    thread-map.md / character-arcs.md / 出场角色档案 / 探索卡（条件） / 前 1-2 章正文
    → 各文件缺失处理见 _reference/qing-conversation-guide.md §文件缺失处理
    → **读取 `novel/project-config.md`「节拍配置」取 `每章场景数`**：`= 1` → 设 `single_scene = true`，Step 3 D2 固定单场景、D4b 不激活
-4. [分析模式] 读取：reference/novels/{作品名}/ 全量 + project-config.md「参考作者目录」
+5. [分析模式] 读取：reference/novels/{作品名}/ 全量 + project-config.md「参考作者目录」
    → 缺参考目录 → 🚫 硬阻断："请先上传参考作品到 reference/novels/"
-5. [分析模式] 解析 7 维条目到 profiles/authors/_tmp/{作者}-V{卷}.md（每卷一档）
-6. [书级 grilling 模式] 读取：outline.md（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/
+6. [分析模式] 解析 7 维条目到 profiles/authors/_tmp/{作者}-V{卷}.md（每卷一档）
+7. [书级 grilling 模式] 读取：outline.md（Premise 段 + L1-L3 现状 + frontmatter `workflow_position`）/
    project-config.md（如存在，读「创作模式」字段判定 original|adaptation）
    → 各文件缺失处理见 _reference/book-conversation-guide.md §文件缺失处理
    → 解析 frontmatter `workflow_position`：`outline-tingle-step1-done` = Session 2 入口（正常路径）；
@@ -111,7 +118,7 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 **核心方法论**（详细见 `_reference/qing-conversation-guide.md`）：
 - **用内容呈现选择**：写 50-100 字场景片段给作者"读到感觉"，不要求标签式选择
 - **琉璃同步校验**：示例文本生成前过 `ping-critic(editor-consult)` 自检
-- **叙述者声音锚定**：示例必须匹配 author-voice.md 风格基准
+- **叙述者声音锚定**：示例必须匹配 5 维风格档案（基底层）+ 风格层（叙述态度+域词）的组合
 
 | # | 维度 | 何时激活 | 关键输出 |
 |---|------|---------|---------|
@@ -124,14 +131,14 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | D4 | 技法选用 | 必有 | 为每个场景各调 `technique-selector` match 获 Top-N,每场景可选 1 技法写入方向卡场景清单「技法」列;**仅很适合时指定,可留空=墨生成时 sensory-writer 自决**。不再产章级技法清单 |
 | D4b | 衔接设计 | ≥2 场景时（`single_scene = true` 时永不激活） | 调 `technique-selector` 获场景/章边界衔接技法 |
 | D4c | 伏笔操作 | 必有（thread-map 存在时） | 回收/新埋/推进清单 |
-| D5 | 风格锚点 | 必有 | author-voice.md 风格类 + 声音类型 Top-3 |
+| D5 | 风格锚点 | 必有 | **5 维风格档案组合**（基底 7 坐标轴 + 主题领域装置 + 风格叙述态度+域词+桥段） |
 | D6 | 心理维度 | 必有 | 角色人格面具/阴影/自性化阶段 |
 | D7 | POV 轮转 | 多主角模式 | 下一章视角 + 轮转节奏 |
 | D8 | 风格参考 | 默认询问 | 对标模式 / 指导模式（→ 见 D8b 详情） |
 | D9 | 篇幅与结构 | 大纲规划时 | 章节字数/场景字数/类型配比 |
 | D10 | 心流架构 | 自动生成不展开 | 启程/挑战/放松/总结 4 段心流设计卡 |
 | D11 | 角色声音建立 | voice-bible 缺某角色 | 调 `voice-sculptor` 跑生成/挖掘实验 |
-| D12 | 角色人设丰富 | thin_characters 列表非空 | 5 步访谈（见 character-enrichment-guide） |
+| D12 | 角色人设丰富 | thin_characters 列表非空 | 5 步访谈（见 character-enrichment-guide）；**5 维 v2.0 变更：人设类型按 style_profile_themes 决定**（如主题含 detective → 侦探原型 / supernatural → 超自然角色 / romance → 女主/男主原型 / harem → 多女主原型 等） |
 
 **D8 风格参考处理流程**（合并自原 author-profiling 触发点）：
 
@@ -308,7 +315,9 @@ description: 写作教练——12维启发式交谈(chapter) + 7维作者风格�
 | `_reference/qing-conversation-guide.md` | Step 3 详细方法论 | ⚠️ 12 维骨架内嵌 |
 | `_reference/author-analysis-7d.md` | Step 4 7 维协议 | ⚠️ 7 维提取骨架内嵌 |
 | `_reference/book-conversation-guide.md` | mode=book 8 维书级 grilling 协议 | ⚠️ 8 维骨架内嵌 |
-| `novel/author-voice.md` | D5 风格锚点 | ⚠️ 引导通过内容示例建立 |
+| `framework/templates/_style-bases/{style_profile_type}.md` (5 维基底) | D5 风格锚点（基底 7 坐标轴）| 🚫 硬阻断——5 维风格档案未加载则无法锚定 |
+| `framework/templates/_themes/{theme}.md` (5 维主题叠加) | D5 主题领域装置 / D12 人设类型 | ⚠️ 主题未加载时退化为默认主题族 |
+| `framework/templates/_styles/{variant}.md` (5 维风格) | D5 风格叙述态度+域词 | ⚠️ 风格层未加载时退化为基底默认 |
 | `novel/outline.md` | Step 1a 大纲 | ⚠️ 维度 1 完全依赖用户输入 |
 | `novel/voice-bible.md` | D11 声音 | ⚠️ 维度 11 全部角色触发实验 |
 | `novel/thread-map.md` | D4c 伏笔 | ⚠️ 跳过伏笔操作清单 |

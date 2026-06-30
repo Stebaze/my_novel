@@ -56,6 +56,17 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
    → 缺失不阻断（旧章节/非 generate-chapter 产出的章节无此文件）
 6. [mode="adaptation"] 加载 {source_portrait_path} 作为额外评审基准
    → 对齐级别（严格/平衡/宽松）由用户在评审前选择
+7. [v2.0.0 5 维评审基线加载] 读 `{draft_dir}/_briefs/chapter-{N}-handoff.md` frontmatter 5 维字段：
+   7a. 读基底：Read `framework/templates/_style-bases/{style_profile_type}.md`（7 跨主题坐标轴）
+   7b. 读主题叠加：Read `framework/templates/_themes/{theme}.md`（每个主题一个文件）
+   7c. 读风格层（如有 variant）：Read `framework/templates/_styles/{style_profile_variant}.md`
+   7d. 加载 5 维评审基线差异化：
+       - 基底 japanese-light-novel：心流五维 + 小光谱 + 角色选择型为基线
+       - 基底 chinese-webnovel：心流五维 + 大型高潮 + 信息差机制为基线
+       - 主题叠加 romance + 8+ 女主 → 评审多女主关系
+       - 主题叠加 mystery + supernatural → 评审反转式高潮
+       - 主题叠加 system → 评审系统结算
+   7e. 5 维评审基线作为输入传给 ping-critic（用于差异化评审标准）
 ```
 
 ### Step 3: Call ping-critic
@@ -67,13 +78,15 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
 - **职责归属**：字数统计统一在 chapter-review 做，generate-chapter 不做（Fix 循环重拼后字数变化，由下一轮 Step 3 评审自动覆盖）
 - 失败 → ⚠️ 标注"字数统计降级，DoD 字数检查用 frontmatter 既有值"，不阻断
 
-调 `Skill("ping-critic", operation="comprehensive-review", mode={mode})` 一次完成：
+调 `Skill("ping-critic", operation="comprehensive-review", mode={mode})` 一次完成（v2.0.0：传入 5 维评审基线作为差异化标准）：
 
 > [mode="ai-content"] 若 Step 2.5 解析到 fingerprint-tracker.json,把累计分布(flag=true 项)作为指纹归因输入传入 ping-critic——供 Fix 循环优先定位跨场景累计超标的指纹,而非只看单场景。
+> [v2.0.0] 同时传入 Step 2 第 7 步加载的 5 维评审基线（基底+主题叠加+风格层）——供 ping-critic 按 5 维差异化评审基线执行。
 
 - **基础能力**（所有 mode）：心流五维 18 项检测 + 加载指纹归因 + 加载校对结果 + 三维评审（结构/角色设定/文本质地） + DoD 检查
 - **mode="ai-content" 额外**：5 项机器化校验（事件落地 / 场景连贯 / 突兀收束 / POV 连续 / 伏笔核对）——🔴 项必须含 `scene_index` 字段供 generate-chapter Step 4 Fix 循环精准定位
 - **mode="ai-content" 额外**：opus-dna 5 自检（删减 / 替换 / 出声 / So-what / AI 味）——与 18 项心流检测解耦，不污染心流评级；AI 味行直接引用上方指纹区不重复检测
+- **mode="ai-content" 额外（v2.0.0）**：按 5 维评审基线差异化——例如 romance+8+ 女主主题下 5 项机器化校验增加"多女主关系一致性"维度
 - **mode="adaptation" 额外**：原作对齐检查（结构/设定/风格 fidelity）——按对齐级别判定
 
 详细执行步骤、阈值表、检测算法、修复策略见 `ping-critic/_reference/flow-review-methodology.md` + `ling-detection-methodology.md`。
@@ -162,10 +175,14 @@ opus-dna 5 自检（**仅 mode="ai-content"** 渲染）：
 
 | Dependency | When | Degradation |
 |-----------|------|------------|
-| `ping-critic` Skill | Step 3（综合评审，含原 ling-reader 指纹+校对能力） | 🚫 硬阻断——评审算法已完全并入 ping-critic |
+| `ping-critic` Skill | Step 3（综合评审，含原 ling-reader 指纹+校对能力）| 🚫 硬阻断——评审算法已完全并入 ping-critic |
 | `settings-manager` Skill | Step 2（设定快照）、Step 5（定稿） | 🚫 硬阻断——无设定快照无法做一致性检查 |
 | `{draft_dir}/chapters/chapter-{N}.md` | Step 2 | 🚫 硬阻断——无正文无法评审 |
 | `{draft_dir}/_briefs/chapter-{N}-brief.md` | Step 2 | ⚠️ 标注"无简报基准"，仅基于常识判断 |
+| `{draft_dir}/_briefs/chapter-{N}-handoff.md` (v2.0.0 5 维风格档案) | Step 2 第 7 步 | 🚫 硬阻断——5 维评审基线无法加载（5 维字段缺失或文件不存在） |
+| `framework/templates/_style-bases/{style_profile_type}.md` (5 维基底) | Step 2 第 7a 步 | 🚫 硬阻断——基底缺失则评审基线无法差异化 |
+| `framework/templates/_themes/{theme}.md` (5 维主题叠加) | Step 2 第 7b 步 | ⚠️ 主题缺失时退化为默认主题族 |
+| `framework/templates/_styles/{variant}.md` (5 维风格) | Step 2 第 7c 步 | ⚠️ 风格层缺失时退化为基底默认 |
 | `{draft_dir}/_exchanges/scene-summaries.json` | Step 2（mode="ai-content"） | ⚠️ AI 专项检查降级为纯文本评审（Fix 循环无法精准定位单场景） |
 | `{draft_dir}/_exchanges/fingerprint-tracker.json` | Step 2（mode="ai-content"） | ⚠️ 指纹累计追踪缺失,降级为章末一次性检测（无跨场景分布参考） |
 | `{source_portrait_path}` | Step 2（mode="adaptation"） | 🚫 硬阻断——原作画像缺失无法做对齐检查 |

@@ -31,10 +31,16 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ```
 0. 解析输入来源：
-   ├── handoff_file 提供 → 读 frontmatter 取 `direction` 作 direction_file
+   ├── handoff_file 提供 → 读 frontmatter 12 字段（v2.0）
    │   → 取 `chapter` 交叉验证（值必须 = 传入的 chapter）
-   │   → 取 `character_state` / `style_profile` 供后续
-   │   → 缺失/字段无效 → 🚫 硬阻断："handoff 字段缺失或 chapter 值不匹配"
+   │   → 取 `character_state` 供后续
+   │   → 取 5 维风格档案字段：
+   │     - style_profile_type（基底 1 个）
+   │     - style_profile_themes（主题叠加 1-N 个）
+   │     - style_profile_variant（风格 0-1 个）
+   │     - style_profile_subvariant（子变体 0-1 个）
+   │     - style_profile_specialization（题材特化 0-1 个）
+   │   → 任一必填字段缺失或 chapter 值不匹配 → 🚫 硬阻断
 1. _briefs/chapter-{N}-brief.md 已存在 → 返回路径
 2. direction_file 缺失 → "请先完成启发式交谈" → 返回
 3. 方向卡完整性自检（场景清单/心流设计/伏笔清单/风格锚点/角色状态）
@@ -43,11 +49,36 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ### Step 2: Read References
 
-按序读取：方向卡 / `author-voice.md` / 出场角色档案 / `world/` / 前 1-2 章正文 / `voice-bible.md` / `framework/templates/technique-library.md` / N ≤ 3 时 `cn-webnovel-guide.md`「一、七」。
+按序读取 5 维风格档案（v2.0 关键变更）：
+
+```
+2a. 读基底：Read `framework/templates/_style-bases/{style_profile_type}.md`（7 跨主题坐标轴）
+2b. 读主题（多文件，按 themes 列表顺序）：Read `framework/templates/_themes/{theme}.md`
+2c. 读风格层（如有 variant）：Read `framework/templates/_styles/{style_profile_variant}.md`
+2d. 读题材特化（如有 specialization）：Read `framework/templates/_style-bases/specializations/{style_profile_specialization}.md`
+2e. 子变体（嵌入在 {variant} 风格层文件中，不需额外 Read）
+```
+
+5 维风格档案加载到 Step 3 §0 风格锚点的字段填充中。
+
+按序读取其他参考：
+- 方向卡（handoff.frontmatter.direction 指向）
+- 出场角色档案（`novel/characters/` 走 read-settings 双源合并）
+- `world/`（设定）
+- 前 1-2 章正文（`{draft}/chapters/`）
+- `voice-bible.md`（角色声音）
+- `framework/templates/technique-library.md`（技法库）
+- N ≤ 3 时 `cn-webnovel-guide.md`「一、七」
 
 **读 `novel/project-config.md`「节拍配置」取 `每章场景数`**：
 - `每章场景数 = 1`（单场景模式）→ 设 `single_scene = true`，Step 3 §1/§3 走单场景分支
 - 缺失或 > 1 → `single_scene = false`，按原多场景协议
+
+**5 维风格档案 → 简报 §0 风格锚点填充映射**：
+- 基底 7 坐标轴 → §0 "推进单位" / "POV" / "句法" / "内心通道" / "关系网" / "高潮模式" / "世界观"
+- 主题领域装置 → §0 "题材" / "关系障碍" / "死亡模式" / "物理道具"
+- 风格叙述态度 → §0 "叙述者声音" / "幽默机制" / "吐槽占比"
+- 风格域词 → §-1 voice_persona_source = `framework/templates/_styles/{style_profile_variant}.md`
 
 ### Step 3: Generate Brief（7 层结构）
 
@@ -74,7 +105,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 **§-1 缺失降级协议**：
 - `task_type` 空 → 默认 `"resonate"`（小说最常用任务）
 - `reader_persona` 空 → 默认 `"25-35 岁中文网文读者，地铁/睡前刷手机"`
-- `voice_persona_source` 空 → 回退 `novel/author-voice.md`（正式层，草稿不镜像）
+- `voice_persona_source` 空 → 回退 `framework/templates/_styles/{style_profile_variant}.md`（风格层 v2.0；旧项目回退 `novel/author-voice.md`——兼容旧字段）
 - 三项均空 → ⚠️ 在简报顶部加 `<!-- brief_degraded: true -->` 标记
 
 **高潮章**：读 `climax-patterns/` 桥段模板 → §3A 以 5 阶段为骨架 → §3A 追加「写作执行要点」/ §5 追加「常见失败模式」→ 简报引用模板原文摘录。模板缺失 → ⚠️ 回退 §3 平铺。
@@ -83,7 +114,20 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ### Step 4: Reference Sample
 
-简报 §0-§5 完成后调 `Skill("sensory-writer", mode="single")` 生成附录「全章参考示例」。参数：`mode="single"` / `scene_spec`（§3）/ `character_voices`（§2）/ `style_profile`。
+简报 §0-§5 完成后调 `Skill("sensory-writer", mode="single")` 生成附录「全章参考示例」。参数（v2.0）：
+- `mode="single"`
+- `scene_spec`（§3）
+- `character_voices`（§2）
+- **`style_profile` 改为 5 维结构**（dict）：
+  ```python
+  style_profile = {
+    "type": handoff["style_profile_type"],
+    "themes": handoff["style_profile_themes"],
+    "variant": handoff.get("style_profile_variant", ""),
+    "subvariant": handoff.get("style_profile_subvariant", ""),
+    "specialization": handoff.get("style_profile_specialization", "")
+  }
+  ```
 
 → sensory-writer 一过式返回完整文本，写入简报附录。**调用失败 → 🚫 硬阻断**（参考示例不可跳过）。
 
@@ -122,9 +166,12 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 | Dependency | When | Degradation |
 |-----------|------|------------|
 | `yin-illustrator` Skill | Step 5a | 🚫 硬阻断——场景图像不可降级 |
-| `sensory-writer` Skill | Step 4 参考示例 | 🚫 硬阻断——参考示例不可跳过 |
-| `novel/author-voice.md` | Step 2 | 🚫 硬阻断——无风格基准无法生成示例（author-voice 在正式层，草稿不镜像） |
-| `{DraftDir}/_briefs/chapter-{N}-handoff.md` | Step 1（handoff_file） | 🚫 硬阻断——C8 强约束，缺失或字段无效直接阻断 |
+| `sensory-writer` Skill | Step 4 参考示例（传 5 维 style_profile 结构）| 🚫 硬阻断——参考示例不可跳过 |
+| `framework/templates/_style-bases/{style_profile_type}.md` (5 维基底) | Step 2 读 5 维风格档案 | 🚫 硬阻断——5 维基底缺失则无法生成风格示例 |
+| `framework/templates/_themes/{theme}.md` (5 维主题叠加) | Step 2 读 5 维风格档案 | ⚠️ 主题缺失时退化为默认主题族 |
+| `framework/templates/_styles/{variant}.md` (5 维风格) | Step 2 读 5 维风格档案 | ⚠️ 风格层缺失时退化为基底默认 |
+| `novel/author-voice.md` | Step 2 向后兼容（旧项目） | ⚠️ 5 维风格档案优先；旧项目无 variant 时回退到 author-voice.md |
+| `{DraftDir}/_briefs/chapter-{N}-handoff.md` | Step 1（handoff_file，12 字段 v2.0） | 🚫 硬阻断——C8 强约束，缺失或 5 维字段无效直接阻断 |
 | `novel/characters/`（经 settings-manager read-settings 双源合并）| §2 角色状态 | ⚠️ 缺失角色状态从大纲推断 |
 | `framework/guides/jung-character-framework.md` | §2 面具/阴影 | 🚫 硬阻断——缺失则无法标注人格面具/阴影/自性化阶段 |
 | `novel/voice-bible.md` | §2 对话区分 | ⚠️ 角色对话区分仅基于角色档案常识 |

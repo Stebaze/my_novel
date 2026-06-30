@@ -1,13 +1,21 @@
 ---
 name: sensory-writer
-description: 感官锚定写作工具——执行方法一（入身→外观→环境→内心）+方法二（入声→听到→写下→校准→不说）的逐句写作步骤，单次一过式生成无AI指纹叙事文本；支持 single（整章单次）/ per-scene（逐场景 + 200字摘要）双模式。开放风格兼容——仅以「必须提示」保写作质量底线，腔调交 style_profile 运行时决定。
+description: 感官锚定写作工具——执行方法一（入身→外观→环境→内心）+方法二（入声→听到→写下→校准→不说）的逐句写作步骤，单次一过式生成无AI指纹叙事文本；支持 single（整章单次）/ per-scene（逐场景 + 200字摘要）双模式。开放风格兼容——仅以「必须提示」保写作质量底线，腔调交 style_profile 5 维风格档案（基底+主题+风格+子变体+题材特化）运行时决定。
 ---
 
 # 感官锚定写作工具
 
 > **edit-article 范式**：单场景散文 800-2000 字（per-scene 模式），每句走"核心方法"逐句协议。单次一过式——不检查、不修改、不重写。
 > **双模式**：single（整章单次）/ per-scene（逐场景 + 200 字 JSON 摘要 → `_exchanges/scene-summaries.json`）。
-> **开放风格兼容**（2026-06-29 重构）：协议只保「成熟网文叙事共性」质量底线（6 条必须提示），不预设句长/段落密度/感官分布/对话标签配额/心理密度比例——这些交 style_profile 运行时决定。参考样本 `reference/novels/` 5 部提炼的共性，非绑定强风格。
+> **开放风格兼容**（2026-06-29 重构；v2.0.0 5 维扩展）：协议只保「成熟网文叙事共性」质量底线（6 条必须提示），不预设句长/段落密度/感官分布/对话标签配额/心理密度比例——这些交 **style_profile 5 维风格档案** 运行时决定：
+>
+> - 基底（japanese-light-novel-base / chinese-webnovel-base）→ 7 跨主题坐标轴
+> - 主题叠加（theme-*）→ 领域装置 / 关系障碍 / 死亡模式
+> - 风格层（*-style-v2）→ 叙述态度 / 域词 / 桥段选择
+> - 子变体（嵌入风格层）→ 单作品特定
+> - 题材特化 → 翻译腔等特殊变体
+>
+> 参考样本 `reference/novels/` 5 部提炼的共性，非绑定强风格。v2.0.0 完整 5 维架构见 `framework/templates/_style-bases/` / `_themes/` / `_styles/`。
 
 ## 强约束摘要（加载时从 ai-risk-mitigation.md 动态构建）
 
@@ -48,7 +56,7 @@ description: 感官锚定写作工具——执行方法一（入身→外观→�
 | Aspect | Detail |
 |--------|--------|
 | **Called by** | `mo-writer`（参考示例 mode="single"）, `voice-sculptor`（声音实验）, `qing-novelist`（交谈长片段）, `generate-chapter`（Step 2 + Step 4 per-scene + Fix 循环单场景重写） |
-| **Input** | `mode`（`"single"` / `"per-scene"`）, `scene_spec`, `character_voices`, `style_profile`, `prev_scene_summary`（per-scene 可选）, `opus_dna_contract: bool = false`（true 时加载 Step 2.5 5 层写作契约） |
+| **Input** | `mode`（`"single"` / `"per-scene"`）, `scene_spec`, `character_voices`, `style_profile` (5 维结构 dict：`{type, themes[], variant, subvariant, specialization}`), `prev_scene_summary`（per-scene 可选）, `opus_dna_contract: bool = false`（true 时加载 Step 2.5 5 层写作契约） |
 | **Output** | single: 单一文本串；per-scene: `{prose, summary_200}`（散文 + 200 字 JSON 摘要） |
 | **不变量** | 不检查、不修改、不重写——一过式生成 |
 
@@ -72,10 +80,11 @@ mode = "per-scene"（generate-chapter 调用）：
   → 优势：单次 LLM 质量曲线约束更小 / per-scene 感官锚定更聚焦 / 200 字摘要供 Fix 循环精准定位
 ```
 
-### Step 2: Core Method（方法一+二 + 内置护栏）
+### Step 2: Core Method（方法一+二 + 内置护栏 + 5 维风格档案协议）
 
 > 来自 `ai-risk-mitigation.md`（方法一+二），经硬化内置。
 > **2026-06-29 重构**：第 4 步从 opt-in「需要时才写内心」改为**自由间接引语为默认内心通道**——心理描写是叙事常态而非特例。这是修复 Ch6「动作流水账、缺心理穿插」根因的核心改动。
+> **v2.0.0 5 维扩展**：第 4 步内心通道协议按 `style_profile.type`（基底）分支——japanese-light-novel 走自由间接引语为主，chinese-webnovel 走信息差机制多模式并存。整体"腔调"由 5 维组合决定。
 
 **逐句协议——叙事句**：
 
@@ -132,7 +141,7 @@ mode = "per-scene"（generate-chapter 调用）：
 ### Step 2.5: opus-dna 5 层写作契约（仅 `opus_dna_contract=true` 激活）
 
 > 5 层框架来自外部 opus-writing-dna（完整原文 `framework/guides/opus-writing-dna.md`）。此处为执行速查版——总长约 400 tokens。Standalone 调用（voice-sculptor / qing-novelist）默认不加载，避免 prompt 膨胀。
-> **2026-06-29 对齐**：本契约与 Step 2 必须提示一致——「一句一事 + 长句后吐气」是跨风格硬底线（必须提示 3），不交 style_profile 自由决定。
+> **2026-06-29 对齐**：本契约与 Step 2 必须提示一致——「一句一事 + 长句后吐气」是跨风格硬底线（必须提示 3），**不交** style_profile 自由决定（**v2.0.0 修正**：style_profile 仅在 5 维风格档案加载的前提下生效——本契约是不变量）。
 
 **感知层**（pre-writing，每场景动笔前必读）：
 - **任务类型** = `scene_spec.task_type`（来自简报 §-1：convince/explain/resonate/decide-help/record）
@@ -172,6 +181,7 @@ mode = "per-scene"（generate-chapter 调用）：
 ### Step 3: per-scene 协议（仅 mode="per-scene" 激活）
 
 > **不破坏 single 模式**：以下协议仅在 per-scene 时叠加。
+> **v2.0.0 5 维扩展**：第 1 步场景锚定除地点+时间+POV 外，还需读 `style_profile.themes[]` 加载主题领域装置（romance → 物理小物 / mystery → 委托人机制 / scifi → 硬规则设定 / system → 系统模拟等）——决定场景的"题材装置"。
 
 **逐场景协议**：
 
@@ -220,7 +230,7 @@ mode = "per-scene"（generate-chapter 调用）：
 
 ### Step 4: 生成后轻量自查（一过式）
 
-返回前静默执行 5 项检查。发现问题静默修正后返回，不报告修正过程：
+返回前静默执行 5 项检查（v2.0.0 5 维风格档案：内部通道协议按基底分支，禁词按风格白名单）。发现问题静默修正后返回，不报告修正过程：
 
 ```
 1. [POV] 有无泄露 POV 不可能知道的信息？→ 替换为 POV 可感知的外部观察
