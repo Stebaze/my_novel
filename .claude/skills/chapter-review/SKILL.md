@@ -57,6 +57,11 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
 6. [mode="adaptation"] 加载 {source_portrait_path} 作为额外评审基准
    → 对齐级别（严格/平衡/宽松）由用户在评审前选择
 7. [v2.0.0 5 维评审基线加载] 读 `{draft_dir}/_briefs/chapter-{N}-handoff.md` frontmatter 5 维字段：
+   > **可选层（PRD Q6+Q7 决策）**：5 维评审基线代码已落地但默认按"v1.0 通用基线"评审，仅在以下条件**全部**满足时启用差异化：
+   > 1. `mode="ai-content"`（AI 生成章节路径）
+   > 2. handoff 5 维字段完整（type + themes + variant）——settings-manager record-handoff 12 字段校验通过
+   > 3. 风格层文件存在（variant 字段对应 `_styles/{variant}.md`）——非空则强制加载
+   > 作者可显式启用 5 维评审基线（如手动设置环境变量或会话标记），默认行为是 v1.0 通用基线（心流五维+小光谱+角色选择型）。代码保留作为"未来扩展"。
    7a. 读基底：Read `framework/templates/_style-bases/{style_profile_type}.md`（7 跨主题坐标轴）
    7b. 读主题叠加：Read `framework/templates/_themes/{theme}.md`（每个主题一个文件）
    7c. 读风格层（如有 variant）：Read `framework/templates/_styles/{style_profile_variant}.md`

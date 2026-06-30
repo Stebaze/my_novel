@@ -145,9 +145,17 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 ```
 2.1 读 outline.md 现状（Premise 段 + L1 已填部分字段 + frontmatter）
     → 确认 workflow_position = outline-tingle-step1-done（否则提示先跑 Session 1）
+2.1A [条件] 5 维主题软对应读入（仅当 novel/project-config.md frontmatter 含 style_profile_themes 字段时激活）：
+    a. 读 novel/project-config.md frontmatter → 5 维 themes 候选池（如 themes: ["daily-life","romance"]）
+    b. 该候选池将作为 2.2 中 B1 主题深度的"参考候选"——非强制
+    c. 缺失 → 静默跳过（首次跑 outline-tingle 不强制要求 5 维 themes；2.7 写 project-config.md 时
+       5 维字段由作者填入，下游 plan-chapter 才消费）
 2.2 调 Skill("qing-novelist", mode="book", outline_path=<outline.md>, seed_path=<_briefs/premise-seed.md>) → 补 L1：
     （qing-novelist 读 outline.md 现状 + seed 核心种子/缺口/冲突作 grilling 参考；seed 缺失降级读 outline.md only）
-    B1 主题深度（细化核心主题+一句话）/ B2 主角弧光起终 / B8 终点画面（细化）/
+    B1 主题深度（细化核心主题+一句话）：
+      软对应：5 维 themes 候选池（含 → 主题候选与 themes 对应则采用，不对应则独立候选；
+      不含 → 沿用 B1 独立 grilling 协议）
+    B2 主角弧光起终 / B8 终点画面（细化）/
     B6 不可违背规则（3-5 条带编号）/ B7 核心隐喻
     每维 50-100 字结构陈述句，作者确认 → 本 Skill 写入 outline.md L1 对应字段
 2.3 【门禁 2·不可暂缓】读 qing-novelist 返回 l1_ready：
@@ -201,7 +209,7 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 
 - ✅ Checkable：
   - Session 1（original）：返回 `{mode: "original", session: 1, exploration_path, theme_selected, outline_l1_partial_filled, workflow_position: "outline-tingle-step1-done"}` —— exploration_path 指向 `_briefs/book-exploration.md`；outline.md Premise 段 + L1 核心主题/一句话/终点画面已填（草稿）
-  - Session 2（original）：返回 `{mode: "original", session: 2, outline_fields_filled: [...], l1_ready, handoff_ready, project_config_path, draft_dir, workflow_position: "outline-tingle-step2-done"}` —— outline.md L1-L3 实质填充（无 `（待定）`），project-config.md 已落盘，草稿目录已创建
+  - Session 2（original）：返回 `{mode: "original", session: 2, outline_fields_filled: [...], l1_ready, handoff_ready, project_config_path, draft_dir, workflow_position: "outline-tingle-step2-done", theme_5d_soft_mapping?: "applied"|"skipped-no-themes"}` —— outline.md L1-L3 实质填充（无 `（待定）`），project-config.md 已落盘，草稿目录已创建；`theme_5d_soft_mapping` 字段记录 B1 主题深度是否启用 5 维 themes 软对应（`applied` = 2.1A 读到了 style_profile_themes 字段；`skipped-no-themes` = project-config.md 缺或无 themes 字段，静默跳过）
   - Session 1（adaptation）：返回 `{mode: "adaptation", session: 1, portrait_path, theme_direction_selected, outline_l1_partial_filled, workflow_position: "outline-tingle-step1-done"}` —— portrait_path 指向 `reference/manuscripts/_analysis/{作品名}.md`；outline.md Premise 段 + L1 部分字段已填（草稿）；无 `book-exploration.md`（adaptation 不调 idea-explorer）
   - Session 2（adaptation）：返回 `{mode: "adaptation", session: 2, outline_fields_filled: [...], l1_ready, handoff_ready, project_config_path, draft_dir, workflow_position: "outline-tingle-step2-done", adaptation_depth: "保留 X% / 改 Y% / 新增 Z%"}` —— outline.md L1-L3 实质填充 + B9 三态标注 + 改编深度声明；project-config.md「创作模式=改编」已落盘；草稿目录已创建
 - ✅ Exhaustive：
@@ -224,6 +232,7 @@ mode=adaptation 时启动判定步骤 2 已分流（见上方"启动判定"）�
 | `pre-flight-check` Skill | 启动判定步骤 4 | 🚫 硬阻断——启动门禁不可跳过 |
 | `novel/outline.md` | 两 session 核心 IO | 🚫 硬阻断——缺失时调 file-manager(ensure-novel) 补齐 v2 模板；frontmatter 8 字段状态机（含 `book_settings_dispatched`） |
 | `novel/project-config.md` | 启动判定 + Session 2 产出 | ⚠️ 启动判定时缺失按原创模式继续 |
+| `novel/project-config.md` frontmatter `style_profile_themes` 字段 | Session 2 步骤 2.1A（5 维主题软对应读入） | ⚠️ 软激活——缺失静默跳过（首次跑 outline-tingle 不要求 5 维 themes 已填） |
 
 ## 与其他组件的关系
 
