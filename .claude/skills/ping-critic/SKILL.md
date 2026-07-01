@@ -211,6 +211,8 @@ description: 编辑顾问/综合评审者——心流五维18项+AI指纹检测+
 
 评审原则详见 `_reference/flow-review-methodology.md`「四、评审原则」+ `_reference/ling-detection-methodology.md` 整体（修复策略遵循"作者决策原则"——呈现选项+效果差异，不自动替换）。
 
+> **优先级契约（2026-07-01）**：本 Skill 评审时遇到指纹判定与已加载 profile 描述冲突，遵循 `framework/guides/ai-risk-mitigation.md` §0.1「AI 指纹 avoidance 整体 > 任何 base/theme/style/author 描述」——以指纹判定为准。
+
 ## Completion Criterion
 
 - ✅ Checkable：返回 `{review_file, red_count, yellow_count, proofreading_stats, flow_rating, dod_pass_rate, scene_index_red_list（mode="ai-content"）, new_fingerprint_candidates}`, 报告落盘
