@@ -114,7 +114,10 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 ### Step 4: Reference Sample
 
-简报 §0-§5 完成后调 `Skill("sensory-writer", mode="single")` 生成附录「全章参考示例」。参数（v2.0）：
+简报 §0-§5 完成后**必须**调 `Skill("sensory-writer", mode="single")` 生成附录「全章参考示例」——不可跳过。参数（v2.0）：
+
+> **2026-07-01 修复**：v1.0 spec 标"调用失败 → 🚫 硬阻断（参考示例不可跳过）"，但实际 E2E 验证中 step 4 被静默跳过。本次显式化为强制执行：3 次重试失败则 mo-writer 整体失败，调用方需先排查 sensory-writer 不可用的根因。
+
 - `mode="single"`
 - `scene_spec`（§3）
 - `character_voices`（§2）
@@ -129,18 +132,28 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
   }
   ```
 
-→ sensory-writer 一过式返回完整文本，写入简报附录。**调用失败 → 🚫 硬阻断**（参考示例不可跳过）。
+**强制执行流程**：
+1. 调 sensory-writer（mode="single"）→ 返回完整文本
+2. **失败重试**：3 次重试（间隔 1s/3s/10s 退避）
+3. **3 次失败 → 🚫 硬阻断**：mo-writer 整体返回失败状态，调用方需排查 sensory-writer 不可用的根因（sensory-writer 自身缺陷 vs 配置问题 vs 上下文不足）
+4. 成功 → 写入简报附录
+5. **不允许降级**：不允许"参考示例缺失"作为合法状态——下游 generate-chapter 会发现简报没有参考示例而要求重跑
+
+> 历史：v1.0 spec 字面写"硬阻断"，但没有重试/降级策略，E2E 验证时 step 4 被静默跳过。修复：加 3 次重试 + 显式化硬阻断语义。
 
 ### Step 5: Scene Image + File
 
 ```
-5a. 简报 §3 各场景预留「场景图像」字段 → 调 Skill("yin-illustrator") 填入
+5a. 简报 §3 各场景预留「场景图像」字段 → **必须**调 Skill("yin-illustrator") 填入
     （文字场景描述：画面/构图/光线/色彩/情绪基调）
-    → 用户跳过 → 标注"场景图像：用户跳过"
+    → 用户跳过 → 不允许（E2E 验证场景无用户在场）
+    → 强制执行：yin-illustrator 不可用 → mo-writer 整体失败
 5b. 选章节模板：prose → framework/templates/chapters/_chapter-template.md
     → 预填元数据/纲要/心流参数/本章功能/本章爆点/AI 生成模式/视觉锚点
 5c. 创建 {DraftDir}/chapters/chapter-{N}.md（已存在则警告，不覆盖）
 ```
+
+> **2026-07-01 修复**：v1.0 spec 标"用户跳过 → 标注'场景图像：用户跳过'"，但 E2E 验证无用户在场时 step 5a 被静默跳过。修复：禁止跳过——yin-illustrator 不可用则 mo-writer 整体失败。
 
 ### Step 6: Present
 

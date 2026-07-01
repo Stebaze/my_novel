@@ -116,7 +116,8 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
     → tracker.json 缺失/失败 → ⚠️ 标注"指纹追踪降级",不阻断（章末 ping-critic 仍一次性检测）
 2c: 自动拼装 → chapters/chapter-{N}.md（保留元数据头 + 场景按 §1 顺序拼接 + 200 字摘要折叠块）
     → 更新 scene-summaries.json "assembled": true
-    → **字数统计不在本阶段做**——实测字数计算 + frontmatter `word_count` + `## 元数据 → **实测字数**` 回填统一交 chapter-review Step 3（generate 阶段 frontmatter `word_count` 保留 mo-writer 骨架的目标值占位，待评审覆盖）
+    → **字数统计不在本阶段做**（2026-07-01 修复：原 spec 要求 mo-writer 骨架填目标值占位，但生成端估算与实测偏差 ~21%——直接留空待 chapter-review Step 3 实测回填）
+    → 章节 frontmatter `word_count: null` + `## 元数据 → **实测字数**：待 chapter-review Step 3 回填`
 ```
 
 ### Step 3: Auto Review (ai-content mode)
@@ -171,12 +172,25 @@ Round 2（验证）：
    ├── _exchanges/scene-summaries.json ✅
    └── _reviews/chapter-{N}-fix-log.md ✅（仅 Fix 循环执行时）
 
-2. 更新 handoff：workflow_position = "generate-step5-done" + brief / chapter_file 路径
+2. **自动更新设定文件**（2026-07-01 修复——避免下次 ChN+1 触发 C4/C7 补丁）：
+   ├── 调 settings-manager (record-character-state) → 自动追加 Ch{N} 角色状态到 _character-state.md
+   │   → 数据源：scene-summaries.json 的 pov_state_change + character_state 字段
+   │   → 失败 → ⚠️ 标注"角色状态自动 update 失败，下次 ChN+1 pre-flight C7 会触发补丁"
+   ├── 调 settings-manager (record-settings) → 自动追加 Ch{N} 变更条目到 _changes.md
+   │   → 数据源：scene-summaries.json 的 foreshadow_touched 字段
+   │   → 失败 → ⚠️ 标注"变更记录自动 update 失败，下次 ChN+1 pre-flight C4 会触发补丁"
+   └── **不调** settings-manager (merge-settings)——merge 留到 publish-chapter 时统一做
 
-3. 呈现：章节正文路径 + 简报路径 + 评审报告路径 + Fix 轮次 + 提示
+3. 更新 handoff：workflow_position = "generate-step5-done" + brief / chapter_file 路径
+
+4. 呈现：章节正文路径 + 简报路径 + 评审报告路径 + Fix 轮次 + 设定自动 update 状态 + 提示
    "轻编辑后输入「定稿」或运行 /chapter-review {N} 复审。
     若需重新生成整章，输入 /generate-chapter {N} --resume"
 ```
+
+> **修复历史**：v1.0 Step 5 只更新 handoff.workflow_position，不自动 update _character-state.md / _changes.md。
+> 2026-07-01 验证 Ch2 时 C4（前章变更记录缺失）+ C7（前章角色状态不一致）都触发，需人工补丁。
+> 修复：Step 5 finalize 阶段自动调 settings-manager 两条记录操作，避免下次 ChN+1 pre-flight 阶段 0 触发补丁。
 
 ## 跨 Session 状态外部化
 

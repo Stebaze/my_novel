@@ -22,6 +22,42 @@ description: 章节规划——系统管道(前置检查+设定快照)+启发式
 - "续写" / "继续写" / "下一章"
 - "重写第X章"（规划阶段）
 
+## 模式（2026-07-01 修复——加 `auto-driven`）
+
+| 模式 | 触发 | 行为 |
+|------|------|------|
+| `user-driven`（默认）| 无参数 / `--mode=user-driven` | 阶段 4 qing-novelist 启发式交谈**等待用户输入**——多轮选择，让作者主导方向 |
+| `auto-driven` | `--mode=auto-driven` / 调用方显式传入 | 阶段 4 qing-novelist 启发式交谈由**编排者（agent）自驱**——按 qing-novelist 12 维协议逐项推理选择，无需用户输入 |
+
+**auto-driven 适用场景**：
+- E2E 真实链路验证（无用户在场）
+- 自动化测试 / 模板测试
+- 框架自检 / 回归测试
+- 任何需要"agent 自主完成规划"的任务
+
+**auto-driven 行为规范**：
+- qing-novelist 12 维（D0a/D0b/D0c/D1-D12）按需激活——agent 自行决定激活哪些维度
+- 选型决策记录到 `_briefs/chapter-{N}-direction.md` 的「用户特别强调」段（标注 `[auto-driven]` 来源）
+- agent 的创作决策遵循方向卡模板的"具体而非抽象"原则——每个选择有可观察的依据
+- **不**调 ping-critic 做琉璃校验（无用户在场）——5 项评审改在 chapter-review 阶段统一做
+- 失败回退：auto-driven 模式下 agent 仍可向用户提问（如果 agent 判断"无足够上下文决策"）——但默认不提问
+
+**调用示例**：
+```
+# 普通 user-driven
+/plan-chapter 5
+
+# auto-driven（E2E 验证）
+/plan-chapter 5 --mode=auto-driven
+
+# 编程调用（其他 skill 触发 plan-chapter 时）
+Skill("plan-chapter", args="chapter=5 mode=auto-driven draft_dir=novel/_drafts/")
+```
+
+> **修复历史**：v1.0 plan-chapter 默认 user-driven，E2E 验证无用户在场时阶段 4 卡死。
+> 2026-07-01 验证 Ch2 时通过 `auto_decide=true` 自定义参数绕过——但这是临时 hack，不应在 spec 中固化。
+> 修复：plan-chapter 加 `auto-driven` 模式，作为官方支持的第二种模式。
+
 ## Flow
 
 ### 6-Stage Pipeline
@@ -32,6 +68,8 @@ description: 章节规划——系统管道(前置检查+设定快照)+启发式
 阶段 2: Init Draft        → settings-manager init-draft（按需）
 阶段 3: [条件] Brainstorm → idea-explorer（无方向时激活）
 阶段 4: Heuristic Conv.   → qing-novelist（方向卡产出）
+  - 模式 = user-driven → 等用户输入（多轮选择）
+  - 模式 = auto-driven → agent 自驱（按 12 维协议推理，无需用户输入）
 阶段 5: Handoff          → settings-manager record-handoff + Present
 ```
 

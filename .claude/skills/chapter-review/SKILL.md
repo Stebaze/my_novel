@@ -89,10 +89,23 @@ description: 章节评审与修改引导——3 mode 编排：writing（人工�
 > [v2.0.0] 同时传入 Step 2 第 7 步加载的 5 维评审基线（基底+主题叠加+风格层）——供 ping-critic 按 5 维差异化评审基线执行。
 
 - **基础能力**（所有 mode）：心流五维 18 项检测 + 加载指纹归因 + 加载校对结果 + 三维评审（结构/角色设定/文本质地） + DoD 检查
-- **mode="ai-content" 额外**：5 项机器化校验（事件落地 / 场景连贯 / 突兀收束 / POV 连续 / 伏笔核对）——🔴 项必须含 `scene_index` 字段供 generate-chapter Step 4 Fix 循环精准定位
+- **mode="ai-content" 额外**：**6 项机器化校验**（事件落地 / 场景连贯 / 突兀收束 / POV 连续 / 伏笔核对 / **meta-leak 屏蔽**）——🔴 项必须含 `scene_index` 字段供 generate-chapter Step 4 Fix 循环精准定位
 - **mode="ai-content" 额外**：opus-dna 5 自检（删减 / 替换 / 出声 / So-what / AI 味）——与 18 项心流检测解耦，不污染心流评级；AI 味行直接引用上方指纹区不重复检测
-- **mode="ai-content" 额外（v2.0.0）**：按 5 维评审基线差异化——例如 romance+8+ 女主主题下 5 项机器化校验增加"多女主关系一致性"维度
+- **mode="ai-content" 额外（v2.0.0）**：按 5 维评审基线差异化——例如 romance+8+ 女主主题下 6 项机器化校验增加"多女主关系一致性"维度
 - **mode="adaptation" 额外**：原作对齐检查（结构/设定/风格 fidelity）——按对齐级别判定
+
+**meta-leak 屏蔽**（2026-07-01 修复，5→6 项机器化校验）：
+- 检测范围：章节正文区（剔除 `## 元数据/## 本章纲要/## 心流参数/## 情感工程设计/## 场景摘要` 等 user-facing planning 段）
+- 检测模式：
+  - `Ch\d+`（章节号引用）
+  - `第\d+章`（中文数字章节引用）
+  - `chapter-\d+`（文件名引用）
+  - `\d+-\d+\.md`（时间戳/序列文件引用）
+  - `_changes\.md|_character-state\.md|_briefs/|_reviews/`（草稿内部路径引用）
+- 命中规则：1 命中 = 🟡 项，2+ 命中 = 🔴 项（生成时混淆了"作者上下文"与"叙事内时间"）
+- 例外：metadata/annotation 段可豁免（用户输入的纲要/plan 可含 Ch1 引用；正文 prose 必查）
+- 修复方向：把 `Ch1` 等替换为"之前/上回/上次的"等叙事内时间词
+- 修复历史：v1.0 5 项机器化校验未覆盖 meta-leak，2026-07-01 E2E 验证 Ch2 时由作者人工发现 "Ch1 之前是另一个味道——油烟" 触发。修复：加第 6 项。
 
 详细执行步骤、阈值表、检测算法、修复策略见 `ping-critic/_reference/flow-review-methodology.md` + `ling-detection-methodology.md`。
 

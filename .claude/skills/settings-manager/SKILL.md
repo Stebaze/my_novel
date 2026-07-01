@@ -119,8 +119,9 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
   - resume_command（string, 必填；以 / 开头）
 执行：
   1. 校验 12 字段类型 + 必填；workflow_position 格式校验
-     - 必填字段（缺/None/空字符串即报缺失）：chapter / direction / chapter_file / character_state / style_profile_type / style_profile_themes / style_profile_variant / style_profile_subvariant
-     - 可选字段（空字符串=合法）：style_profile_specialization（题材特化可选为空）
+     - **必填字段**（缺/None 即报缺失）：chapter / direction / chapter_file / character_state / style_profile_type / style_profile_themes
+     - **必填但允许空字符串**：style_profile_variant（variant 字段为空=走 fallback 风格层；不为空时必须对应文件存在）
+     - **可选字段**（空字符串=合法）：style_profile_subvariant / style_profile_specialization
      - 空集合判定：空 list [] = 缺失；非空 list 合法
   2. 校验 path 字段文件存在性：
      - direction/character_state 必查
@@ -134,6 +135,44 @@ description: 设定全生命周期管理——读取合并+变更记录+冲突�
   4. 写入 {draft_dir}/_briefs/chapter-{N}-handoff.md
 输出：{handoff_path, written: true}
 失败：缺失/类型不符 → 返回 {error: "missing_field", field} → 调用方 🚫 硬阻断
+
+## 5 维降级规则（2026-07-01 修复）
+
+3 维档案重构（v2.0）后，部分字段从"必填"改为"可选"。降级规则：
+
+| 字段 | 必填？ | 空字符串=合法？ | 缺/None=报缺失？ |
+|------|:---:|:---:|:---:|
+| chapter | ✅ | — | ✅ |
+| direction | ✅ | — | ✅ |
+| chapter_file | ✅ | — | ✅ |
+| character_state | ✅ | — | ✅ |
+| style_profile_type | ✅ | — | ✅ |
+| style_profile_themes | ✅（非空 list）| — | ✅ |
+| style_profile_variant | ✅（非空时对应文件必须存在）| ✅ | ❌ |
+| style_profile_subvariant | ❌ | ✅ | ❌ |
+| style_profile_specialization | ❌ | ✅ | ❌ |
+| workflow_position | ✅ | — | ✅ |
+| resume_command | ✅ | — | ✅ |
+
+> **修复历史**：v1.0 spec 把 `style_profile_subvariant` 标"必填（空字符串=缺失）"，与 3 维档案重构（无子变体）冲突。
+> 2026-07-01 验证 Ch2 时 record-handoff 写入 3 维档案（subvariant=""），按 v1.0 应报缺失，但 C8 接受空 subvariant。
+> 修复：统一为 subvariant/specialization 都为可选，与 C8 行为一致。
+
+### variant 字段空字符串的语义
+
+```
+style_profile_variant = "" 时：
+├── 不检查 _styles/{variant}.md（variant 为空无对应文件）
+├── record-handoff 写入空 variant（合法）
+├── C8 接受空 variant
+├── generate-chapter Step 2 加载风格层时：
+│   ├── 退化到 framework/templates/_styles/{variant-fallback}.md
+│   │   （fallback 风格层由 project-config.md「风格」字段提供，例：kuiguannan-style-fallback-v3）
+│   └── 5 维评审基线 chapter-review Step 2.7c 走 fallback 默认
+└── 与 C3 联动：project-config.md 作家="" → C3 走条件性降级（不要求 author-voice.md）
+```
+
+> 此降级路径与 C8 spec 一致——C8 spec 同样接受空 variant 但要求"非空时文件存在"。
 ```
 
 ## Output
