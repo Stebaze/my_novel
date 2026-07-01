@@ -34,7 +34,7 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 ## 强约束摘要（固定——不随指纹库变化）
 
 1. **任何"展示角色没做什么"的句式都是违禁的**——默认状态不需要叙述；若确实要写"不思考"，用身体动作替代（"他的手指停在杯壁上，没动"）。
-2. **本 Skill 所有护栏规则的唯一真相源是 `framework/guides/ai-risk-mitigation.md`**——执行期间如与该文档冲突，以该文档为准。
+2. **本 Skill 所有护栏规则的唯一真相源是 `framework/guides/ai-writing-dna.md`**——执行期间如与该文档冲突，以该文档为准。**不要读 `ai-fingerprint-checklist.md`**——该文件是评审端核对清单，生成端写时按 `ai-writing-dna.md` 第 3.6 节的 ❌ 范例规避（2026-07-01 重构）。
 3. **抽象情感标签速查**——禁词：斟酌/意味深长/难以言喻/不容置疑/难以察觉/似乎/仿佛。
 4. **指纹意识分工（生成端最小集原则）**——下笔时识别并规避 3 类高频全场景问题（语法/分段/句式机关枪）。**词汇指纹**（慢慢/忽然/原来 等高频词累计）不在生成端判断——单句层无法知章级累计，交 generate-chapter 2b-gate 追踪器 + 章末 chapter-review 统一处理。**其余场景特异指纹**生成端不加载不判断，交评审端兜底。
 5. **声纹承载原则**——角色声纹特征靠「句式/词汇/口头禅/语法结构」承载，**不靠「段数/独立段」承载**。当声纹要求 1 句 1 段 vs 读感要求合并时，**默认选合并 + 声纹靠句式保留**。1 句独立段的合法触发：新场景/新时间/新 POV/动作结果/重要情绪爆点。
@@ -254,7 +254,7 @@ novel/project-config.md
 
 | Dependency | When | Degradation |
 |-----------|------|------------|
-| `framework/guides/ai-risk-mitigation.md` | 强约束摘要 | ⚠️ 使用内嵌 5 条强约束（标注"方法指南缺失"） |
+| `framework/guides/ai-writing-dna.md` | 强约束摘要 | ⚠️ 使用内嵌 5 层 opus-dna + 3.6 指纹反例（标注"方法指南缺失"） |
 | `framework/templates/style-guide.md` | 禁词表参考 | ⚠️ 跳过禁词检查（强约束 5 条有"抽象情感标签速查"） |
 | `profiles/authors/{name}.md`（指定作者时）| Step 0.1 author_profile 加载 | ⚠️ 不存在时降级到 style_profile（不阻断）；项目默认（作家=""）不加载此层 |
 | `framework/templates/_style-bases/ + _themes/ + _styles/` | Step 0.1 style_profile 加载 | ⚠️ 加载失败时仅保强约束 5 条（标注降级） |
@@ -275,7 +275,7 @@ novel/project-config.md
 
 ## 关联文件
 
-- 强约束真相源：`framework/guides/ai-risk-mitigation.md`
+- 强约束真相源：`framework/guides/ai-writing-dna.md`
 - opus-dna 速查：`framework/guides/opus-writing-dna.md`
 - 200 字摘要协议：`_reference/scene-summary-protocol.md`
 - 禁词表：`framework/templates/style-guide.md`

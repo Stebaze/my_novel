@@ -32,7 +32,9 @@ sections:
 >
 > 本文件被 `ping-critic` Agent 直接引用，也被 `fingerprint-discovery` Agent 在已知指纹匹配阶段参考。
 >
-> **SSOT 契约**（2026-06-25 重构）：下表「五指纹匹配」与下文「叙述者解码参考」正字法级检测规则的**完整定义在 `framework/guides/ai-risk-mitigation.md`「叙述者解码参考（诊断附录）」**（含 `{#fingerprint-N}` 锚点）。本文件保留为兼容层——`ping-critic` 在 fingerprint-match 操作时优先读 ai-risk-mitigation.md 锚点，失败时降级读本文件第一/三章。**新增指纹优先更新 ai-risk-mitigation.md，再按本文件扩展指南同步。**
+> **SSOT 契约**（2026-07-01 重构）：检测端 SSOT 已简化为 [`framework/guides/ai-fingerprint-checklist.md`](../../../framework/guides/ai-fingerprint-checklist.md)——10 条核对清单。生成端 SSOT 是 [`framework/guides/ai-writing-dna.md`](../../../framework/guides/ai-writing-dna.md) 第 3.6 节（AI 指纹 ❌ 范例内嵌于 opus-dna 5 层结构中）。本文件保留为兼容层——`ping-critic` 优先读新文件，失败时降级读本文件。
+
+> **2026-07-01 简化**：fp-N 锚点动态 parse 协议已废弃——本文件不再依赖 `{#fingerprint-N}` 锚点。新指纹入库流程见 [`framework/guides/ai-fingerprint-checklist.md`](../../../framework/guides/ai-fingerprint-checklist.md)「新指纹入库」段。
 
 ---
 
@@ -48,7 +50,7 @@ sections:
 | 4 | 语境衰减 | 伏笔揭示失去埋入时的气氛 | 2.2 ❌（伏笔相关场景） |
 | 5 | 叙述者解码 | 抽象情感标签/破折号态度旁白/引导内转述/对称排比式性格解码 | 1.1 ❌（四模式命中） |
 
-> 五指纹的理论定义见 `framework/guides/ai-risk-mitigation.md`「为什么 AI 文本会暴露身份」。正向生成方法（感官锚定写作/角色声音自然化/回响式伏笔）见同文件方法一~三。本文件聚焦**检测端**——如何在已有文本中定位这些指纹。
+> 五指纹的理论定义见 `framework/guides/ai-writing-context.md`「AI 写作常见问题」。正向生成方法（opus-dna 5 层 + AI 指纹 ❌ 范例）见 [`framework/guides/ai-writing-dna.md`](../ai-writing-dna.md)。本文件聚焦**检测端**——如何在已有文本中定位这些指纹。
 
 ---
 
@@ -121,6 +123,8 @@ sections:
 
 ### 6.1 语病检测
 
+> **SSOT 提示（2026-07-01）**：语法正确性自查见 [`framework/guides/ai-writing-dna.md` 第 3.5 节](../../../framework/guides/ai-writing-dna.md#35-句子成分要完整平行标点对应)。本节为兼容层缩略表——名称/级别与 SSOT 不完全一致时**以 SSOT 为准**。
+
 | # | 检测项 | 检测方法 | 级别 |
 |---|--------|---------|:--:|
 | G1 | 成分残缺 | 缺主语/缺宾语/缺谓语 | 🔴 |
@@ -169,7 +173,7 @@ sections:
 |---|--------|---------|:--:|
 | V1 | 实词高频重复 | 排除功能词（的/了/是/在/和），统计 ≥3 次重复的实词，标注位置 | 🟡 |
 | V2 | 短语模板重复 | 2-gram/3-gram ≥2 次重复，标注位置 | 🟡 |
-| V3 | AI 高频词标记 | 扫描"美丽""壮观""非常""然后""似乎""仿佛""缓缓""深深""慢慢""忽然""原来""突然""不禁"（前 8 个来自 ai-risk-mitigation.md 指纹库，后 5 个 2026-06-29 从 Ch2 实测追加——"慢慢/忽然"在该章分别命中 9/4 次原 V3 未覆盖），≥3 次标注 | 🟡 |
+| V3 | AI 高频词标记 | 扫描"美丽""壮观""非常""然后""似乎""仿佛""缓缓""深深""慢慢""忽然""原来""突然""不禁"，≥3 次标注 | 🟡 |
 
 > 不自动判定"好"或"坏"——风格性重复（海明威式）和无意识重复由作者判断。V3 项直接给替换建议。
 
@@ -232,13 +236,12 @@ sections:
 
 ### 新增指纹
 
-**SSOT 流程**（2026-06-25 重构）：
+**SSOT 流程**（2026-07-01 重构——简化版）：
 
-1. **必做**——在 `framework/guides/ai-risk-mitigation.md`「叙述者解码参考（诊断附录）」追加新指纹，锚点格式 `### {编号}. {模式名} {#fingerprint-N}`，必含字段：表现 / 例句 / 为什么是 AI 指纹 / 为什么违和 / 检测规则 / 修复策略 / 与已知指纹关系
-2. **必做**——调用 `fingerprint-discovery` Skill 阶段 4 自动同步校验（验证 `sensory-writer` 加载协议能 grep 到锚点）
-3. **条件**——在「三、生成模式推荐」添加对应推荐行（指纹触发 → 建议模式）
-4. **条件**——在「四、跨章升级规则」评估是否需要新组合规则
-5. **可选**——在本文「一、五指纹匹配」表格添加一行（兼容层摘要，完整定义在 ai-risk-mitigation.md）
+1. **必做**——在 [`framework/guides/ai-fingerprint-checklist.md`](../../../framework/guides/ai-fingerprint-checklist.md) 末尾追加一行（# / 模式 / 表现 / 修法）
+2. **必做**——同时在 [`framework/guides/ai-writing-dna.md` 第 3.6 节](../../../framework/guides/ai-writing-dna.md#36-不要写这些ai-高频指纹反例) 补一条 ❌/✅ 范例（若适用）
+3. **必做**——调用 `fingerprint-discovery` Skill 阶段 4 自动同步校验
+4. **可选**——在本文「一、五指纹匹配」表格添加一行（兼容层摘要）
 
 > **校验回路**：完成 1+2 后，fingerprint-discovery 会自动 grep `{#fingerprint-N}` 验证 sensory-writer / ping-critic 都能读到。失败时警告不阻断——但下次评审/生成可能漏检。
 
@@ -246,7 +249,7 @@ sections:
 
 > **问题**：当一段文本「未命中已知指纹但读起来违和」时——是已知指纹变体？全新模式？还是人类写作风格的自然变化？本节定义评审端的**反向检测**算法：从 review 端向 discovery 端输送候选。
 
-**SSOT 闭环**（2026-06-25 重构）：当 chapter-review 评审时发现候选指纹 → 一键调用 `fingerprint-discovery`（input mode="from-candidate"）→ 人工审阅 → 入库。新增指纹只需写一次 ai-risk-mitigation.md，消费方全部自动同步。
+**SSOT 闭环**（2026-07-01 重构——简化）：当 chapter-review 评审时发现候选指纹 → 一键调用 `fingerprint-discovery`（input mode="from-candidate"）→ 人工审阅 → 入库。新增指纹只需追加到 [`framework/guides/ai-fingerprint-checklist.md`](../../../framework/guides/ai-fingerprint-checklist.md) 清单 + [`framework/guides/ai-writing-dna.md`](../../../framework/guides/ai-writing-dna.md) 第 3.6 节。
 
 #### 三层叠加检测算法
 
@@ -267,7 +270,7 @@ Layer 2 — 读者效应自述（LLM 调用，1 次/段）：
   输出：signal_b = { location, reader_effect_text, keywords[] }
 
 Layer 3 — 描述-指纹不匹配检测（确定性，文本相似度）：
-  加载：ai-risk-mitigation.md 附录所有指纹的「表现」+「例句」+「为什么违和」字段
+  加载：`framework/guides/ai-fingerprint-checklist.md` 10 条核对项的「表现」字段
   计算：description_novelty = 1 - max(LLM_similarity(signal_b.text, 已知指纹描述))
   判定：description_novelty > 0.6 → signal_c = True
   输出：signal_c = { location, novelty_score, closest_known: { name, similarity } }

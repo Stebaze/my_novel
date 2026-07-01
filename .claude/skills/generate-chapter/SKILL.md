@@ -214,5 +214,5 @@ Round 2（验证）：
 | `file-manager` Skill | Step 0（兜底） | ⚠️ 草稿初始化失败时手动执行 |
 | `{draft_dir}/_briefs/chapter-{N}-handoff.md` | Step 0 | 🚫 硬阻断 |
 | `novel/author-voice.md` | Step 2 | 🚫 硬阻断——无风格基准无法生成（author-voice 在正式层，草稿不镜像） |
-| `framework/guides/ai-risk-mitigation.md` | Step 2 方法论 | ⚠️ 方法已内置，标注缺失 |
+| `framework/guides/ai-writing-dna.md` | Step 2 方法论 | ⚠️ 方法已内置，标注缺失 |
 | `framework/guides/jung-character-framework.md` | Step 2 角色心理 | ⚠️ 降为基于档案常识判断 |

@@ -133,7 +133,7 @@ sections:
 ## AI 生成模式
 
 > 为每个场景选择 AI 生成模式。AI 根据模式自动切换行为策略。
-> 详见 `framework/guides/ai-risk-mitigation.md`。
+> 详见 `framework/guides/ai-writing-dna.md` 第 4 层（元认知层）的"5 项自检"——为每个场景选对应的检查重点。
 
 | 场景 | 模式 | 说明 |
 |------|------|------|

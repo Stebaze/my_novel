@@ -12,7 +12,10 @@ framework/
 │   ├── narrative-engineering.md         叙事工程：五级大纲体系
 │   ├── flow-review-methodology.md       心流评审方法论
 │   ├── psychology-guide.md              心理叙事工具箱
-│   ├── ai-risk-mitigation.md            AI 写作质量增强
+│   ├── ai-risk-mitigation.md            AI 写作文档索引（生成端/评审端/人读）
+│   ├── ai-writing-dna.md                AI 写作 DNA——opus-dna 5 层结构 + AI 指纹 ❌ 范例（生成端）
+│   ├── ai-fingerprint-checklist.md      AI 指纹检测清单——10 条核对项（评审端）
+│   ├── ai-writing-context.md            AI 写作背景说明（人读，不入 skill 加载链）
 │   ├── ling-detection-methodology.md    AI 指纹检测与校对方法论
 │   ├── cn-webnovel-guide.md             中国网文平台指南
 │   ├── decision-exploration.md          情节决策探索方法

@@ -89,27 +89,24 @@ from-candidate 模式预填：suggested_pattern 字段以 candidate.suggested_pa
 
 ### 阶段 4：注册入库 + 自动同步校验（SSOT 契约）
 
-**核心契约**（2026-06-25 重构）：`ai-risk-mitigation.md`「叙述者解码参考（诊断附录）」是 SSOT。注册入库 = 写一次源文件 + 自动验证所有消费方能读到。
+**核心契约**（2026-07-01 重构）：`framework/guides/ai-fingerprint-checklist.md` 是 SSOT。注册入库 = 追加一行到清单 + 自动验证消费方能读到。
 
 ```
 4a. 写入源文件：
-    → 追加到 framework/guides/ai-risk-mitigation.md「叙述者解码参考（诊断附录）」段
-    → 锚点格式：### {编号}. {模式名} {#fingerprint-N}
-    → 必含字段：表现 / 例句 / 为什么是 AI 指纹 / 为什么违和 / 检测规则 / 修复策略 / 与已知指纹关系
+    → 追加到 framework/guides/ai-fingerprint-checklist.md 检测清单末尾
+    → 格式：一行表格（# / 模式 / 表现 / 修法）
+    → 同时在 framework/guides/ai-writing-dna.md 第 3.6 节补一条 ❌/✅ 范例（若适用）
 
 4b. 回读校验：
-    → Read 该锚点段 → 确认字段齐全
+    → Read 清单 → 确认行格式正确
     → 缺失字段 → 🚫 硬阻断：注册未完成，禁止进入 4c
 
 4c. 自动同步校验（消费方联动）：
     验证以下消费方能通过 SSOT 机制读到新指纹：
-    ├── 1. sensory-writer 加载协议（SKILL.md「强约束摘要」段）→ 解析锚点存在 → ✅
-    │   失败 → ⚠️ 警告："sensory-writer 加载协议失效，下次生成不感知新指纹"
-    ├── 2. ping-critic fingerprint-match（ling-detection-methodology.md）→ grep 锚点存在 → ✅
-    │   失败 → ⚠️ 警告："指纹匹配检测库未更新，下次评审不命中"
-    └── 3. 条件同步——若指纹属"软化变体"或"词级"特征：
-        → 检查 framework/templates/style-guide.md 句式指纹表是否已添加对应行
-        → 缺失 → ⚠️ 提醒（不阻断）："style-guide 句式指纹表未同步——需人工补齐或忽略"
+    ├── 1. sensory-writer 加载协议（SKILL.md）→ 引用 ai-writing-dna.md 第 3.6 节 → ✅
+    │   失败 → ⚠️ 警告
+    └── 2. ping-critic fingerprint-match → 引用 ai-fingerprint-checklist.md 清单 → ✅
+        失败 → ⚠️ 警告
 
 4d. 校验失败时：
     ├── 必阻断：4a/4b 失败 → 抛回阶段 3 修正
@@ -156,4 +153,4 @@ from-candidate 模式预填：suggested_pattern 字段以 candidate.suggested_pa
 | Dependency | When | Degradation |
 |-----------|------|------------|
 | `ping-critic` Skill（`operation="fingerprint-match"`） | 阶段 0/1/批量扫描（通过 `_exchanges/fingerprint-match.md`） | 🚫 硬阻断——已知指纹匹配结果缺失时 fingerprint-discovery 无法执行 |
-| `framework/guides/ai-risk-mitigation.md` | 阶段 4 写入 | ⚠️ 仅写入 ping-critic `_reference/ling-detection-methodology.md` |
+| `framework/guides/ai-fingerprint-checklist.md` | 阶段 4 写入 | ⚠️ 写入后必须通过 `ai-risk-mitigation.md` 的 SSOT 契约校验 |
