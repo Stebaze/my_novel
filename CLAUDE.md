@@ -28,6 +28,8 @@ AI 辅助长篇小说写作工程。Claude Code 载体，22 个 Skill 协作完�
 
 9. **书级大纲形成强制规则**：原创项目首次规划请求时，`pre-flight-check` C9 检测 `novel/outline.md` L1-L3 实质填充度——含 `（待定）` 占位 / frontmatter `workflow_position` 非 `outline-tingle-step2-done`/`bootstrap-completed` 时报 **🟡 软阻断**（尊重网文边写边定，不硬阻断，用户可确认放行继续写）。C9 修复路径指向 `outline-tingle`（正向）/ `bootstrap-project`（逆向）。**seed 前置**：`outline-tingle` Session 1 入口检查 `_briefs/premise-seed.md`（`xuanji` 产，`convergence_status: done`）——作者持有的残留碎片需先由 `xuanji` 收敛成 seed，下游 idea-explorer / qing-novelist 读 seed 富材料发散/grilling；seed 缺失 🟡 软阻断（作者可确认放行走降级路径：口述 premise，下游读三字段 Premise 无富材料）。改编流由 `adaptation-workflow` 阶段 0.5 强制调用 `outline-tingle mode="adaptation"`——改编 seed（作者改编意图碎片：留/砍/注入）由阶段 0.5 前置 `xuanji` 产，与原作画像（外部素材）分离共喂内联 divergent——**改编流大纲未达门禁为 🚫 硬阻断**（adaptation-workflow 阶段 0.5 门禁，禁止进逐章循环）。原创软阻断 vs 改编硬阻断的不对称是设计意图：改编流以原作为锚，大纲未定则无对齐基准。**C10 提醒**：`book_settings_dispatched ≠ true`（且 L1-L3 已填实）→ 书级设定未派发到 characters/character-arcs/world/thread-map，下游 plan-chapter 设定快照这些文件返回空，仅 outline.md 可读（⚠️ 软提醒不阻断）。**C11 提醒**：`novel/` 设定文件 mtime 晚于 `novel/_changes.md` 最后 `merged_at` → 正式层设定文件被人工手改（违反"正式层不可手改"约束），⚠️ 软提醒不阻断，提示从 _backup/ 恢复或回填 _changes.md。没有例外。
 
+10. **角色声音字段禁止读入规则**：写作生成流程（`mo-writer` / `sensory-writer` / `generate-chapter` / `chapter-review` ai-content 模式）**禁止读取角色声音相关字段**。具体范围：**禁止读取** `voice-bible.md` 全文（含 §1-§7）、角色档案中的声音/说话方式字段（句尾/口癖/音色描述）、`vocabulary-bank.md` 中角色特有词汇标记。**不禁止**：`author-voice.md`（叙述者风格——非角色声音）、`voice-bible.md` 由 `voice-sculptor`/`qing-novelist` 作者分析模式读取（不在写作流内）、角色档案中的状态/动机/关系字段（非声音字段）。**Why**：LLM 在写作时读入角色声音字段后尝试切换角色说话方式，会直接污染叙述风格——角色声音区分应通过对白内容（角色说什么、怎么回应）自然体现，而非 LLM 在叙述层刻意切换腔调。**注意**：此规则覆盖规则 6 的设定读取路径——`settings-manager read-settings` 在写作流调用时，返回结果中应排除角色声音字段。`voice-sculptor` 独立调用（声音实验）不受此规则限制——它不是写作流。没有例外。
+
 ## 工作流
 
 ### 写作链 + 发布旁路

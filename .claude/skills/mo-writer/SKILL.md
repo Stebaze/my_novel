@@ -66,7 +66,6 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 - 出场角色档案（`novel/characters/` 走 read-settings 双源合并）
 - `world/`（设定）
 - 前 1-2 章正文（`{draft}/chapters/`）
-- `voice-bible.md`（角色声音）
 - `framework/templates/technique-library.md`（技法库）
 - N ≤ 3 时 `cn-webnovel-guide.md`「一、七」
 
@@ -89,7 +88,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 §0A 源文对照层（仅 adaptation 模式）——原作对应章节/调整点/改编自由度
 §0 宏观上下文层
 §1 场景结构层（per-scene 模式）——name/pov/location/time/功能/设计理由/opening_type/ending_type/asymmetry_weight/衔接计划
-§2 角色声音层
+§2 角色状态层
 §3 关键节拍层（per-scene 退化为概述）——事件/对话/情绪弧线/场景图像/质感钩子/技法(可选,从 technique-library 选)/rule_break_choice/trigger_reason/safety_valve
 §3A 高潮节拍层（条件）
 §5 常见陷阱层
@@ -120,7 +119,6 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 
 - `mode="single"`
 - `scene_spec`（§3）
-- `character_voices`（§2）
 - **`style_profile` 改为 5 维结构**（dict）：
   ```python
   style_profile = {
@@ -187,7 +185,7 @@ description: 写作简报生成者——为 generate-chapter Step 1 调用，从
 | `{DraftDir}/_briefs/chapter-{N}-handoff.md` | Step 1（handoff_file，12 字段 v2.0） | 🚫 硬阻断——C8 强约束，缺失或 5 维字段无效直接阻断 |
 | `novel/characters/`（经 settings-manager read-settings 双源合并）| §2 角色状态 | ⚠️ 缺失角色状态从大纲推断 |
 | `framework/guides/jung-character-framework.md` | §2 面具/阴影 | 🚫 硬阻断——缺失则无法标注人格面具/阴影/自性化阶段 |
-| `novel/voice-bible.md` | §2 对话区分 | ⚠️ 角色对话区分仅基于角色档案常识 |
+| `novel/voice-bible.md` | ~~§2 对话区分~~（规则 10 禁止读取） | ⚠️ 不读取——角色声音字段在写作流中禁止读入，对话区分通过对白内容自然体现 |
 | `framework/templates/technique-library.md` | §3 场景级技法字段（可选） | ⚠️ 技法字段降级为留空（sensory-writer 自决） |
 | `framework/guides/cn-webnovel-guide.md` | N ≤ 3 时 | ⚠️ 平台节奏提醒跳过 |
 | script 相关模板/guide | script 模式 | ⚠️ 各项降级（使用内嵌模板/块类型/通用表情集） |

@@ -48,9 +48,9 @@ description: 写作/改编/审阅前的就绪检查——C0-C11 逐项检测+阻
 | **C3.5** | 前三章量化验证 | 🟡 | N ≤ 3 | [_checks/C3.5.md](_checks/C3.5.md) |
 | **C3.6** | 上一已写章节定位 | ℹ️ 计算 | N > 1 | [_checks/C3.6.md](_checks/C3.6.md) |
 | **C4** | 前一章变更记录完整性 | 🚫 硬阻断 | N > 1 | [_checks/C4.md](_checks/C4.md) |
-| **C5a** | 声音就绪检查 | ⚠️ | 永远 | [_checks/C5a.md](_checks/C5a.md) |
+| **C5a** | ~~声音就绪检查~~（规则 10 跳过） | ➖ 跳过 | 永远 | [_checks/C5a.md](_checks/C5a.md) |
 | **C5b** | 角色人设完整度检查 | ⚠️/🟡 | scope=writing + bootstrap 完成 | [_checks/C5b.md](_checks/C5b.md) |
-| **C6** | 声音实验 | 🚫 | 用户在 C5a 选"跑实验" | [_checks/C6.md](_checks/C6.md) |
+| **C6** | ~~声音实验~~（规则 10 跳过） | ➖ 跳过 | 用户在 C5a 选"跑实验" | [_checks/C6.md](_checks/C6.md) |
 | **C7** | 角色状态连续性检查 | 🚫 硬阻断 | N > 1 | [_checks/C7.md](_checks/C7.md) |
 | **C7.5** | 宏观节拍健康检查 | ⚠️ | N > 40 且为窗口边界章 | [_checks/C7.5.md](_checks/C7.5.md) |
 | **C8** | Handoff 文件验证 | 🚫 硬阻断 | scope=writing | [_checks/C8.md](_checks/C8.md) |

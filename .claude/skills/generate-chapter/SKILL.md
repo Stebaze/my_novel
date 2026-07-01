@@ -95,7 +95,7 @@ Step 5: Finalize         → 落盘 4 文件 + handoff.workflow_position = "gene
 2a: 解析简报场景清单（§-1 + §1 + §2 + §3）→ 构造 scene_spec：
     ├── chapter-level（来自 §-1）：task_type / reader_persona / voice_persona_source
     ├── per-scene（来自 §1）：name / pov / location / time / opening_type / ending_type
-    ├── per-scene（来自 §3 末 3 bullet）：voice_flags.rule_break_choice / trigger_reason / safety_valve
+    ├── per-scene（来自 §3 末 3 bullet）：rule_break_choice / trigger_reason / safety_valve
     └── per-scene（来自 §3）：events / dialogue_points / emotion_arc / next_scene_setup
 2b: 对每个场景调 Skill("sensory-writer", mode="per-scene", opus_dna_contract=true)
     → 返回 prose + summary_200（结构化 JSON：scene_index/name/pov/core_event/key_actions/key_dialogue/pov_state_change/ending_state/next_link/foreshadow_touched）

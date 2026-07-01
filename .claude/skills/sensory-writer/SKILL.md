@@ -48,7 +48,7 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 | Aspect | Detail |
 |--------|--------|
 | **Called by** | `mo-writer`（参考示例 mode="single"）, `voice-sculptor`（声音实验）, `qing-novelist`（交谈长片段）, `generate-chapter`（Step 2 + Step 4 per-scene + Fix 循环单场景重写） |
-| **Input** | `mode`（`"single"` / `"per-scene"`）, `scene_spec`, `character_voices`, `style_profile` (3 维 dict：`{type, themes[], variant}`), `author_profile`（可选，作家名如"葵关南"/"远瞳"）, `opus_dna_contract: bool = false`（true 时加载高级能力 rule-breaking），`prev_scene_summary`（per-scene 可选） |
+| **Input** | `mode`（`"single"` / `"per-scene"`）, `scene_spec`, `style_profile` (3 维 dict：`{type, themes[], variant}`), `author_profile`（可选，作家名如"葵关南"/"远瞳"）, `opus_dna_contract: bool = false`（true 时加载高级能力 rule-breaking），`prev_scene_summary`（per-scene 可选） |
 | **Output** | single: 单一文本串；per-scene: `{prose, summary_200}`（散文 + 200 字 JSON 摘要） |
 | **不变量** | 不检查、不修改、不重写——一过式生成（除 Step 4"读出来·全章"轻量自检） |
 
@@ -143,7 +143,6 @@ novel/project-config.md
 3. [感知层] 读 opus-dna 感知层
    → 任务类型 = scene_spec.task_type（来自简报 §-1：convince/explain/resonate/decide-help/record）
    → 读者具象 = scene_spec.reader_persona（来自简报 §-1）—— 心里必须有一个具体的人：他知道什么、情绪是什么、读完之后要做什么
-   → 声音人设 = voice_persona_source（来自简报 §-1 → voice-bible.md）
 
 4. [产出 scene_spec] 完整场景规范（无场景头/场景标记——generate-chapter Step 2c 拼装时统一加）
 ```
@@ -217,11 +216,8 @@ novel/project-config.md
      · 该断: 加 1 句环境/动作桥（保留分段,仅补桥）
      · 该连: 把两段合并为一段（用逗号/破折号连气, 牺牲分段换紧凑）
    → 默认选"该连"——除非是真正新场景/新 POV 切换
-3. [读出来·声音] 重读所有对话：
-   → 若某句话遮掉角色名后可由别人说 → 重写
-   → 若角色用了"不属于 ta 的梗/口头禅" → 删
-4. [删减测试] 这段删掉，文章是否受损？不受损 → 删
-5. [元认知层·读 opus-dna] 5 项出声测试中保留 2 项（出声+删减）；其他 3 项（替换/So-what/AI 味）交评审端
+3. [删减测试] 这段删掉，文章是否受损？不受损 → 删
+4. [元认知层·读 opus-dna] 5 项出声测试中保留 2 项（出声+删减）；其他 3 项（替换/So-what/AI 味）交评审端
 ```
 
 ## opus-dna 高级能力（rule-breaking——**显式 opt-in**）
@@ -229,7 +225,7 @@ novel/project-config.md
 > 默认不启用。调用方设 `opus_dna_contract=true` 时加载。
 
 ```
-- `scene_spec.voice_flags.rule_break_choice` 不为空时主动打破对应规则：
+- `scene_spec.rule_break_choice` 不为空时主动打破对应规则：
   - `长句沉浸` → 故事高潮/情绪蔓延/连锁反应时使用，一口气读完的势不可挡
   - `抽象收束` → 读者已充分理解具体内容，需要上位概念"收住"细节时
   - `对称仪式` → 制造仪式感或对比力量时
