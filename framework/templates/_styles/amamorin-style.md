@@ -1,9 +1,11 @@
 ---
 profile_id: "amamorin-style-fallback-v3"
-type: "风格层（fallback 通用——不指定作者时回退此层）"
+type: "风格层（fallback 通用——不指定作者时回退此层）+ 项目默认风格层（is_project_default: true — 配 chinese-webnovel-base 形成项目默认风格）"
 version: "v3.0"
 design_date: "2026-06-30"
 supersedes: "framework/templates/_styles/amamorin-style.md v2.0"
+is_project_default: true
+project_default_spec: "_defaults/default-style.md"
 applies_to: "日轻校园/多女主/败犬/单恋落败——不指定具体作者时使用"
 format: "叙述态度 + 域词 + 桥段（3 块 fallback 风格）"
 llm_sections: ["叙述态度", "域词", "桥段选择"]

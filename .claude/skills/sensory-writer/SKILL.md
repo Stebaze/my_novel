@@ -60,11 +60,15 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 1. author_profile（指定作家时）→ 优先加载 profiles/authors/{name}.md
    - 含 POV 4 维（叙述者/温度/对话密度/内心通道/段长句长）+ 设计流程 3 阶段（大纲→事件/事件→场景/场景内组织）
    - 改写下方 Step 1-4 所有协议（叙述者声音/节拍切分/对话写/动作写/内心写）
+   - 注：profiles/authors/ 在 .gitignore 中（版权隔离），指定作家时需用户本地有该档案
+   - 项目默认（作家=""）不加载此层
 
 2. style_profile（3 维 fallback——不指定作者时）→ 加载 framework/templates/_style-bases/ + _themes/ + _styles/ fallback
    - 基底（japanese-light-novel-base / chinese-webnovel-base）→ 6 坐标轴
    - 主题叠加（theme-*）→ 5 字段
    - 风格 fallback（kuiguannan/amamorin/shiniki/yuantong/fengyue/buluofeng-style）→ 叙述态度+域词+桥段
+   - **项目默认 = chinese-webnovel-base + romance + amamorin-style-fallback**
+     —— 详细 spec：framework/templates/_defaults/default-style.md（git tracked，fresh clone 即用）
 
 3. opus-dna 5 层（默认加载——不再 opt-in）→ 融合进 Step 1-4
    - 感知层 → Step 1 场景锚定
@@ -74,10 +78,21 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
    - 高级能力 rule-breaking → opt-in（opus_dna_contract=true 时启用）
 ```
 
+**项目默认（作家=""）加载链**（fresh clone 即可用，不需要 profiles/authors/）：
+
+```
+novel/project-config.md
+  ├ 作家 = ""                            → 不走 profiles/authors/
+  ├ 主风格档案 = "chinese-webnovel-base"  → framework/templates/_style-bases/chinese-webnovel-base.md (6 坐标轴)
+  ├ 主题 = ["romance"]                    → framework/templates/_themes/theme-romance.md (5 字段)
+  └ 风格 = "amamorin-style-fallback"     → framework/templates/_styles/amamorin-style.md (3 块 fallback)
+```
+
 ### 0.2 加载失败降级
 
 ```
 - author_profile 不存在 → 降级到 style_profile 5 维 fallback（不阻断，标注降级）
+  - 注：项目默认（作家=""）直接走此路径，不算"降级"
 - style_profile 加载失败 → 仅保强约束 5 条（标注"风格档案缺失，已降级为通用质量底线"）
 - opus-dna 加载失败 → 跳过元认知层 Step 4 自检（标注"opus-dna 未加载"）
 ```
@@ -241,7 +256,7 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 |-----------|------|------------|
 | `framework/guides/ai-risk-mitigation.md` | 强约束摘要 | ⚠️ 使用内嵌 5 条强约束（标注"方法指南缺失"） |
 | `framework/templates/style-guide.md` | 禁词表参考 | ⚠️ 跳过禁词检查（强约束 5 条有"抽象情感标签速查"） |
-| `profiles/authors/{name}.md`（指定作者时）| Step 0.1 author_profile 加载 | ⚠️ 不存在时降级到 style_profile（不阻断） |
+| `profiles/authors/{name}.md`（指定作者时）| Step 0.1 author_profile 加载 | ⚠️ 不存在时降级到 style_profile（不阻断）；项目默认（作家=""）不加载此层 |
 | `framework/templates/_style-bases/ + _themes/ + _styles/` | Step 0.1 style_profile 加载 | ⚠️ 加载失败时仅保强约束 5 条（标注降级） |
 | `framework/guides/opus-writing-dna.md` | opus-dna 5 层加载 | ⚠️ 加载失败时跳过 Step 4 元认知层自检（标注"opus-dna 未加载"） |
 | `_reference/scene-summary-protocol.md` | Step 3（per-scene 200 字摘要） | 🚫 硬阻断——per-scene 必出 schema 外移后必须能读取 |
@@ -256,6 +271,7 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 | v2.0.0 | 2026-06-30 | 5 维扩展（style_profile type/themes/variant/subvariant/specialization 5 维正交）|
 | v2.0.1 | 2026-06-30 | 声纹承载原则（句式层面而非分段层面）|
 | v3.0 | 2026-06-30 | **轻量化重构**——砍 5 步协议 + 6 项自查（只留"读出来"）+ opus-dna 5 层融合进 4 Step（不再单独 Step 2.5）+ author_profile 集成（指定作家时改写协议）|
+| v3.0.1 | 2026-07-01 | **项目默认风格固化**——`framework/templates/_defaults/default-style.md` 声明 chinese-webnovel-base + romance + amamorin-style-fallback = 项目默认；Step 0.1/0.2/Dependencies/关联文件 四处加 default 路径说明（fresh clone 即可用，profiles/authors/ 可空）|
 
 ## 关联文件
 
@@ -264,5 +280,6 @@ execution_model: "协议即 skill"  # 2026-07-01 修复——明确本 skill 是
 - 200 字摘要协议：`_reference/scene-summary-protocol.md`
 - 禁词表：`framework/templates/style-guide.md`
 - 3 维 风格档案（基底+主题+风格 fallback）：`framework/templates/_style-bases/ + _themes/ + _styles/`
-- 作者档案（profiles）：`profiles/authors/*.md`
+- **项目默认风格 spec**：`framework/templates/_defaults/default-style.md`（git tracked，fresh clone 即用——`chinese-webnovel-base + romance + amamorin-style-fallback`）
+- 作者档案（profiles）：`profiles/authors/*.md`（`.gitignore` 中，git ignored；可选 enrich——`作家` 字段指定时加载）
 - 下游消费：generate-chapter（Step 2 + Step 4 per-scene + Fix 循环）

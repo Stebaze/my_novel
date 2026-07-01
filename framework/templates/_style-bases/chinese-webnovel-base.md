@@ -1,9 +1,11 @@
 ---
 profile_id: "chinese-webnovel-base-v2.0"
 version: "v2.0 (6 坐标轴——与日轻基底对照)"
-status: 基底层
+status: 基底层 + 项目默认基底（is_project_default: true — 配 amamorin-style-fallback 形成项目默认风格）
 redesign_date: "2026-06-30"
 supersedes: "chinese-webnovel-base-v1.2.md"
+is_project_default: true
+project_default_spec: "_defaults/default-style.md"
 orthogonal_to:
   - "framework/templates/_themes/* (8 主题族)"
   - "framework/templates/_styles/* (6 风格层)"
