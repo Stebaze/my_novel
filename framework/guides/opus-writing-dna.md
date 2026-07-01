@@ -13,7 +13,14 @@ modifications: "原文件 240 行未修改；本 frontmatter 仅追加 source/li
 
 > **来源**：本文件从 [youyoumaixiang10/opennote](https://github.com/youyoumaixiang10/opennote) 仓库的 `skills/opus-writing-dna-skill/SKILL.md` 复制（240 行内容未修改）。许可证为 MIT（Copyright (c) 2026 OpenNote Contributors）。本 frontmatter 追加 source/license/integrated_at 元数据，原文未触动。
 >
-> **使用方式**：本文件不作为系统提示词直接喂给 LLM——my_novel_3 在 `.claude/skills/sensory-writer/SKILL.md` Step 2.5 中保留了 5 层框架的**执行速查版**（约 400 tokens），通过 `opus_dna_contract: bool` 开关控制是否加载。本文件作为人类可读的完整参考存在。
+> **使用方式**：本文件不作为系统提示词直接喂给 LLM——my_novel_3 在 `.claude/skills/sensory-writer/SKILL.md` v3.0（轻量化重构，2026-06-30）中将 opus-dna 5 层**默认加载并融合进 4 Step**（不再单独 Step 2.5）：
+> - 感知层 → Step 1 场景锚定
+> - 结构层 → Step 1 场景锚定
+> - 语言层 → Step 2 逐节拍写作
+> - 元认知层 → Step 4 读出来·全章
+> - 高级能力（rule-breaking）→ opt-in（`opus_dna_contract=true` 时启用）
+>
+> 本文件作为人类可读的完整参考存在。
 > 目标：让任何模型读完这份指令后，在写作任务上表现得更接近 Opus 4.6。
 
 ---
